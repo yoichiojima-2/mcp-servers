@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import chromadb
+import pymupdf
 
 if TYPE_CHECKING:
     from chromadb import ClientAPI
@@ -355,5 +356,120 @@ def query(
             include=include_fields,
         )
         return json.dumps(result, indent=2)
+    except Exception as e:
+        return f"Error: {e}"
+
+
+# ======================================================
+# PDF Ingestion
+# ======================================================
+
+
+def _chunk_text(
+    text: str,
+    chunk_size: int = 1000,
+    chunk_overlap: int = 200,
+) -> list[str]:
+    """Split text into overlapping chunks."""
+    if not text or not text.strip():
+        return []
+
+    chunks = []
+    start = 0
+    text_len = len(text)
+
+    while start < text_len:
+        end = start + chunk_size
+        chunk = text[start:end]
+
+        if chunk.strip():
+            chunks.append(chunk.strip())
+
+        start = end - chunk_overlap
+        if start >= text_len:
+            break
+
+    return chunks
+
+
+@mcp.tool()
+def ingest_pdf(
+    file_path: str,
+    collection: str,
+    chunk_size: int = 1000,
+    chunk_overlap: int = 200,
+    get_or_create: bool = True,
+) -> str:
+    """
+    Extract text from a PDF file and add it to a Chroma collection.
+
+    Args:
+        file_path: Path to the PDF file
+        collection: Name of the collection to add documents to
+        chunk_size: Size of each text chunk in characters (default: 1000)
+        chunk_overlap: Overlap between chunks in characters (default: 200)
+        get_or_create: If True, create collection if it doesn't exist (default: True)
+
+    Returns:
+        Success message with count of chunks added or error message
+    """
+    try:
+        path = Path(file_path).expanduser().resolve()
+        if not path.exists():
+            return f"Error: File not found: {path}"
+        if not path.suffix.lower() == ".pdf":
+            return f"Error: File is not a PDF: {path}"
+
+        client = _get_client()
+
+        if get_or_create:
+            coll = client.get_or_create_collection(name=collection)
+        else:
+            coll = client.get_collection(name=collection)
+
+        doc = pymupdf.open(str(path))
+        filename = path.name
+
+        all_chunks = []
+        all_ids = []
+        all_metadatas = []
+
+        for page_num in range(len(doc)):
+            page = doc[page_num]
+            text = page.get_text()
+
+            if not text or not text.strip():
+                continue
+
+            chunks = _chunk_text(text, chunk_size, chunk_overlap)
+
+            for chunk_idx, chunk in enumerate(chunks):
+                chunk_id = f"{filename}:p{page_num + 1}:c{chunk_idx}"
+                metadata = {
+                    "source": filename,
+                    "page": page_num + 1,
+                    "chunk_index": chunk_idx,
+                    "total_pages": len(doc),
+                }
+
+                all_chunks.append(chunk)
+                all_ids.append(chunk_id)
+                all_metadatas.append(metadata)
+
+        doc.close()
+
+        if not all_chunks:
+            return f"Error: No text content found in PDF: {path}"
+
+        coll.add(
+            documents=all_chunks,
+            ids=all_ids,
+            metadatas=all_metadatas,
+        )
+
+        return (
+            f"Successfully ingested '{filename}' into collection '{collection}': "
+            f"{len(all_chunks)} chunks from {len(doc)} pages"
+        )
     except Exception as e:
         return f"Error: {e}"

@@ -16,9 +16,14 @@ def serve():
         allow_headers=["*"],
     )
 
-    mcp.run(
-        transport=os.getenv("TRANSPORT", "sse"),
-        host=os.getenv("HOST", "0.0.0.0"),
-        port=int(os.getenv("PORT", 8002)),
-        middleware=[cors_middleware],
-    )
+    transport = os.getenv("TRANSPORT", "stdio")
+
+    if transport == "stdio":
+        mcp.run(transport="stdio")
+    else:
+        mcp.run(
+            transport=transport,
+            host=os.getenv("HOST", "0.0.0.0"),
+            port=int(os.getenv("PORT", 8002)),
+            middleware=[cors_middleware],
+        )
