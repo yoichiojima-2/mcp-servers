@@ -49,9 +49,52 @@ Convert .docx to PDF using LibreOffice.
 
 ## Installation
 
+### Install Python Dependencies
+
 ```bash
 pip install -e .
 ```
+
+### Install External Dependencies
+
+#### Pandoc (for Markdown conversion)
+
+**macOS:**
+```bash
+brew install pandoc
+```
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get install pandoc
+```
+
+**Windows:**
+Download from https://pandoc.org/installing.html
+
+#### LibreOffice (for PDF conversion and validation)
+
+**macOS:**
+```bash
+brew install --cask libreoffice
+```
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get install libreoffice
+```
+
+**Windows:**
+Download from https://www.libreoffice.org/download/download/
+
+## Error Handling
+
+The tools provide descriptive error messages for common scenarios:
+- **File not found**: Returns error if input file doesn't exist
+- **Invalid file path**: Returns error if path is not a valid file
+- **External tool not found**: Returns error with installation instructions if pandoc or LibreOffice is not installed
+- **Conversion timeout**: Operations timeout after 60-120 seconds with appropriate error message
+- **Validation failed**: Pack operation with `validate=True` will fail if document is invalid
 
 ## Usage
 

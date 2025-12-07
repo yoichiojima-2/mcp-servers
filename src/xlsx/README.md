@@ -71,9 +71,42 @@ Convert an Excel sheet to CSV.
 
 ## Installation
 
+### Install Python Dependencies
+
 ```bash
 pip install -e .
 ```
+
+### Install External Dependencies
+
+#### LibreOffice (for formula recalculation)
+
+**macOS:**
+```bash
+brew install --cask libreoffice
+```
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get install libreoffice
+```
+
+**Windows:**
+Download from https://www.libreoffice.org/download/download/
+
+**Note**: LibreOffice is only required for the `recalculate` tool. All other tools work without it.
+
+## Error Handling
+
+The tools provide descriptive error messages for common scenarios:
+- **File not found**: Returns error if input file doesn't exist
+- **Invalid file path**: Returns error if path is not a valid file
+- **Invalid Excel file**: Returns error if file is corrupted or not a valid Excel file
+- **Sheet not found**: Returns error if specified sheet doesn't exist
+- **Duplicate sheet**: Returns error when trying to add a sheet that already exists
+- **Permission denied**: Returns error if file can't be accessed
+- **Recalculation timeout**: Recalculation operations timeout with appropriate error message
+- **LibreOffice not found**: Returns error with installation instructions if LibreOffice is not installed (recalculate tool only)
 
 ## Usage
 

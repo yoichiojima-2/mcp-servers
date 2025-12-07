@@ -60,16 +60,35 @@ def convert_to_markdown(docx_file: str, output_file: str, track_changes: str = "
     if track_changes not in ["accept", "reject", "all"]:
         return f"Invalid track_changes value: {track_changes}. Must be 'accept', 'reject', or 'all'"
 
-    result = subprocess.run(
-        ["pandoc", f"--track-changes={track_changes}", docx_file, "-o", output_file],
-        capture_output=True,
-        text=True,
-    )
+    # Validate and resolve input file path
+    docx_path = Path(docx_file).expanduser().resolve()
+    if not docx_path.exists():
+        return f"Error: File not found: {docx_path}"
+    if not docx_path.is_file():
+        return f"Error: Path is not a file: {docx_path}"
 
-    if result.returncode != 0:
-        return f"Error converting {docx_file}: {result.stderr}"
+    # Resolve output file path
+    output_path = Path(output_file).expanduser().resolve()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    return f"Converted {docx_file} to {output_file} (track-changes={track_changes})"
+    try:
+        result = subprocess.run(
+            ["pandoc", f"--track-changes={track_changes}", str(docx_path), "-o", str(output_path)],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+
+        if result.returncode != 0:
+            return f"Error converting {docx_path}: {result.stderr}"
+
+        return f"Converted {docx_path} to {output_path} (track-changes={track_changes})"
+    except subprocess.TimeoutExpired:
+        return f"Error: Conversion timed out after 60 seconds"
+    except FileNotFoundError:
+        return "Error: pandoc not found. Please install pandoc."
+    except Exception as e:
+        return f"Error converting file: {str(e)}"
 
 
 @mcp.tool()
@@ -85,18 +104,37 @@ def convert_to_pdf(docx_file: str, output_file: str = "") -> str:
     """
     import subprocess
 
+    # Validate and resolve input file path
+    docx_path = Path(docx_file).expanduser().resolve()
+    if not docx_path.exists():
+        return f"Error: File not found: {docx_path}"
+    if not docx_path.is_file():
+        return f"Error: Path is not a file: {docx_path}"
+
+    # Resolve output file path
     if not output_file:
-        output_file = str(Path(docx_file).with_suffix(".pdf"))
+        output_path = docx_path.with_suffix(".pdf")
+    else:
+        output_path = Path(output_file).expanduser().resolve()
 
-    output_dir = str(Path(output_file).parent)
+    output_dir = str(output_path.parent)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    result = subprocess.run(
-        ["soffice", "--headless", "--convert-to", "pdf", "--outdir", output_dir, docx_file],
-        capture_output=True,
-        text=True,
-    )
+    try:
+        result = subprocess.run(
+            ["soffice", "--headless", "--convert-to", "pdf", "--outdir", output_dir, str(docx_path)],
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
 
-    if result.returncode != 0:
-        return f"Error converting {docx_file}: {result.stderr}"
+        if result.returncode != 0:
+            return f"Error converting {docx_path}: {result.stderr}"
 
-    return f"Converted {docx_file} to {output_file}"
+        return f"Converted {docx_path} to {output_path}"
+    except subprocess.TimeoutExpired:
+        return f"Error: Conversion timed out after 120 seconds"
+    except FileNotFoundError:
+        return "Error: soffice (LibreOffice) not found. Please install LibreOffice."
+    except Exception as e:
+        return f"Error converting file: {str(e)}"

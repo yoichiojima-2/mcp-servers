@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Excel Formula Recalculation Script"""
 
-import json
 import os
 import platform
 import subprocess
@@ -10,7 +9,7 @@ from pathlib import Path
 from openpyxl import load_workbook
 
 
-def setup_libreoffice_macro():
+def setup_libreoffice_macro() -> bool:
     """Setup LibreOffice macro for recalculation if not already configured"""
     if platform.system() == "Darwin":
         macro_dir = os.path.expanduser("~/Library/Application Support/LibreOffice/4/user/basic/Standard")
@@ -46,7 +45,7 @@ def setup_libreoffice_macro():
         return False
 
 
-def recalc(filename, timeout=30):
+def recalc(filename: str, timeout: int = 30) -> dict:
     """Recalculate formulas in Excel file and report any errors"""
     if not Path(filename).exists():
         return {"error": f"File {filename} does not exist"}
@@ -64,21 +63,14 @@ def recalc(filename, timeout=30):
         abs_path,
     ]
 
-    if platform.system() != "Windows":
-        timeout_cmd = "timeout" if platform.system() == "Linux" else None
-        if platform.system() == "Darwin":
-            try:
-                subprocess.run(["gtimeout", "--version"], capture_output=True, timeout=1, check=False)
-                timeout_cmd = "gtimeout"
-            except (FileNotFoundError, subprocess.TimeoutExpired):
-                pass
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        return {"error": f"Recalculation timed out after {timeout} seconds"}
+    except FileNotFoundError:
+        return {"error": "soffice (LibreOffice) not found. Please install LibreOffice."}
 
-        if timeout_cmd:
-            cmd = [timeout_cmd, str(timeout)] + cmd
-
-    result = subprocess.run(cmd, capture_output=True, text=True)
-
-    if result.returncode != 0 and result.returncode != 124:
+    if result.returncode != 0:
         error_msg = result.stderr or "Unknown error during recalculation"
         if "Module1" in error_msg or "RecalculateAndSave" not in error_msg:
             return {"error": "LibreOffice macro not configured properly"}

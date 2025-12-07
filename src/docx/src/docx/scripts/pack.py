@@ -10,8 +10,13 @@ from pathlib import Path
 
 import defusedxml.minidom
 
+# LibreOffice filter names for document validation
+FILTER_DOCX = "html:HTML"
+FILTER_PPTX = "html:impress_html_Export"
+FILTER_XLSX = "html:HTML (StarCalc)"
 
-def pack_document(input_dir, output_file, validate=False):
+
+def pack_document(input_dir: str | Path, output_file: str | Path, validate: bool = False) -> bool:
     """Pack a directory into an Office file (.docx/.pptx/.xlsx).
 
     Args:
@@ -52,15 +57,15 @@ def pack_document(input_dir, output_file, validate=False):
     return True
 
 
-def validate_document(doc_path):
+def validate_document(doc_path: Path) -> bool:
     """Validate document by converting to HTML with soffice."""
     match doc_path.suffix.lower():
         case ".docx":
-            filter_name = "html:HTML"
+            filter_name = FILTER_DOCX
         case ".pptx":
-            filter_name = "html:impress_html_Export"
+            filter_name = FILTER_PPTX
         case ".xlsx":
-            filter_name = "html:HTML (StarCalc)"
+            filter_name = FILTER_XLSX
 
     with tempfile.TemporaryDirectory() as temp_dir:
         try:
@@ -94,7 +99,7 @@ def validate_document(doc_path):
             return False
 
 
-def condense_xml(xml_file):
+def condense_xml(xml_file: Path) -> None:
     """Strip unnecessary whitespace and remove comments."""
     with open(xml_file, "r", encoding="utf-8") as f:
         dom = defusedxml.minidom.parse(f)

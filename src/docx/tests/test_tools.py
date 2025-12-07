@@ -56,3 +56,27 @@ async def test_unpack_pack():
             )
             assert "Packed" in res.content[0].text
             assert output_docx.exists()
+
+
+@pytest.mark.asyncio
+async def test_convert_to_markdown_file_not_found():
+    """Test error handling when file doesn't exist"""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "convert_to_markdown",
+            {"docx_file": "/nonexistent/file.docx", "output_file": "output.md"},
+        )
+        assert "Error" in res.content[0].text
+        assert "not found" in res.content[0].text.lower()
+
+
+@pytest.mark.asyncio
+async def test_convert_to_pdf_file_not_found():
+    """Test error handling when file doesn't exist"""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "convert_to_pdf",
+            {"docx_file": "/nonexistent/file.docx"},
+        )
+        assert "Error" in res.content[0].text
+        assert "not found" in res.content[0].text.lower()

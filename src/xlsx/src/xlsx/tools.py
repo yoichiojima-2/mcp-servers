@@ -1,10 +1,45 @@
 import json
+from pathlib import Path
 
 import pandas as pd
 from openpyxl import Workbook, load_workbook
 
 from . import mcp
 from .recalc import recalc
+
+
+def _read_excel_to_dataframe(file_path: str, sheet_name: str = "") -> pd.DataFrame:
+    """Helper function to read Excel file into DataFrame with error handling.
+
+    Args:
+        file_path: Path to Excel file
+        sheet_name: Sheet name to read (default: first sheet)
+
+    Returns:
+        DataFrame containing the data
+
+    Raises:
+        FileNotFoundError: If file doesn't exist
+        ValueError: If file is corrupted or invalid
+        PermissionError: If file can't be accessed
+    """
+    path = Path(file_path).expanduser().resolve()
+
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {path}")
+
+    if not path.is_file():
+        raise ValueError(f"Path is not a file: {path}")
+
+    try:
+        if sheet_name:
+            return pd.read_excel(str(path), sheet_name=sheet_name)
+        else:
+            return pd.read_excel(str(path))
+    except PermissionError as e:
+        raise PermissionError(f"Permission denied: {path}") from e
+    except Exception as e:
+        raise ValueError(f"Failed to read Excel file {path}: {str(e)}") from e
 
 
 @mcp.tool()
@@ -18,11 +53,11 @@ def read_excel(file_path: str, sheet_name: str = "") -> str:
     Returns:
         Markdown formatted table of the data
     """
-    if sheet_name:
-        df = pd.read_excel(file_path, sheet_name=sheet_name)
-    else:
-        df = pd.read_excel(file_path)
-    return df.to_markdown(index=False)
+    try:
+        df = _read_excel_to_dataframe(file_path, sheet_name)
+        return df.to_markdown(index=False)
+    except Exception as e:
+        return f"Error reading Excel file: {str(e)}"
 
 
 @mcp.tool()
@@ -39,9 +74,15 @@ def create_excel(file_path: str, data: str, sheet_name: str = "Sheet1") -> str:
     """
     from io import StringIO
 
-    df = pd.read_csv(StringIO(data))
-    df.to_excel(file_path, sheet_name=sheet_name, index=False)
-    return f"Created {file_path} with {len(df)} rows"
+    try:
+        path = Path(file_path).expanduser().resolve()
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        df = pd.read_csv(StringIO(data))
+        df.to_excel(str(path), sheet_name=sheet_name, index=False)
+        return f"Created {path} with {len(df)} rows"
+    except Exception as e:
+        return f"Error creating Excel file: {str(e)}"
 
 
 @mcp.tool()
@@ -57,11 +98,26 @@ def write_cell(file_path: str, sheet_name: str, cell: str, value: str) -> str:
     Returns:
         Success message
     """
-    wb = load_workbook(file_path)
-    ws = wb[sheet_name]
-    ws[cell] = value
-    wb.save(file_path)
-    return f"Wrote '{value}' to {sheet_name}!{cell}"
+    try:
+        path = Path(file_path).expanduser().resolve()
+
+        if not path.exists():
+            return f"Error: File not found: {path}"
+
+        wb = load_workbook(str(path))
+        try:
+            if sheet_name not in wb.sheetnames:
+                wb.close()
+                return f"Error: Sheet '{sheet_name}' not found in {path}"
+
+            ws = wb[sheet_name]
+            ws[cell] = value
+            wb.save(str(path))
+            return f"Wrote '{value}' to {sheet_name}!{cell}"
+        finally:
+            wb.close()
+    except Exception as e:
+        return f"Error writing to cell: {str(e)}"
 
 
 @mcp.tool()
@@ -75,8 +131,16 @@ def recalculate(file_path: str, timeout: int = 30) -> str:
     Returns:
         JSON formatted result with error details
     """
-    result = recalc(file_path, timeout)
-    return json.dumps(result, indent=2)
+    try:
+        path = Path(file_path).expanduser().resolve()
+
+        if not path.exists():
+            return json.dumps({"error": f"File not found: {path}"}, indent=2)
+
+        result = recalc(str(path), timeout)
+        return json.dumps(result, indent=2)
+    except Exception as e:
+        return json.dumps({"error": f"Recalculation failed: {str(e)}"}, indent=2)
 
 
 @mcp.tool()
@@ -89,10 +153,20 @@ def get_sheet_names(file_path: str) -> str:
     Returns:
         Comma-separated list of sheet names
     """
-    wb = load_workbook(file_path, read_only=True)
-    sheets = ", ".join(wb.sheetnames)
-    wb.close()
-    return sheets
+    try:
+        path = Path(file_path).expanduser().resolve()
+
+        if not path.exists():
+            return f"Error: File not found: {path}"
+
+        wb = load_workbook(str(path), read_only=True)
+        try:
+            sheets = ", ".join(wb.sheetnames)
+            return sheets
+        finally:
+            wb.close()
+    except Exception as e:
+        return f"Error reading sheet names: {str(e)}"
 
 
 @mcp.tool()
@@ -106,10 +180,25 @@ def add_sheet(file_path: str, sheet_name: str) -> str:
     Returns:
         Success message
     """
-    wb = load_workbook(file_path)
-    wb.create_sheet(sheet_name)
-    wb.save(file_path)
-    return f"Added sheet '{sheet_name}' to {file_path}"
+    try:
+        path = Path(file_path).expanduser().resolve()
+
+        if not path.exists():
+            return f"Error: File not found: {path}"
+
+        wb = load_workbook(str(path))
+        try:
+            if sheet_name in wb.sheetnames:
+                wb.close()
+                return f"Error: Sheet '{sheet_name}' already exists in {path}"
+
+            wb.create_sheet(sheet_name)
+            wb.save(str(path))
+            return f"Added sheet '{sheet_name}' to {path}"
+        finally:
+            wb.close()
+    except Exception as e:
+        return f"Error adding sheet: {str(e)}"
 
 
 @mcp.tool()
@@ -124,9 +213,11 @@ def convert_to_csv(file_path: str, output_file: str, sheet_name: str = "") -> st
     Returns:
         Success message
     """
-    if sheet_name:
-        df = pd.read_excel(file_path, sheet_name=sheet_name)
-    else:
-        df = pd.read_excel(file_path)
-    df.to_csv(output_file, index=False)
-    return f"Converted {file_path} to {output_file}"
+    try:
+        df = _read_excel_to_dataframe(file_path, sheet_name)
+        output_path = Path(output_file).expanduser().resolve()
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        df.to_csv(str(output_path), index=False)
+        return f"Converted {file_path} to {output_path}"
+    except Exception as e:
+        return f"Error converting to CSV: {str(e)}"
