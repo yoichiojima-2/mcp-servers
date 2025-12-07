@@ -1,7 +1,7 @@
 """Simple test to verify composite server works."""
 
 import pytest
-from src.composite.server import mcp
+from composite.server import mcp
 
 
 @pytest.mark.asyncio

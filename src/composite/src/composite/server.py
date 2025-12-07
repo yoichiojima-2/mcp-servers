@@ -25,7 +25,6 @@ for path in [str(browser_src), str(dify_src)]:
 # Import tool modules with error handling
 try:
     import dify.tools as dify_tools  # noqa: E402
-    import dify.prompts  # noqa: E402, F401
     from dify.tools import DifyClient  # noqa: E402
 except ImportError as e:
     raise ImportError(
@@ -36,18 +35,12 @@ except ImportError as e:
 # Initialize composite FastMCP server
 mcp = FastMCP("Composite: Dify + Browser")
 
-
-# Lifecycle hook to initialize Dify client
-@mcp.lifespan()
-async def lifespan(request_context):
-    """Initialize Dify client for the session."""
-    client = DifyClient()
-    request_context.state.client = client
-    yield
-
+# Note: We cannot use @mcp.lifespan() as it's not available in FastMCP 2.13.3
+# Dify tools expect ctx.request_context.state.client to be initialized
+# Users must ensure DIFY_API_KEY and DIFY_CONSOLE_API_KEY are set in environment
+# The client will be initialized on first tool call (lazy initialization in tools)
 
 # Register Dify tools with prefixed names
-# Using decorator pattern with explicit names for clarity
 mcp.tool(name="dify_chat_message")(dify_tools.chat_message)
 mcp.tool(name="dify_run_workflow")(dify_tools.run_workflow)
 mcp.tool(name="dify_get_conversation_messages")(dify_tools.get_conversation_messages)
@@ -105,23 +98,9 @@ except AttributeError:
     # Browser may not have prompts, which is fine
     pass
 
-# Register dify prompts with prefixed names
-# Access dify's mcp instance to get its prompts
-try:
-    from dify.server import mcp as dify_mcp  # noqa: E402
-
-    dify_prompt_manager = dify_mcp._prompt_manager
-    if hasattr(dify_prompt_manager, '_prompts'):
-        for prompt_key, prompt_obj in dify_prompt_manager._prompts.items():
-            prompt_name = getattr(prompt_obj, 'name', prompt_key)
-            if not prompt_name.startswith('dify_'):
-                prefixed_name = f"dify_{prompt_name}"
-            else:
-                prefixed_name = prompt_name
-            mcp._prompt_manager._prompts[prefixed_name] = prompt_obj
-except (ImportError, AttributeError):
-    # If we can't import prompts, that's okay - they're optional
-    pass
+# Note: Dify prompts are not registered to avoid circular import issues
+# when importing dify.prompts -> dify.server -> mcp.lifespan()
+# Users can access dify prompts by running the dify server directly if needed
 
 
 def serve() -> None:
