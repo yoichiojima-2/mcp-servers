@@ -1,9 +1,10 @@
 import base64
 import os
 from contextlib import asynccontextmanager
+from functools import wraps
 from typing import Optional
 
-from playwright.async_api import Browser, Page, async_playwright
+from playwright.async_api import Browser, Page, TimeoutError, async_playwright
 
 from . import mcp
 
@@ -12,6 +13,54 @@ _browser: Optional[Browser] = None
 _page: Optional[Page] = None
 _playwright = None
 
+# Configuration
+DEFAULT_TIMEOUT = int(os.getenv("BROWSER_TIMEOUT", "30000"))  # 30 seconds
+DEFAULT_NAVIGATION_TIMEOUT = int(os.getenv("NAVIGATION_TIMEOUT", "60000"))  # 60 seconds
+
+
+def handle_browser_errors(func):
+    """Decorator to handle browser errors and auto-recover."""
+
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        try:
+            return await func(*args, **kwargs)
+        except TimeoutError as e:
+            return f"Error: Operation timed out - {str(e)}"
+        except Exception as e:
+            error_msg = f"Error: {type(e).__name__} - {str(e)}"
+            # Try to recover by resetting the page
+            await _reset_page()
+            return error_msg
+
+    return wrapper
+
+
+async def _reset_page():
+    """Reset the page if it's in a bad state."""
+    global _page
+    try:
+        if _page and not _page.is_closed():
+            await _page.close()
+    except Exception:
+        pass
+    finally:
+        _page = None
+
+
+async def _is_page_healthy() -> bool:
+    """Check if the page is in a healthy state."""
+    global _page
+    if _page is None or _page.is_closed():
+        return False
+    try:
+        # Try to evaluate a simple script to check if page is responsive
+        # Note: playwright's evaluate doesn't support timeout parameter
+        await _page.evaluate("1 + 1")
+        return True
+    except Exception:
+        return False
+
 
 @asynccontextmanager
 async def get_browser():
@@ -19,8 +68,15 @@ async def get_browser():
     global _browser, _playwright
     if _browser is None:
         _playwright = await async_playwright().start()
+        # Launch with resource limits and better settings
         _browser = await _playwright.chromium.launch(
-            headless=os.getenv("HEADLESS", "false").lower() == "true"
+            headless=os.getenv("HEADLESS", "false").lower() == "true",
+            args=[
+                "--disable-dev-shm-usage",  # Overcome limited resource problems
+                "--disable-blink-features=AutomationControlled",
+                "--disable-extensions",
+                "--no-sandbox" if os.getenv("NO_SANDBOX", "false").lower() == "true" else "",
+            ],
         )
     yield _browser
 
@@ -29,8 +85,13 @@ async def get_page() -> Page:
     """Get or create page instance."""
     global _page
     async with get_browser() as browser:
-        if _page is None or _page.is_closed():
+        # Check if page is healthy, not just closed
+        if not await _is_page_healthy():
+            await _reset_page()
             _page = await browser.new_page()
+            # Set default timeouts
+            _page.set_default_timeout(DEFAULT_TIMEOUT)
+            _page.set_default_navigation_timeout(DEFAULT_NAVIGATION_TIMEOUT)
         return _page
 
 
@@ -40,34 +101,39 @@ async def get_page() -> Page:
 
 
 @mcp.tool()
+@handle_browser_errors
 async def navigate(url: str) -> str:
     """Navigate to a URL and return the page title."""
     page = await get_page()
-    await page.goto(url)
-    return f"Navigated to {url}. Title: {await page.title()}"
+    await page.goto(url, wait_until="domcontentloaded")
+    title = await page.title()
+    return f"Navigated to {url}. Title: {title}"
 
 
 @mcp.tool()
+@handle_browser_errors
 async def go_back() -> str:
     """Go back to the previous page."""
     page = await get_page()
-    await page.go_back()
+    await page.go_back(wait_until="domcontentloaded")
     return f"Went back. Current URL: {page.url}"
 
 
 @mcp.tool()
+@handle_browser_errors
 async def go_forward() -> str:
     """Go forward to the next page."""
     page = await get_page()
-    await page.go_forward()
+    await page.go_forward(wait_until="domcontentloaded")
     return f"Went forward. Current URL: {page.url}"
 
 
 @mcp.tool()
+@handle_browser_errors
 async def reload() -> str:
     """Reload the current page."""
     page = await get_page()
-    await page.reload()
+    await page.reload(wait_until="domcontentloaded")
     return f"Reloaded. Current URL: {page.url}"
 
 
@@ -77,18 +143,22 @@ async def reload() -> str:
 
 
 @mcp.tool()
-async def get_content() -> str:
+@handle_browser_errors
+async def get_content(max_length: int = 10000) -> str:
     """Get the text content of the current page."""
     page = await get_page()
-    content = await page.content()
+    # Use a safer approach - evaluate doesn't support timeout parameter
+    text = await page.evaluate(
+        "() => document.body.innerText || document.body.textContent || ''"
+    )
     # Return a truncated version to avoid overwhelming the model
-    text = await page.evaluate("() => document.body.innerText")
-    if len(text) > 10000:
-        text = text[:10000] + "\n... (truncated)"
+    if len(text) > max_length:
+        text = text[:max_length] + f"\n... (truncated, total length: {len(text)})"
     return text
 
 
 @mcp.tool()
+@handle_browser_errors
 async def get_url() -> str:
     """Get the current page URL."""
     page = await get_page()
@@ -96,10 +166,12 @@ async def get_url() -> str:
 
 
 @mcp.tool()
+@handle_browser_errors
 async def get_title() -> str:
     """Get the current page title."""
     page = await get_page()
-    return await page.title()
+    title = await page.title()
+    return title
 
 
 # ======================================================
@@ -108,6 +180,7 @@ async def get_title() -> str:
 
 
 @mcp.tool()
+@handle_browser_errors
 async def click(selector: str) -> str:
     """Click an element on the page by CSS selector."""
     page = await get_page()
@@ -116,6 +189,7 @@ async def click(selector: str) -> str:
 
 
 @mcp.tool()
+@handle_browser_errors
 async def fill(selector: str, value: str) -> str:
     """Fill a form field with a value."""
     page = await get_page()
@@ -124,6 +198,7 @@ async def fill(selector: str, value: str) -> str:
 
 
 @mcp.tool()
+@handle_browser_errors
 async def type_text(selector: str, text: str) -> str:
     """Type text into an element (simulates real typing)."""
     page = await get_page()
@@ -132,6 +207,7 @@ async def type_text(selector: str, text: str) -> str:
 
 
 @mcp.tool()
+@handle_browser_errors
 async def press_key(key: str) -> str:
     """Press a keyboard key (e.g., 'Enter', 'Tab', 'Escape')."""
     page = await get_page()
@@ -140,6 +216,7 @@ async def press_key(key: str) -> str:
 
 
 @mcp.tool()
+@handle_browser_errors
 async def select_option(selector: str, value: str) -> str:
     """Select an option from a dropdown by value."""
     page = await get_page()
@@ -148,6 +225,7 @@ async def select_option(selector: str, value: str) -> str:
 
 
 @mcp.tool()
+@handle_browser_errors
 async def hover(selector: str) -> str:
     """Hover over an element."""
     page = await get_page()
@@ -161,20 +239,24 @@ async def hover(selector: str) -> str:
 
 
 @mcp.tool()
+@handle_browser_errors
 async def screenshot(filename: str = "screenshot.png", full_page: bool = False) -> str:
     """Take a screenshot of the current page."""
     page = await get_page()
     workspace = os.getenv("WORKSPACE", "workspace")
+    # Create workspace directory if it doesn't exist
+    os.makedirs(workspace, exist_ok=True)
     filepath = os.path.join(workspace, filename)
-    await page.screenshot(path=filepath, full_page=full_page)
+    await page.screenshot(path=filepath, full_page=full_page, timeout=30000)
     return f"Screenshot saved to {filepath}"
 
 
 @mcp.tool()
+@handle_browser_errors
 async def screenshot_base64(full_page: bool = False) -> str:
     """Take a screenshot and return it as base64."""
     page = await get_page()
-    screenshot_bytes = await page.screenshot(full_page=full_page)
+    screenshot_bytes = await page.screenshot(full_page=full_page, timeout=30000)
     return base64.b64encode(screenshot_bytes).decode("utf-8")
 
 
@@ -184,9 +266,11 @@ async def screenshot_base64(full_page: bool = False) -> str:
 
 
 @mcp.tool()
+@handle_browser_errors
 async def evaluate(script: str) -> str:
     """Execute JavaScript in the browser and return the result."""
     page = await get_page()
+    # Note: page.evaluate doesn't support timeout parameter
     result = await page.evaluate(script)
     return str(result)
 
@@ -197,6 +281,7 @@ async def evaluate(script: str) -> str:
 
 
 @mcp.tool()
+@handle_browser_errors
 async def wait_for_selector(selector: str, timeout: int = 30000) -> str:
     """Wait for an element to appear on the page."""
     page = await get_page()
@@ -205,6 +290,7 @@ async def wait_for_selector(selector: str, timeout: int = 30000) -> str:
 
 
 @mcp.tool()
+@handle_browser_errors
 async def wait_for_navigation(timeout: int = 30000) -> str:
     """Wait for navigation to complete."""
     page = await get_page()
@@ -218,16 +304,54 @@ async def wait_for_navigation(timeout: int = 30000) -> str:
 
 
 @mcp.tool()
+@handle_browser_errors
 async def close_browser() -> str:
     """Close the browser and clean up resources."""
     global _browser, _page, _playwright
-    if _page:
-        await _page.close()
+    try:
+        if _page and not _page.is_closed():
+            await _page.close()
+    except Exception:
+        pass
+    finally:
         _page = None
-    if _browser:
-        await _browser.close()
+
+    try:
+        if _browser:
+            await _browser.close()
+    except Exception:
+        pass
+    finally:
         _browser = None
-    if _playwright:
-        await _playwright.stop()
+
+    try:
+        if _playwright:
+            await _playwright.stop()
+    except Exception:
+        pass
+    finally:
         _playwright = None
+
     return "Browser closed"
+
+
+@mcp.tool()
+@handle_browser_errors
+async def force_reset() -> str:
+    """Force reset the browser page if it's in a bad state."""
+    await _reset_page()
+    # Create a new page to verify it works
+    page = await get_page()
+    return f"Browser reset successfully. New page ready."
+
+
+@mcp.tool()
+@handle_browser_errors
+async def get_page_status() -> str:
+    """Check if the page is in a healthy state."""
+    is_healthy = await _is_page_healthy()
+    if is_healthy:
+        page = await get_page()
+        return f"Page is healthy. URL: {page.url}"
+    else:
+        return "Page is not healthy or not initialized"
