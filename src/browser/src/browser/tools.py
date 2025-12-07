@@ -24,10 +24,10 @@ _lock_init_mutex = threading.Lock()
 DEFAULT_TIMEOUT = int(os.getenv("BROWSER_TIMEOUT", "30000"))  # 30 seconds
 DEFAULT_NAVIGATION_TIMEOUT = int(os.getenv("NAVIGATION_TIMEOUT", "60000"))  # 60 seconds
 
-# Timeout constants for internal operations
-HEALTH_CHECK_TIMEOUT = 5.0  # Timeout for page health checks
-CONTENT_EVAL_TIMEOUT = 10.0  # Timeout for content evaluation
-SCRIPT_EVAL_TIMEOUT = 30.0  # Timeout for JavaScript evaluation
+# Timeout constants for internal operations (configurable via environment variables)
+HEALTH_CHECK_TIMEOUT = float(os.getenv("HEALTH_CHECK_TIMEOUT", "5.0"))  # Timeout for page health checks
+CONTENT_EVAL_TIMEOUT = float(os.getenv("CONTENT_EVAL_TIMEOUT", "10.0"))  # Timeout for content evaluation
+SCRIPT_EVAL_TIMEOUT = float(os.getenv("SCRIPT_EVAL_TIMEOUT", "30.0"))  # Timeout for JavaScript evaluation
 
 
 def _ensure_lock(lock_name: str) -> asyncio.Lock:
@@ -44,38 +44,34 @@ def _ensure_lock(lock_name: str) -> asyncio.Lock:
     """
     global _page_lock, _browser_lock, _lock_init_mutex
 
-    # Get the current lock value
-    current_lock = _page_lock if lock_name == "_page_lock" else _browser_lock
+    # Use thread lock to prevent race conditions during lock creation
+    with _lock_init_mutex:
+        # Get the current lock value inside the mutex to avoid race conditions
+        current_lock = _page_lock if lock_name == "_page_lock" else _browser_lock
 
-    try:
-        loop = asyncio.get_running_loop()
-        # Check if we need to create a new lock
-        if current_lock is None or (hasattr(current_lock, "_loop") and current_lock._loop is not loop):
-            # Use thread lock to prevent race conditions during lock creation
-            with _lock_init_mutex:
-                # Double-check after acquiring mutex
-                current_lock = _page_lock if lock_name == "_page_lock" else _browser_lock
-                if current_lock is None or (hasattr(current_lock, "_loop") and current_lock._loop is not loop):
-                    # Create new lock for this event loop
-                    new_lock = asyncio.Lock()
-                    # Update the global variable
-                    if lock_name == "_page_lock":
-                        _page_lock = new_lock
-                    else:
-                        _browser_lock = new_lock
-                    return new_lock
-        return current_lock
-    except RuntimeError:
-        # No event loop running - shouldn't happen in async context
-        if current_lock is None:
-            with _lock_init_mutex:
+        try:
+            loop = asyncio.get_running_loop()
+            # Check if we need to create a new lock
+            if current_lock is None or (hasattr(current_lock, "_loop") and current_lock._loop is not loop):
+                # Create new lock for this event loop
+                new_lock = asyncio.Lock()
+                # Update the global variable
+                if lock_name == "_page_lock":
+                    _page_lock = new_lock
+                else:
+                    _browser_lock = new_lock
+                return new_lock
+            return current_lock
+        except RuntimeError:
+            # No event loop running - shouldn't happen in async context
+            if current_lock is None:
                 new_lock = asyncio.Lock()
                 if lock_name == "_page_lock":
                     _page_lock = new_lock
                 else:
                     _browser_lock = new_lock
                 return new_lock
-        return current_lock
+            return current_lock
 
 
 def handle_browser_errors(func):
@@ -94,11 +90,35 @@ def handle_browser_errors(func):
                 return f"Error: Operation timed out - {str(e)}"
             except Exception as e:
                 error_msg = f"Error: {type(e).__name__} - {str(e)}"
+                # Attempt recovery with more aggressive cleanup
                 try:
                     await _reset_page_unsafe()
+                    return f"{error_msg}\nPage has been reset. Ready for next operation."
                 except Exception as reset_error:
-                    return f"{error_msg}\nAdditional error during recovery: {str(reset_error)}"
-                return error_msg
+                    # If page reset fails, try to close browser entirely
+                    try:
+                        global _browser, _page, _playwright
+                        if _page:
+                            try:
+                                await _page.close()
+                            except Exception:
+                                pass
+                        _page = None
+                        if _browser:
+                            try:
+                                await _browser.close()
+                            except Exception:
+                                pass
+                        _browser = None
+                        if _playwright:
+                            try:
+                                await _playwright.stop()
+                            except Exception:
+                                pass
+                        _playwright = None
+                        return f"{error_msg}\nPage reset failed. Browser has been closed. Will reinitialize on next operation."
+                    except Exception as cleanup_error:
+                        return f"{error_msg}\nRecovery failed: {str(reset_error)}\nCleanup failed: {str(cleanup_error)}"
 
     return wrapper
 
@@ -423,7 +443,8 @@ async def close_browser() -> str:
             finally:
                 _page = None
 
-        # Close browser and playwright (outside page_lock)
+        # Close browser and playwright (still within browser_lock)
+        # All global state mutations must happen within appropriate locks
         try:
             if _browser:
                 await _browser.close()

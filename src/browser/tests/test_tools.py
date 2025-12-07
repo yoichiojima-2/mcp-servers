@@ -240,3 +240,42 @@ async def test_page_health_after_multiple_operations():
         # Check page is still healthy
         res = await client.call_tool("get_page_status", {})
         assert "healthy" in res.content[0].text.lower()
+
+
+@pytest.mark.asyncio
+async def test_event_loop_changes():
+    """Test that locks are properly recreated when event loop changes.
+
+    This test verifies that the lock management system correctly handles
+    scenarios where operations might run in different event loops.
+    """
+    # First client - establishes initial event loop and locks
+    async with Client(mcp) as client1:
+        res1 = await client1.call_tool("navigate", {"url": "https://example.com"})
+        assert "Navigated to" in res1.content[0].text
+
+        # Verify we can get content
+        res2 = await client1.call_tool("get_content", {})
+        assert "Example Domain" in res2.content[0].text
+
+        # Close browser to clean up state
+        await client1.call_tool("close_browser", {})
+
+    # Second client - may run in a different event loop
+    # The _ensure_lock function should handle this correctly
+    async with Client(mcp) as client2:
+        res3 = await client2.call_tool("navigate", {"url": "https://example.com"})
+        assert "Navigated to" in res3.content[0].text
+
+        # Verify operations still work correctly
+        res4 = await client2.call_tool("get_title", {})
+        assert "Example Domain" in res4.content[0].text
+
+        # Test concurrent operations in the new event loop
+        tasks = [
+            client2.call_tool("get_url", {}),
+            client2.call_tool("get_content", {}),
+        ]
+        results = await asyncio.gather(*tasks)
+        assert "example.com" in results[0].content[0].text
+        assert "Example Domain" in results[1].content[0].text
