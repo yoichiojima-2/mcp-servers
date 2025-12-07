@@ -24,7 +24,7 @@ mcp = FastMCP("Dify AI Agent Builder")
 
 
 # Lifecycle hook to initialize client
-@mcp.lifespan()
+@mcp.lifespan
 async def lifespan(request_context):
     """Initialize Dify client for the session."""
     client = DifyClient()

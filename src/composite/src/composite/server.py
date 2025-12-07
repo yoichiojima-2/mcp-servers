@@ -37,7 +37,7 @@ mcp = FastMCP("Composite: Dify + Browser")
 
 
 # Lifecycle hook to initialize Dify client
-@mcp.lifespan()
+@mcp.lifespan
 async def lifespan(request_context):
     """Initialize Dify client for the session."""
     client = DifyClient()
