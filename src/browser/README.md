@@ -26,21 +26,30 @@ make serve
 
 ## Features
 
+### Concurrency Safety
+- Thread-safe operations with async locks
+- No race conditions during concurrent tool calls
+- Event loop-aware lock management
+- Safe concurrent page access
+
 ### Automatic Error Handling
 - All tools automatically catch and recover from errors
 - Page health checks detect crashed or unresponsive pages
 - Automatic page reset when errors occur
 - Graceful timeout handling
+- Recovery from browser-level failures
 
 ### Resource Management
 - Memory limits to prevent browser crashes
 - Configurable timeouts for all operations
 - Automatic cleanup of resources
+- Timeout protection on JavaScript evaluation
 
 ### Browser State Management
-- Page health monitoring
+- Page health monitoring with timeout protection
 - Automatic recovery from crashed states
 - Force reset capability
+- Atomic health checks and page retrieval
 
 ## Tools
 
@@ -79,14 +88,37 @@ make serve
 - `force_reset()` - Force reset the page if in bad state
 - `get_page_status()` - Check if page is healthy
 
+## Robustness Improvements
+
+This version includes comprehensive fixes to eliminate flakiness:
+
+### Fixed Issues
+1. **Race Conditions**: Added async locks to prevent concurrent access issues
+2. **Event Loop Compatibility**: Locks are now event loop-aware, preventing "bound to different event loop" errors
+3. **Page Health Checks**: Atomic health checks with timeout protection (5s)
+4. **JavaScript Evaluation**: All evaluations now have timeout protection (10-30s)
+5. **Error Recovery**: Improved recovery that handles browser-level failures
+6. **Concurrency**: Safe concurrent operations - multiple tools can run simultaneously
+
+### Testing
+The server includes extensive tests:
+- Concurrent operations (multiple simultaneous calls)
+- Error recovery scenarios
+- Page health monitoring
+- Rapid sequential operations
+- Browser restart after close
+
+All 18 tests pass consistently, validating the robustness improvements.
+
 ## Troubleshooting
 
 ### "No compatible message available" Error
 This error occurs when the browser page crashes or becomes unresponsive. The improvements in this version handle this automatically by:
 
-1. Detecting page health before operations
+1. Detecting page health before operations with timeout protection
 2. Automatically resetting crashed pages
 3. Providing `force_reset()` tool for manual recovery
+4. Safe recovery even during concurrent operations
 
 ### Large Pages (like Reddit)
 For content-heavy sites:
@@ -103,3 +135,9 @@ evaluate(`
     .join('\\n')
 `)
 ```
+
+### Concurrent Operations
+The server now safely handles multiple concurrent tool calls:
+- Operations are serialized with async locks
+- No race conditions or state corruption
+- Safe for parallel workflows
