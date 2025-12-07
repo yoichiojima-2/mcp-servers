@@ -1,0 +1,19 @@
+{
+  "name": "playwright-browser",
+  "version": "1.0.0",
+  "description": "MCP server for browser automation using Playwright",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx @playwright/mcp",
+    "start:headed": "npx @playwright/mcp --headed",
+    "test": "node test.js"
+  },
+  "keywords": ["mcp", "playwright", "browser", "automation"],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "@playwright/mcp": "^0.0.50",
+    "playwright": "^1.58.0-alpha-2025-11-30"
+  }
+}
