@@ -1,0 +1,9 @@
+services:
+  chroma:
+    build: .
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./workspace:/workspace
+      - ./src:/chroma/src
+    command: make serve

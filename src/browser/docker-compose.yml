@@ -1,0 +1,5 @@
+services:
+  mcp:
+    build: .
+    volumes:
+      - ./workspace:/app/workspace
