@@ -15,6 +15,7 @@ jobs:
         server:
           - browser
           - composite
+          - dify
           - docx
           - langquery
           - pdf
@@ -40,7 +41,7 @@ jobs:
         run: uv sync --dev
 
       - name: Install Playwright browsers
-        if: matrix.server == 'browser'
+        if: matrix.server == 'browser' || matrix.server == 'composite'
         working-directory: src/${{ matrix.server }}
         run: uv run playwright install chromium
 
@@ -48,4 +49,8 @@ jobs:
         working-directory: src/${{ matrix.server }}
         run: uv run pytest -v
         env:
-          HEADLESS: ${{ matrix.server == 'browser' && 'true' || '' }}
+          HEADLESS: ${{ (matrix.server == 'browser' || matrix.server == 'composite') && 'true' || '' }}
+          DIFY_API_KEY: ${{ (matrix.server == 'dify' || matrix.server == 'composite') && 'test-api-key' || '' }}
+          DIFY_BASE_URL: ${{ (matrix.server == 'dify' || matrix.server == 'composite') && 'https://test.dify.ai/v1' || '' }}
+          DIFY_CONSOLE_API_KEY: ${{ (matrix.server == 'dify' || matrix.server == 'composite') && 'test-console-key' || '' }}
+          DIFY_CONSOLE_BASE_URL: ${{ (matrix.server == 'dify' || matrix.server == 'composite') && 'https://test.dify.ai' || '' }}
