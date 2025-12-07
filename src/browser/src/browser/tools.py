@@ -20,7 +20,7 @@ async def get_browser():
     if _browser is None:
         _playwright = await async_playwright().start()
         _browser = await _playwright.chromium.launch(
-            headless=os.getenv("HEADLESS", "true").lower() == "true"
+            headless=os.getenv("HEADLESS", "false").lower() == "true"
         )
     yield _browser
 
