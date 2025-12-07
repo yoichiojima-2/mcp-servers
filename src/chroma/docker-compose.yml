@@ -6,4 +6,6 @@ services:
     volumes:
       - ./workspace:/workspace
       - ./src:/chroma/src
+    environment:
+      - TRANSPORT=sse
     command: make serve

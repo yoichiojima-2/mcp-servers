@@ -1,0 +1,12 @@
+services:
+  pptx:
+    build: .
+    ports:
+      - "8003:8003"
+    environment:
+      - TRANSPORT=sse
+      - PORT=8003
+    volumes:
+      - ./workspace:/workspace
+      - ./src:/pptx/src
+    command: make serve
