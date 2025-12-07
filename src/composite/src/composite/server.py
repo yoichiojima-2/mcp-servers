@@ -35,10 +35,14 @@ except ImportError as e:
 # Initialize composite FastMCP server
 mcp = FastMCP("Composite: Dify + Browser")
 
-# Note: We cannot use @mcp.lifespan() as it's not available in FastMCP 2.13.3
-# Dify tools expect ctx.request_context.state.client to be initialized
-# Users must ensure DIFY_API_KEY and DIFY_CONSOLE_API_KEY are set in environment
-# The client will be initialized on first tool call (lazy initialization in tools)
+
+# Lifecycle hook to initialize Dify client
+@mcp.lifespan()
+async def lifespan(request_context):
+    """Initialize Dify client for the session."""
+    client = DifyClient()
+    request_context.state.client = client
+    yield
 
 # Register Dify tools with prefixed names
 mcp.tool(name="dify_chat_message")(dify_tools.chat_message)
@@ -98,9 +102,125 @@ except AttributeError:
     # Browser may not have prompts, which is fine
     pass
 
-# Note: Dify prompts are not registered to avoid circular import issues
-# when importing dify.prompts -> dify.server -> mcp.lifespan()
-# Users can access dify prompts by running the dify server directly if needed
+# Register Dify prompts with prefixed names
+# We define these inline to avoid circular import issues with dify.prompts module
+
+
+@mcp.prompt(name="dify_create_rag_chatbot")
+def create_rag_chatbot() -> str:
+    """Guide for creating a RAG (Retrieval-Augmented Generation) chatbot in Dify."""
+    return """# Creating a RAG Chatbot in Dify
+
+This guide will help you create a chatbot that retrieves information from your knowledge base.
+
+## Step 1: Create a Knowledge Base
+
+Use the `dify_create_dataset` tool to create a new knowledge base:
+
+```
+dify_create_dataset(
+    name="My Knowledge Base",
+    description="Documentation for my product",
+    indexing_technique="high_quality"
+)
+```
+
+## Step 2: Upload Documents
+
+Add documents to your knowledge base using `dify_upload_document_by_text`:
+
+```
+dify_upload_document_by_text(
+    dataset_id="<dataset-id-from-step-1>",
+    name="Product Guide",
+    text="<your document content>"
+)
+```
+
+## Step 3: Generate a RAG Workflow DSL
+
+Create a workflow that uses knowledge retrieval:
+
+```
+dify_generate_workflow_dsl(
+    description="Answer customer questions about our product using the knowledge base",
+    app_type="chatbot",
+    enable_knowledge_base=True
+)
+```
+
+## Step 4: Customize and Import
+
+Take the generated DSL, customize it (update the knowledge base ID in the
+knowledge retrieval node), and import it:
+
+```
+dify_import_dsl_workflow(
+    dsl_content="<customized-yaml-content>",
+    name="Product Support Chatbot"
+)
+```
+
+## Step 5: Test Your Chatbot
+
+Use `dify_chat_message` to test:
+
+```
+dify_chat_message(
+    query="How do I install the product?",
+    user="test-user"
+)
+```
+
+That's it! You now have a RAG chatbot that can answer questions based on your documents.
+"""
+
+
+@mcp.prompt(name="dify_create_workflow")
+def create_workflow() -> str:
+    """Guide for creating a data processing workflow in Dify."""
+    return """# Creating a Data Processing Workflow in Dify
+
+Build automated workflows for data transformation, analysis, and batch processing.
+
+## Use Cases
+
+- **Translation**: Batch translate documents
+- **Summarization**: Generate summaries from multiple sources
+- **Data Extraction**: Extract structured data from unstructured text
+
+## Quick Start
+
+1. Generate a basic workflow:
+   ```
+   dify_generate_workflow_dsl(
+       description="Translate text to multiple languages",
+       app_type="workflow"
+   )
+   ```
+
+2. Customize the DSL with your specific logic
+
+3. Import and test:
+   ```
+   dify_import_dsl_workflow(dsl_content="<your-yaml>")
+   ```
+
+4. Execute:
+   ```
+   dify_run_workflow(
+       inputs={"text": "Hello", "target_lang": "es"},
+       response_mode="blocking"
+   )
+   ```
+
+## Best Practices
+
+- Keep workflows focused on single tasks
+- Use meaningful variable names
+- Test with edge cases
+- Document expected input/output formats
+"""
 
 
 def serve() -> None:
