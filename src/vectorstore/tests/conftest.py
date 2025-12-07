@@ -14,18 +14,20 @@ def temp_chroma_path(tmp_path):
 
     yield chroma_path
 
-    # Cleanup - reset client singleton
+    # Cleanup - reset client and embedding function singletons
     from vectorstore import tools
     tools._client = None
+    tools._embedding_function = None
 
 
 @pytest.fixture
 def sample_collection(temp_chroma_path):
     """Create a sample collection with test documents."""
-    from vectorstore.tools import _get_client
+    from vectorstore.tools import _get_client, _get_embedding_function
 
     client = _get_client()
-    collection = client.create_collection("test_collection")
+    embedding_function = _get_embedding_function()
+    collection = client.create_collection("test_collection", embedding_function=embedding_function)
     collection.add(
         documents=[
             "Document about cats and their behavior",
