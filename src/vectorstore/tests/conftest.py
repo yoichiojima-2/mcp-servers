@@ -9,8 +9,10 @@ def temp_chroma_path(tmp_path):
     chroma_path = tmp_path / "chroma_data"
     chroma_path.mkdir()
 
-    # Set environment variable before importing tools
+    # Set environment variables before importing tools
     os.environ["CHROMA_PATH"] = str(chroma_path)
+    # Use default embedding function for tests to avoid OpenAI API calls
+    os.environ["EMBEDDING_TYPE"] = "default"
 
     yield chroma_path
 
@@ -18,6 +20,9 @@ def temp_chroma_path(tmp_path):
     from vectorstore import tools
     tools._client = None
     tools._embedding_function = None
+    # Clean up environment
+    if "EMBEDDING_TYPE" in os.environ:
+        del os.environ["EMBEDDING_TYPE"]
 
 
 @pytest.fixture
