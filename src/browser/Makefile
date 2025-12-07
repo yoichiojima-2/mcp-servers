@@ -1,12 +1,10 @@
-.PHONY: run help test clean install build serve lint pre-commit
+.PHONY: run help test clean install serve lint pre-commit
 
 help:
 	@echo "Available commands:"
 	@echo "  make install     - install dependencies and package in development mode"
-	@echo "  make build       - build docker images"
-	@echo "  make up          - start docker compose services"
-	@echo "  make in          - run interactive bash shell in mcp container"
-	@echo "  make serve       - run the MCP server with auto-reload"
+	@echo "  make run         - run the MCP server"
+	@echo "  make serve       - run the MCP server (alias for run)"
 	@echo "  make test        - run the test suite with pytest"
 	@echo "  make lint        - format and lint code with isort and ruff"
 	@echo "  make clean       - clean up temporary and cache files"
@@ -17,17 +15,10 @@ install:
 	uv pip install -e .
 	uv run playwright install chromium
 
-build:
-	docker compose build
-
-up:
-	docker compose up
-
-in:
-	docker compose run -it mcp bash
-
-serve:
+run:
 	uv run python -m browser
+
+serve: run
 
 clean:
 	-rm .DS_Store
