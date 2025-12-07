@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """Unpack and format XML contents of Office files (.docx, .pptx, .xlsx)"""
 
-import random
+import secrets
 import zipfile
 from pathlib import Path
 
 import defusedxml.minidom
 
 
-def unpack_document(input_file, output_dir):
+def unpack_document(input_file: str | Path, output_dir: str | Path) -> str:
     """Unpack an Office file and format XML contents.
 
     Args:
@@ -41,6 +41,6 @@ def unpack_document(input_file, output_dir):
         xml_file.write_bytes(dom.toprettyxml(indent="  ", encoding="ascii"))
 
     if str(input_file).endswith(".docx"):
-        suggested_rsid = "".join(random.choices("0123456789ABCDEF", k=8))
+        suggested_rsid = secrets.token_hex(4).upper()
         return suggested_rsid
     return ""

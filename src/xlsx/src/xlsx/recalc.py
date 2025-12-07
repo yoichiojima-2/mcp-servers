@@ -10,22 +10,17 @@ from openpyxl import load_workbook
 
 
 def setup_libreoffice_macro() -> bool:
-    """Setup LibreOffice macro for recalculation if not already configured"""
+    """Setup LibreOffice macro for recalculation if not already configured.
+
+    Returns:
+        bool: True if macro setup succeeds, False otherwise
+    """
     if platform.system() == "Darwin":
         macro_dir = os.path.expanduser("~/Library/Application Support/LibreOffice/4/user/basic/Standard")
     else:
         macro_dir = os.path.expanduser("~/.config/libreoffice/4/user/basic/Standard")
 
     macro_file = os.path.join(macro_dir, "Module1.xba")
-
-    if os.path.exists(macro_file):
-        with open(macro_file, "r") as f:
-            if "RecalculateAndSave" in f.read():
-                return True
-
-    if not os.path.exists(macro_dir):
-        subprocess.run(["soffice", "--headless", "--terminate_after_init"], capture_output=True, timeout=10)
-        os.makedirs(macro_dir, exist_ok=True)
 
     macro_content = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
@@ -37,6 +32,22 @@ def setup_libreoffice_macro() -> bool:
     End Sub
 </script:module>"""
 
+    # Check if macro already exists with correct content
+    if os.path.exists(macro_file):
+        try:
+            with open(macro_file, "r") as f:
+                existing_content = f.read()
+                if "RecalculateAndSave" in existing_content:
+                    # Macro already exists, only overwrite if content differs
+                    if existing_content.strip() == macro_content.strip():
+                        return True
+        except Exception:
+            pass  # If reading fails, proceed to recreate
+
+    if not os.path.exists(macro_dir):
+        subprocess.run(["soffice", "--headless", "--terminate_after_init"], capture_output=True, timeout=10)
+        os.makedirs(macro_dir, exist_ok=True)
+
     try:
         with open(macro_file, "w") as f:
             f.write(macro_content)
@@ -46,7 +57,15 @@ def setup_libreoffice_macro() -> bool:
 
 
 def recalc(filename: str, timeout: int = 30) -> dict:
-    """Recalculate formulas in Excel file and report any errors"""
+    """Recalculate formulas in Excel file and report any errors.
+
+    Args:
+        filename: Path to the Excel file
+        timeout: Maximum time in seconds to wait for recalculation
+
+    Returns:
+        dict: Result containing status, error details, or error message
+    """
     if not Path(filename).exists():
         return {"error": f"File {filename} does not exist"}
 

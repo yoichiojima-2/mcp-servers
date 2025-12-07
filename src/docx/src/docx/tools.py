@@ -15,11 +15,20 @@ def unpack(input_file: str, output_dir: str) -> str:
     Returns:
         Success message with suggested RSID for .docx files
     """
-    suggested_rsid = unpack_document(input_file, output_dir)
-    msg = f"Unpacked {input_file} to {output_dir}"
-    if suggested_rsid:
-        msg += f"\nSuggested RSID for edit session: {suggested_rsid}"
-    return msg
+    try:
+        suggested_rsid = unpack_document(input_file, output_dir)
+        msg = f"Unpacked {input_file} to {output_dir}"
+        if suggested_rsid:
+            msg += f"\nSuggested RSID for edit session: {suggested_rsid}"
+        return msg
+    except FileNotFoundError as e:
+        return f"Error: File not found: {input_file}"
+    except PermissionError as e:
+        return f"Error: Permission denied accessing {input_file}"
+    except ValueError as e:
+        return f"Error: {str(e)}"
+    except Exception as e:
+        return f"Error unpacking file: {str(e)}"
 
 
 @mcp.tool()
@@ -34,13 +43,22 @@ def pack(input_dir: str, output_file: str, validate: bool = False) -> str:
     Returns:
         Success or error message
     """
-    success = pack_document(input_dir, output_file, validate)
-    if not success:
-        return f"Failed to pack {input_dir} - validation failed"
-    msg = f"Packed {input_dir} to {output_file}"
-    if validate:
-        msg += " (validated)"
-    return msg
+    try:
+        success = pack_document(input_dir, output_file, validate)
+        if not success:
+            return f"Failed to pack {input_dir} - validation failed"
+        msg = f"Packed {input_dir} to {output_file}"
+        if validate:
+            msg += " (validated)"
+        return msg
+    except FileNotFoundError as e:
+        return f"Error: Directory not found: {input_dir}"
+    except PermissionError as e:
+        return f"Error: Permission denied accessing {input_dir} or {output_file}"
+    except ValueError as e:
+        return f"Error: {str(e)}"
+    except Exception as e:
+        return f"Error packing file: {str(e)}"
 
 
 @mcp.tool()

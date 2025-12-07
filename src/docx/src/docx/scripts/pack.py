@@ -58,7 +58,14 @@ def pack_document(input_dir: str | Path, output_file: str | Path, validate: bool
 
 
 def validate_document(doc_path: Path) -> bool:
-    """Validate document by converting to HTML with soffice."""
+    """Validate document by converting to HTML with soffice.
+
+    Args:
+        doc_path: Path to the Office document to validate
+
+    Returns:
+        bool: True if validation succeeds, False otherwise
+    """
     match doc_path.suffix.lower():
         case ".docx":
             filter_name = FILTER_DOCX
@@ -102,7 +109,11 @@ def validate_document(doc_path: Path) -> bool:
 
 
 def condense_xml(xml_file: Path) -> None:
-    """Strip unnecessary whitespace and remove comments."""
+    """Strip unnecessary whitespace and remove comments.
+
+    Args:
+        xml_file: Path to the XML file to condense
+    """
     # Protect against resource exhaustion - limit XML file size to 10MB
     MAX_XML_SIZE = 10 * 1024 * 1024
     if xml_file.stat().st_size > MAX_XML_SIZE:
