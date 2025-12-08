@@ -9,13 +9,14 @@ from typing import Optional
 import duckdb
 
 
-def _get_env_int(name: str, default: int, min_value: int = 1) -> int:
+def _get_env_int(name: str, default: int, min_value: int = 1, max_value: Optional[int] = None) -> int:
     """Get and validate integer environment variable.
 
     Args:
         name: Environment variable name
         default: Default value if not set or invalid
         min_value: Minimum allowed value
+        max_value: Maximum allowed value (optional)
 
     Returns:
         Validated integer value
@@ -24,6 +25,8 @@ def _get_env_int(name: str, default: int, min_value: int = 1) -> int:
         value = int(os.getenv(name, default))
         if value < min_value:
             raise ValueError(f"Must be >= {min_value}")
+        if max_value is not None and value > max_value:
+            raise ValueError(f"Must be <= {max_value}")
         return value
     except ValueError as e:
         print(
@@ -34,9 +37,9 @@ def _get_env_int(name: str, default: int, min_value: int = 1) -> int:
 
 
 # Configuration constants (configurable via environment variables)
-MAX_RESULT_SIZE = _get_env_int("LANGQUERY_MAX_RESULT_SIZE", 1024 * 1024, min_value=1024)  # Default: 1MB, min 1KB
-MAX_HISTORY_SIZE = _get_env_int("LANGQUERY_MAX_HISTORY_SIZE", 100, min_value=1)  # Default: 100 queries, min 1
-CLEANUP_FREQUENCY = _get_env_int("LANGQUERY_CLEANUP_FREQUENCY", 10, min_value=1)  # Default: every 10 queries, min 1 (prevents division by zero)
+MAX_RESULT_SIZE = _get_env_int("LANGQUERY_MAX_RESULT_SIZE", 1024 * 1024, min_value=1024, max_value=10 * 1024 * 1024)  # Default: 1MB, min 1KB, max 10MB
+MAX_HISTORY_SIZE = _get_env_int("LANGQUERY_MAX_HISTORY_SIZE", 100, min_value=1, max_value=10000)  # Default: 100 queries, min 1, max 10k
+CLEANUP_FREQUENCY = _get_env_int("LANGQUERY_CLEANUP_FREQUENCY", 10, min_value=1, max_value=1000)  # Default: every 10 queries, min 1 (prevents division by zero), max 1000
 
 
 class HistoryDB:
@@ -107,6 +110,9 @@ class HistoryDB:
             """)
             conn.execute("""
                 CREATE INDEX IF NOT EXISTS idx_query_history_query ON query_history(query)
+            """)
+            conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_query_history_success ON query_history(success)
             """)
 
     def log_query(
@@ -265,14 +271,14 @@ class HistoryDB:
         import re
 
         # Remove file paths - handle multiple formats:
-        # - Unix absolute paths: /path/to/file
+        # - Unix absolute paths: /path/to/file (must start with / followed by letters/numbers)
         # - Windows absolute paths: C:\path\to\file
         # - UNC paths: \\server\share\file
         # - file:// URLs: file:///path/to/file
         # - Relative paths with spaces: ./my dir/file
         error = re.sub(r'file:///[^\s]+', '[path]', error)  # file:// URLs
         error = re.sub(r'\\\\[^\s]+', '[path]', error)  # UNC paths
-        error = re.sub(r'/[^\s]+', '[path]', error)  # Unix paths
+        error = re.sub(r'/[a-zA-Z0-9_\-\.][^\s]*', '[path]', error)  # Unix paths (requires alphanumeric after /)
         error = re.sub(r'[A-Z]:\\[^\s]+', '[path]', error)  # Windows paths
         error = re.sub(r'\./[^\s]+', '[path]', error)  # Relative paths
         error = re.sub(r'\.\./[^\s]+', '[path]', error)  # Parent directory paths
@@ -337,18 +343,26 @@ class HistoryDB:
             Success message with count of deleted queries
         """
         with duckdb.connect(self.db_path) as conn:
-            # Get count before deleting for performance
-            # More efficient than RETURNING which creates a result set for each deleted row
-            count = conn.execute("SELECT COUNT(*) FROM query_history").fetchone()[0]
+            # Use explicit transaction for atomicity
+            conn.execute("BEGIN TRANSACTION")
+            try:
+                # Get count before deleting for performance
+                # More efficient than RETURNING which creates a result set for each deleted row
+                count = conn.execute("SELECT COUNT(*) FROM query_history").fetchone()[0]
 
-            # Delete all history
-            conn.execute("DELETE FROM query_history")
+                # Delete all history
+                conn.execute("DELETE FROM query_history")
 
-            # Reset the sequence to start from 1 again
-            # This prevents ID gaps and potential sequence exhaustion over time
-            # DuckDB doesn't support ALTER SEQUENCE RESTART, so we drop and recreate
-            conn.execute("DROP SEQUENCE IF EXISTS query_history_id_seq")
-            conn.execute("CREATE SEQUENCE query_history_id_seq START 1")
+                # Reset the sequence to start from 1 again
+                # This prevents ID gaps and potential sequence exhaustion over time
+                # DuckDB doesn't support ALTER SEQUENCE RESTART, so we drop and recreate
+                conn.execute("DROP SEQUENCE IF EXISTS query_history_id_seq")
+                conn.execute("CREATE SEQUENCE query_history_id_seq START 1")
+
+                conn.execute("COMMIT")
+            except Exception:
+                conn.execute("ROLLBACK")
+                raise
 
         # Thread-safe counter reset (outside DB transaction)
         with self._counter_lock:
