@@ -12,7 +12,19 @@ Always create a new worktree for each branch to keep work isolated:
 git worktree add ../dirname -b branch-name
 ```
 
-This keeps your main working directory clean and allows you to work on multiple features simultaneously.
+This creates a new working directory outside the main repository, which:
+- Keeps your main working directory clean and unmodified
+- Allows you to work on multiple features simultaneously
+- Makes it easy to switch between tasks without stashing or committing incomplete work
+
+### SSH Authentication
+
+When pushing changes, use the appropriate SSH key:
+
+```bash
+eval $(ssh-agent) && ssh-add ~/.ssh/id_ed25519_personal
+GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519_personal" git push
+```
 
 ## Code Principles
 
@@ -33,3 +45,35 @@ This keeps your main working directory clean and allows you to work on multiple 
 - Run the test suite before committing changes
 - Ensure all tests pass before creating pull requests
 - Update existing tests when modifying functionality
+
+**Testing Guidelines:**
+- Tests are located in `tests/` directories within each MCP server package (e.g., `src/xlsx/tests/`)
+- Run tests from the server directory: `cd src/<server> && uv run pytest -v`
+- Test files follow the `test_*.py` naming convention
+- Use `pytest` with `uv run` for consistent dependency management
+- For servers requiring special setup (browser, composite), check `.github/workflows/test.yml` for environment variables
+
+### Documentation Standards
+
+Each MCP server must have a README.md with:
+- **Features**: Overview of what the server does
+- **Tools**: List of available tools with parameters and descriptions
+- **Requirements**: Dependencies and prerequisites
+- **Installation**: Setup instructions
+- **Testing**: How to run tests
+
+### Commit Messages
+
+Follow conventional commits format:
+- `feat:` for new features
+- `fix:` for bug fixes
+- `docs:` for documentation changes
+- `refactor:` for code refactoring
+- `test:` for test updates
+
+### Dependency Management
+
+This repository uses `uv` for Python package management:
+- Install dependencies: `uv sync --dev`
+- Add new dependency: Edit `pyproject.toml` and run `uv sync`
+- Each MCP server has its own `pyproject.toml` in `src/<server>/`
