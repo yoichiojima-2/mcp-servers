@@ -72,6 +72,30 @@ see `composite-config.yaml` for a complete example with all available servers.
 
 ## usage
 
+### docker (recommended for dify)
+
+docker provides the simplest way to run the composite server with all dependencies pre-installed.
+
+```bash
+# 1. configure environment variables
+cp .env.docker.example .env
+# edit .env with your api keys
+
+# 2. configure which servers to enable
+# edit composite-config.yaml (default: dify + browser)
+
+# 3. build and run
+docker compose up -d
+
+# access at http://localhost:8000/sse
+```
+
+the docker image includes all mcp servers. enable/disable specific servers by editing `composite-config.yaml` without rebuilding the image.
+
+**for dify integration**: point dify to `http://localhost:8000/sse` to access all enabled mcp tools through a single endpoint.
+
+see [../../DOCKER_PORTS.md](../../DOCKER_PORTS.md) for port assignments to prevent conflicts.
+
 ### stdio transport (default)
 
 ```bash

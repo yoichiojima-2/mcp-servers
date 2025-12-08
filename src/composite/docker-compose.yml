@@ -1,0 +1,35 @@
+services:
+  composite:
+    build:
+      context: ../..
+      dockerfile: src/composite/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount config file to control which servers are enabled
+      - ./composite-config.yaml:/app/composite-config.yaml:ro
+      # Optional: mount workspace for file operations
+      - ./workspace:/workspace
+    environment:
+      # Transport configuration
+      - TRANSPORT=sse
+      - HOST=0.0.0.0
+      - PORT=8000
+      - ALLOW_ORIGIN=*
+
+      # Composite configuration
+      - COMPOSITE_CONFIG_PATH=/app/composite-config.yaml
+
+      # Dify configuration (required if dify is enabled)
+      - DIFY_API_KEY=${DIFY_API_KEY:-}
+      - DIFY_BASE_URL=${DIFY_BASE_URL:-https://api.dify.ai/v1}
+      - DIFY_CONSOLE_API_KEY=${DIFY_CONSOLE_API_KEY:-}
+      - DIFY_CONSOLE_BASE_URL=${DIFY_CONSOLE_BASE_URL:-https://api.dify.ai}
+
+      # Browser configuration
+      - BROWSER_TIMEOUT=${BROWSER_TIMEOUT:-30000}
+      - NAVIGATION_TIMEOUT=${NAVIGATION_TIMEOUT:-60000}
+
+      # Vectorstore configuration (required if vectorstore is enabled)
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    restart: unless-stopped
