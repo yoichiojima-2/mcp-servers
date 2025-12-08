@@ -73,7 +73,7 @@ class ServerLoader:
                 f"Solution: Ensure the server exists at {self.repo_root}/{module_name}/src/"
             )
 
-        # Import the module
+        # Import the module - try __init__ first, fall back to server module
         try:
             module = importlib.import_module(module_name)
         except ModuleNotFoundError as e:
@@ -82,14 +82,25 @@ class ServerLoader:
                 f"Solution: Ensure dependencies are installed with: uv sync"
             )
 
-        # Get mcp instance
-        if not hasattr(module, "mcp"):
+        # Get mcp instance - check both __init__ and server modules
+        mcp_instance = None
+        if hasattr(module, "mcp"):
+            mcp_instance = module.mcp
+        else:
+            # Try importing from server module
+            try:
+                server_module = importlib.import_module(f"{module_name}.server")
+                if hasattr(server_module, "mcp"):
+                    mcp_instance = server_module.mcp
+            except (ModuleNotFoundError, AttributeError):
+                pass
+
+        if mcp_instance is None:
             raise AttributeError(
                 f"Server module '{module_name}' does not have 'mcp' attribute.\n"
-                f"Expected: {module_name}/__init__.py should contain 'mcp = FastMCP(...)'"
+                f"Expected: {module_name}/__init__.py or {module_name}/server.py "
+                f"should contain 'mcp = FastMCP(...)'"
             )
-
-        mcp_instance = module.mcp
 
         # Validate mcp instance
         if not self.validate_server_module(mcp_instance):
