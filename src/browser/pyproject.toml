@@ -16,12 +16,6 @@ dependencies = [
 [tool.hatch.build.targets.wheel]
 packages = ["src/browser"]
 
-[dependency-groups]
-dev = [
-    "ipython>=9.6.0",
-    "isort>=7.0.0",
-]
-
 [tool.pytest.ini_options]
 pythonpath = "src"
 testpaths = [

@@ -19,11 +19,6 @@ dependencies = [
 [tool.hatch.build.targets.wheel]
 packages = ["src/composite"]
 
-[dependency-groups]
-dev = [
-    "ipython>=9.6.0",
-]
-
 [tool.pytest.ini_options]
 pythonpath = "src"
 testpaths = ["."]
