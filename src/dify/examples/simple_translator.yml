@@ -1,0 +1,156 @@
+version: "0.1.5"
+kind: app
+app:
+  description: A simple translation workflow that translates text to different languages
+  icon: 🌍
+  icon_background: '#E3F2FD'
+  mode: workflow
+  name: Simple Translator
+  workflow:
+    conversation_variables: []
+    environment_variables: []
+    features:
+      file_upload:
+        enabled: false
+      opening_statement: ''
+      retriever_resource:
+        enabled: false
+      sensitive_word_avoidance:
+        enabled: false
+      speech_to_text:
+        enabled: false
+      suggested_questions: []
+      suggested_questions_after_answer:
+        enabled: false
+      text_to_speech:
+        enabled: false
+        language: ''
+        voice: ''
+    graph:
+      edges:
+      - data:
+          isInIteration: false
+          sourceType: start
+          targetType: llm
+        id: 1733603766623-source-1733603771858-target
+        source: '1733603766623'
+        sourceHandle: source
+        target: '1733603771858'
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInIteration: false
+          sourceType: llm
+          targetType: end
+        id: 1733603771858-source-1733603775715-target
+        source: '1733603771858'
+        sourceHandle: source
+        target: '1733603775715'
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      nodes:
+      - data:
+          desc: ''
+          selected: false
+          title: Start
+          type: start
+          variables:
+          - label: Text to translate
+            max_length: null
+            options: []
+            required: true
+            type: text-input
+            variable: text
+          - label: Target language
+            max_length: null
+            options:
+            - Spanish
+            - French
+            - German
+            - Japanese
+            - Chinese
+            required: true
+            type: select
+            variable: target_language
+        height: 116
+        id: '1733603766623'
+        position:
+          x: 80
+          y: 282
+        positionAbsolute:
+          x: 80
+          y: 282
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      - data:
+          context:
+            enabled: false
+            variable_selector: []
+          desc: ''
+          model:
+            completion_params:
+              temperature: 0.7
+            mode: chat
+            name: gpt-4
+            provider: openai
+          prompt_config:
+            jinja2_variables: []
+          prompt_template:
+          - id: c8288888-8888-8888-8888-888888888888
+            role: system
+            text: 'You are a professional translator. Translate the following text
+              to {{#1733603766623.target_language#}}.
+
+              Only output the translation, nothing else.'
+          - id: c8288888-8888-8888-8888-888888888889
+            role: user
+            text: '{{#1733603766623.text#}}'
+          selected: false
+          title: Translate
+          type: llm
+          variables: []
+          vision:
+            configs:
+              detail: high
+            enabled: false
+        height: 98
+        id: '1733603771858'
+        position:
+          x: 384
+          y: 282
+        positionAbsolute:
+          x: 384
+          y: 282
+        selected: true
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244
+      - data:
+          desc: ''
+          outputs:
+          - value_selector:
+            - '1733603771858'
+            - text
+            variable: translation
+          selected: false
+          title: End
+          type: end
+        height: 90
+        id: '1733603775715'
+        position:
+          x: 688
+          y: 282
+        positionAbsolute:
+          x: 688
+          y: 282
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 244

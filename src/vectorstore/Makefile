@@ -48,4 +48,4 @@ lint:
 pre-commit: lint clean
 
 test: install
-	uv run pytest -vvv
+	EMBEDDING_TYPE=default uv run pytest -vvv

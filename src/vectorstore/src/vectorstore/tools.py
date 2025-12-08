@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 import chromadb
 import pymupdf
+from chromadb.utils import embedding_functions
 
 if TYPE_CHECKING:
     from chromadb import ClientAPI
@@ -19,6 +20,28 @@ from . import mcp
 # ======================================================
 
 _client: ClientAPI | None = None
+_embedding_function = None
+
+
+def _get_embedding_function():
+    """Get or create the embedding function based on configuration."""
+    global _embedding_function
+    if _embedding_function is None:
+        embedding_type = os.getenv("EMBEDDING_TYPE", "openai")
+
+        if embedding_type == "openai":
+            api_key = os.getenv("OPENAI_API_KEY")
+            if not api_key:
+                raise ValueError("OPENAI_API_KEY environment variable is required when using OpenAI embeddings")
+
+            model_name = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
+            _embedding_function = embedding_functions.OpenAIEmbeddingFunction(
+                api_key=api_key,
+                model_name=model_name,
+            )
+        # else: use ChromaDB's default embedding function (no explicit function needed)
+
+    return _embedding_function
 
 
 def _get_client() -> ClientAPI:
@@ -61,11 +84,21 @@ def create_collection(
     """
     try:
         client = _get_client()
+        embedding_function = _get_embedding_function()
+
         if get_or_create:
-            collection = client.get_or_create_collection(name=name, metadata=metadata)
+            collection = client.get_or_create_collection(
+                name=name,
+                metadata=metadata,
+                embedding_function=embedding_function,
+            )
             return f"Collection '{collection.name}' ready (get_or_create)"
         else:
-            collection = client.create_collection(name=name, metadata=metadata)
+            collection = client.create_collection(
+                name=name,
+                metadata=metadata,
+                embedding_function=embedding_function,
+            )
             return f"Collection '{collection.name}' created successfully"
     except Exception as e:
         return f"Error: {e}"
@@ -123,7 +156,8 @@ def get_collection_info(name: str) -> str:
     """
     try:
         client = _get_client()
-        collection = client.get_collection(name=name)
+        embedding_function = _get_embedding_function()
+        collection = client.get_collection(name=name, embedding_function=embedding_function)
         result = {
             "name": collection.name,
             "count": collection.count(),
@@ -160,7 +194,8 @@ def add_documents(
     """
     try:
         client = _get_client()
-        coll = client.get_collection(name=collection)
+        embedding_function = _get_embedding_function()
+        coll = client.get_collection(name=collection, embedding_function=embedding_function)
 
         doc_ids = ids if ids else _generate_ids(len(documents))
 
@@ -199,7 +234,8 @@ def get_documents(
     """
     try:
         client = _get_client()
-        coll = client.get_collection(name=collection)
+        embedding_function = _get_embedding_function()
+        coll = client.get_collection(name=collection, embedding_function=embedding_function)
 
         include_fields = include if include else ["documents", "metadatas"]
 
@@ -236,7 +272,8 @@ def update_documents(
     """
     try:
         client = _get_client()
-        coll = client.get_collection(name=collection)
+        embedding_function = _get_embedding_function()
+        coll = client.get_collection(name=collection, embedding_function=embedding_function)
 
         coll.update(
             ids=ids,
@@ -269,7 +306,8 @@ def upsert_documents(
     """
     try:
         client = _get_client()
-        coll = client.get_collection(name=collection)
+        embedding_function = _get_embedding_function()
+        coll = client.get_collection(name=collection, embedding_function=embedding_function)
 
         coll.upsert(
             documents=documents,
@@ -303,7 +341,8 @@ def delete_documents(
             return "Error: Must provide either 'ids' or 'where' filter"
 
         client = _get_client()
-        coll = client.get_collection(name=collection)
+        embedding_function = _get_embedding_function()
+        coll = client.get_collection(name=collection, embedding_function=embedding_function)
 
         coll.delete(
             ids=ids,
@@ -344,7 +383,8 @@ def query(
     """
     try:
         client = _get_client()
-        coll = client.get_collection(name=collection)
+        embedding_function = _get_embedding_function()
+        coll = client.get_collection(name=collection, embedding_function=embedding_function)
 
         include_fields = include if include else ["documents", "metadatas", "distances"]
 
@@ -421,11 +461,18 @@ def ingest_pdf(
             return f"Error: File is not a PDF: {path}"
 
         client = _get_client()
+        embedding_function = _get_embedding_function()
 
         if get_or_create:
-            coll = client.get_or_create_collection(name=collection)
+            coll = client.get_or_create_collection(
+                name=collection,
+                embedding_function=embedding_function,
+            )
         else:
-            coll = client.get_collection(name=collection)
+            coll = client.get_collection(
+                name=collection,
+                embedding_function=embedding_function,
+            )
 
         doc = pymupdf.open(str(path))
         filename = path.name
