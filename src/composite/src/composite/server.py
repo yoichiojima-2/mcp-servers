@@ -1,6 +1,7 @@
 """MCP Composite Server - Aggregates multiple backend MCP servers into a single endpoint."""
 
 import asyncio
+import logging
 import os
 from pathlib import Path
 from typing import Any
@@ -19,6 +20,13 @@ from mcp.types import (
 )
 from starlette.applications import Starlette
 from starlette.routing import Mount
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 
 def load_config() -> dict[str, Any]:
@@ -105,7 +113,7 @@ class MCPComposite:
                     tool["name"] = f"{prefix}_{tool['name']}"
                     all_tools.append(Tool(**tool))
             except Exception as e:
-                print(f"Warning: Failed to fetch tools from {backend_name}: {e}")
+                logger.warning(f"Failed to fetch tools from {backend_name}: {e}")
 
         return ListToolsResult(tools=all_tools)
 
@@ -158,7 +166,7 @@ class MCPComposite:
                     prompt["name"] = f"{prefix}_{prompt['name']}"
                     all_prompts.append(prompt)
             except Exception as e:
-                print(f"Warning: Failed to fetch prompts from {backend_name}: {e}")
+                logger.warning(f"Failed to fetch prompts from {backend_name}: {e}")
 
         return ListPromptsResult(prompts=all_prompts)
 
@@ -195,9 +203,9 @@ async def main():
     host = os.getenv("HOST", "0.0.0.0")
     port = int(os.getenv("PORT", "8000"))
 
-    print(f"Starting MCP Composite Server")
-    print(f"Backends: {', '.join(composite.backends.keys())}")
-    print(f"Listening on {host}:{port}/sse")
+    logger.info("Starting MCP Composite Server")
+    logger.info(f"Backends: {', '.join(composite.backends.keys())}")
+    logger.info(f"Listening on {host}:{port}/sse")
 
     try:
         # Create SSE transport

@@ -1,15 +1,15 @@
 services:
-  # Lightweight proxy - routes requests to backend servers
-  proxy:
+  # Lightweight composite server - routes requests to backend servers
+  composite:
     build:
       context: ../..
-      dockerfile: src/proxy/Dockerfile
+      dockerfile: src/composite/Dockerfile
     ports:
       - "8000:8000"
     volumes:
-      - ./proxy-config.yaml:/app/proxy-config.yaml:ro
+      - ./composite-config.yaml:/app/composite-config.yaml:ro
     environment:
-      - COMPOSITE_CONFIG_PATH=/app/proxy-config.yaml
+      - COMPOSITE_CONFIG_PATH=/app/composite-config.yaml
       - HOST=0.0.0.0
       - PORT=8000
     depends_on:

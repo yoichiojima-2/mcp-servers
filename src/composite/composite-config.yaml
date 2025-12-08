@@ -1,5 +1,5 @@
-# MCP Proxy Configuration
-# This proxy aggregates multiple MCP backend servers into a single endpoint
+# MCP Composite Server Configuration
+# This composite server aggregates multiple MCP backend servers into a single endpoint
 
 backends:
   # Browser automation server
@@ -62,4 +62,4 @@ backends:
 # - Set enabled: false to disable a backend without removing it
 # - prefix is prepended to tool names to avoid conflicts
 # - url should point to the backend's SSE endpoint
-# - Backends must be accessible from the proxy container (use Docker service names)
+# - Backends must be accessible from the composite container (use Docker service names)

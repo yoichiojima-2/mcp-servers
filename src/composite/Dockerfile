@@ -1,4 +1,4 @@
-# Lightweight proxy server - no heavy dependencies
+# Lightweight composite server - no heavy dependencies
 FROM python:3.12-slim
 
 # Install uv
@@ -10,8 +10,8 @@ COPY src/ /app/src/
 
 WORKDIR /app
 
-# Install only proxy package - minimal dependencies
-RUN uv sync --frozen --package proxy
+# Install only composite package - minimal dependencies
+RUN uv sync --frozen --package composite
 
 EXPOSE 8000
 
@@ -21,4 +21,4 @@ ENV HOST=0.0.0.0
 ENV PORT=8000
 
 # Config file should be mounted at runtime
-CMD ["uv", "run", "python", "-m", "proxy"]
+CMD ["uv", "run", "python", "-m", "composite"]
