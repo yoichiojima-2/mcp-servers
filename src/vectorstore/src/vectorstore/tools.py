@@ -115,10 +115,7 @@ def list_collections() -> str:
     try:
         client = _get_client()
         collections = client.list_collections()
-        result = [
-            {"name": c.name, "metadata": c.metadata}
-            for c in collections
-        ]
+        result = [{"name": c.name, "metadata": c.metadata} for c in collections]
         return json.dumps(result, indent=2)
     except Exception as e:
         return f"Error: {e}"
@@ -411,7 +408,7 @@ def _chunk_text(
     chunk_overlap: int = 200,
 ) -> list[str]:
     """Split text into overlapping chunks."""
-    if not text or not text.strip():
+    if not text.strip():
         return []
 
     chunks = []
@@ -485,7 +482,7 @@ def ingest_pdf(
             page = doc[page_num]
             text = page.get_text()
 
-            if not text or not text.strip():
+            if not text.strip():
                 continue
 
             chunks = _chunk_text(text, chunk_size, chunk_overlap)

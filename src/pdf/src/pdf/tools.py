@@ -1,5 +1,3 @@
-import io
-import os
 from pathlib import Path
 
 import pdfplumber
@@ -214,7 +212,12 @@ def merge_pdfs(file_paths: list[str], output_path: str) -> str:
 
 
 @mcp.tool()
-def rotate_pages(file_path: str, rotation: int, pages: str | None = None, output_path: str | None = None) -> str:
+def rotate_pages(
+    file_path: str,
+    rotation: int,
+    pages: str | None = None,
+    output_path: str | None = None,
+) -> str:
     """
     Rotate pages in a PDF file.
 
@@ -329,6 +332,7 @@ def _format_table(table: list[list], format: str) -> str:
 
     elif format == "json":
         import json
+
         if table and len(table) > 1:
             headers = [str(h) if h else f"col_{i}" for i, h in enumerate(table[0])]
             rows = []

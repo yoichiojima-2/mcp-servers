@@ -108,9 +108,7 @@ async def test_concurrent_evaluations():
         await client.call_tool("navigate", {"url": "https://example.com"})
 
         # Make 5 concurrent JavaScript evaluations
-        tasks = [
-            client.call_tool("evaluate", {"script": f"{i} + {i}"}) for i in range(1, 6)
-        ]
+        tasks = [client.call_tool("evaluate", {"script": f"{i} + {i}"}) for i in range(1, 6)]
         results = await asyncio.gather(*tasks)
 
         # Check results are correct

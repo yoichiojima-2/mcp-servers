@@ -9,7 +9,6 @@ This script demonstrates how to:
 
 import asyncio
 import os
-from pathlib import Path
 
 # Note: In actual MCP usage, these tools would be called through the MCP protocol
 # This is a demonstration of the workflow
@@ -44,7 +43,7 @@ async def main():
 
             Q: How do I upgrade my plan?
             A: Go to Settings > Billing and select your desired plan.
-            """
+            """,
         },
         {
             "name": "Shipping Info",
@@ -52,8 +51,8 @@ async def main():
             We offer free shipping on orders over $50.
             Standard shipping takes 3-5 business days.
             Express shipping is available for an additional fee.
-            """
-        }
+            """,
+        },
     ]
 
     # In MCP: upload_document_by_text(dataset_id="kb-123", name=..., text=...)
@@ -83,7 +82,7 @@ async def main():
     test_queries = [
         "How do I reset my password?",
         "What are your shipping options?",
-        "Do you have 24/7 support?"
+        "Do you have 24/7 support?",
     ]
 
     for query in test_queries:

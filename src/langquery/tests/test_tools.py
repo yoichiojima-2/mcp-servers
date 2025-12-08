@@ -117,9 +117,7 @@ async def test_search_query_history():
         await client.call_tool("query", {"sql": "SELECT 1 as other_query"})
 
         # Search for the specific query
-        search_res = await client.call_tool(
-            "search_query_history", {"search_term": "findme", "limit": 5}
-        )
+        search_res = await client.call_tool("search_query_history", {"search_term": "findme", "limit": 5})
         search_text = search_res.content[0].text
 
         # Verify search finds the right query
@@ -195,16 +193,10 @@ async def test_concurrent_query_logging():
     """Test that concurrent queries are logged correctly without race conditions."""
     async with Client(mcp) as client:
         # Execute multiple queries concurrently
-        queries = [
-            f"SELECT {i} as concurrent_test_{i}"
-            for i in range(20)
-        ]
+        queries = [f"SELECT {i} as concurrent_test_{i}" for i in range(20)]
 
         # Run all queries concurrently
-        tasks = [
-            client.call_tool("query", {"sql": sql})
-            for sql in queries
-        ]
+        tasks = [client.call_tool("query", {"sql": sql}) for sql in queries]
         await asyncio.gather(*tasks)
 
         # Get history
@@ -219,7 +211,9 @@ async def test_concurrent_query_logging():
         # With proper thread safety and locking, we should consistently log 18-20 out of 20 queries.
         # If this test fails consistently, it indicates a real race condition issue that needs fixing.
         # Note: Cleanup may remove some queries if triggered during test (every 10 queries)
-        assert concurrent_count >= 18, f"Only {concurrent_count}/20 concurrent queries were logged - possible race condition"
+        assert concurrent_count >= 18, (
+            f"Only {concurrent_count}/20 concurrent queries were logged - possible race condition"
+        )
 
 
 @pytest.mark.asyncio
@@ -237,7 +231,8 @@ async def test_auto_cleanup():
 
         # Count data rows in markdown table (exclude header and separator)
         lines = [
-            line for line in history_text.split("\n")
+            line
+            for line in history_text.split("\n")
             if "|" in line and "id" not in line.lower() and not line.startswith("|--")
         ]
 
@@ -316,16 +311,10 @@ async def test_concurrent_cleanup():
 
         # Execute enough concurrent queries to trigger cleanup multiple times
         # With cleanup frequency of 10, this should trigger ~12 cleanup attempts
-        queries = [
-            f"SELECT {i} as concurrent_cleanup_{i}"
-            for i in range(120)
-        ]
+        queries = [f"SELECT {i} as concurrent_cleanup_{i}" for i in range(120)]
 
         # Run all queries concurrently - some will trigger cleanup
-        tasks = [
-            client.call_tool("query", {"sql": sql})
-            for sql in queries
-        ]
+        tasks = [client.call_tool("query", {"sql": sql}) for sql in queries]
         await asyncio.gather(*tasks)
 
         # Get history to verify cleanup worked correctly
@@ -334,7 +323,8 @@ async def test_concurrent_cleanup():
 
         # Count data rows
         lines = [
-            line for line in history_text.split("\n")
+            line
+            for line in history_text.split("\n")
             if "|" in line and "id" not in line.lower() and not line.startswith("|--")
         ]
 
@@ -364,9 +354,7 @@ async def test_search_with_special_characters():
         await client.call_tool("query", {"sql": "SELECT 'testdata' as col3"})
 
         # Search for literal '%' - should only find first query
-        search_res = await client.call_tool(
-            "search_query_history", {"search_term": "test%data", "limit": 5}
-        )
+        search_res = await client.call_tool("search_query_history", {"search_term": "test%data", "limit": 5})
         search_text = search_res.content[0].text
 
         # Should find the query with literal '%'

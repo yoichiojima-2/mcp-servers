@@ -21,6 +21,7 @@ from . import mcp
 @dataclass
 class TextRun:
     """A run of text with formatting."""
+
     text: str
     bold: bool = False
     italic: bool = False
@@ -33,6 +34,7 @@ class TextRun:
 @dataclass
 class Paragraph:
     """A paragraph containing text runs."""
+
     runs: list[TextRun]
     alignment: str = "left"
     level: int = 0  # For list items
@@ -41,6 +43,7 @@ class Paragraph:
 @dataclass
 class SlideElement:
     """An element on a slide."""
+
     element_type: str  # "textbox", "shape", "image", "list"
     left: float
     top: float
@@ -56,6 +59,7 @@ class SlideElement:
 @dataclass
 class SlideDefinition:
     """Definition of a slide from HTML."""
+
     title: str | None = None
     elements: list[SlideElement] = None
 
@@ -275,9 +279,7 @@ def create_presentation_from_html(slides: list[SlideDefinition], aspect_ratio: s
 
         # Add title if present
         if slide_def.title:
-            title_box = slide.shapes.add_textbox(
-                Inches(0.5), Inches(0.3), Inches(12), Inches(0.8)
-            )
+            title_box = slide.shapes.add_textbox(Inches(0.5), Inches(0.3), Inches(12), Inches(0.8))
             tf = title_box.text_frame
             p = tf.paragraphs[0]
             p.text = slide_def.title
@@ -469,7 +471,7 @@ def validate_html_for_pptx(html: str) -> str:
 
             for j, elem in enumerate(slide.elements):
                 if elem.element_type == "textbox" and not elem.paragraphs:
-                    warnings.append(f"Slide {i}, element {j+1}: textbox has no text")
+                    warnings.append(f"Slide {i}, element {j + 1}: textbox has no text")
 
     # Check for unsupported CSS
     if "gradient" in html.lower():

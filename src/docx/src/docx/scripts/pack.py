@@ -128,9 +128,7 @@ def condense_xml(xml_file: Path) -> None:
 
         for child in list(element.childNodes):
             if (
-                child.nodeType == child.TEXT_NODE
-                and child.nodeValue
-                and child.nodeValue.strip() == ""
+                child.nodeType == child.TEXT_NODE and child.nodeValue and child.nodeValue.strip() == ""
             ) or child.nodeType == child.COMMENT_NODE:
                 element.removeChild(child)
 

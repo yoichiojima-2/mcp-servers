@@ -9,21 +9,19 @@ Inspired by the Anthropic PPTX skill, this module provides tools for:
 - OOXML manipulation for advanced editing
 """
 
-import io
 import json
 import os
 import shutil
 import tempfile
 import zipfile
 from pathlib import Path
-from typing import Any
 from xml.etree import ElementTree as ET
 
 from PIL import Image
 from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE
-from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
+from pptx.enum.text import PP_ALIGN
 from pptx.util import Inches, Pt
 
 from . import mcp
@@ -172,9 +170,7 @@ def add_text_box(
         return f"Error: Slide {slide_number} does not exist. Presentation has {len(prs.slides)} slides."
 
     slide = prs.slides[slide_number - 1]
-    txBox = slide.shapes.add_textbox(
-        Inches(left), Inches(top), Inches(width), Inches(height)
-    )
+    txBox = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
     tf = txBox.text_frame
     tf.word_wrap = True
 
@@ -381,9 +377,7 @@ def add_table(
     rows = len(data)
     cols = len(data[0])
 
-    table_shape = slide.shapes.add_table(
-        rows, cols, Inches(left), Inches(top), Inches(width), Inches(height)
-    )
+    table_shape = slide.shapes.add_table(rows, cols, Inches(left), Inches(top), Inches(width), Inches(height))
     table = table_shape.table
 
     # Fill in data
@@ -444,7 +438,7 @@ def get_presentation_info(file_path: str) -> str:
     info = [
         f"File: {path.name}",
         f"Slides: {len(prs.slides)}",
-        f"Dimensions: {width_inches:.2f}\" x {height_inches:.2f}\"",
+        f'Dimensions: {width_inches:.2f}" x {height_inches:.2f}"',
         f"Aspect Ratio: {aspect}",
         f"Slide Layouts: {len(prs.slide_layouts)}",
         "",
@@ -617,9 +611,7 @@ def duplicate_slide(file_path: str, slide_number: int) -> str:
     for shape in source_slide.shapes:
         if shape.has_text_frame:
             # Add text box
-            new_shape = new_slide.shapes.add_textbox(
-                shape.left, shape.top, shape.width, shape.height
-            )
+            new_shape = new_slide.shapes.add_textbox(shape.left, shape.top, shape.width, shape.height)
             new_shape.text_frame.text = shape.text_frame.text
 
     prs.save(str(path))
@@ -713,9 +705,7 @@ def apply_template(source_path: str, template_path: str, output_path: str) -> st
         # Copy text content
         for shape in slide.shapes:
             if shape.has_text_frame and shape.text_frame.text.strip():
-                tb = new_slide.shapes.add_textbox(
-                    shape.left, shape.top, shape.width, shape.height
-                )
+                tb = new_slide.shapes.add_textbox(shape.left, shape.top, shape.width, shape.height)
                 tb.text_frame.text = shape.text_frame.text
 
     template_prs.save(str(out))
@@ -887,11 +877,7 @@ def get_slide_notes(file_path: str, slide_number: int | None = None) -> str:
     prs = Presentation(str(path))
     results = []
 
-    slides_to_check = (
-        [prs.slides[slide_number - 1]]
-        if slide_number
-        else prs.slides
-    )
+    slides_to_check = [prs.slides[slide_number - 1]] if slide_number else prs.slides
 
     for i, slide in enumerate(slides_to_check, slide_number or 1):
         if slide.has_notes_slide:
@@ -967,8 +953,6 @@ def export_slide_as_image(
 
     if slide_number < 1 or slide_number > len(prs.slides):
         return f"Error: Slide {slide_number} does not exist."
-
-    slide = prs.slides[slide_number - 1]
 
     # Calculate height based on aspect ratio
     aspect_ratio = prs.slide_height.inches / prs.slide_width.inches

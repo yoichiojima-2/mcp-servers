@@ -138,9 +138,7 @@ def test_yaml_size_limit():
     enabled: true
 """
     # create enough entries to exceed 1mb
-    large_yaml = "servers:\n" + "".join(
-        server_entry.format(i=i) for i in range(15000)
-    )
+    large_yaml = "servers:\n" + "".join(server_entry.format(i=i) for i in range(15000))
 
     with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
         f.write(large_yaml)

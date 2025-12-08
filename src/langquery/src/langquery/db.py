@@ -38,9 +38,15 @@ def _get_env_int(name: str, default: int, min_value: int = 1, max_value: Optiona
 
 
 # Configuration constants (configurable via environment variables)
-MAX_RESULT_SIZE = _get_env_int("LANGQUERY_MAX_RESULT_SIZE", 1024 * 1024, min_value=1024, max_value=10 * 1024 * 1024)  # Default: 1MB, min 1KB, max 10MB
-MAX_HISTORY_SIZE = _get_env_int("LANGQUERY_MAX_HISTORY_SIZE", 100, min_value=1, max_value=10000)  # Default: 100 queries, min 1, max 10k
-CLEANUP_FREQUENCY = _get_env_int("LANGQUERY_CLEANUP_FREQUENCY", 10, min_value=1, max_value=1000)  # Default: every 10 queries, min 1 (prevents division by zero), max 1000
+MAX_RESULT_SIZE = _get_env_int(
+    "LANGQUERY_MAX_RESULT_SIZE", 1024 * 1024, min_value=1024, max_value=10 * 1024 * 1024
+)  # Default: 1MB, min 1KB, max 10MB
+MAX_HISTORY_SIZE = _get_env_int(
+    "LANGQUERY_MAX_HISTORY_SIZE", 100, min_value=1, max_value=10000
+)  # Default: 100 queries, min 1, max 10k
+CLEANUP_FREQUENCY = _get_env_int(
+    "LANGQUERY_CLEANUP_FREQUENCY", 10, min_value=1, max_value=1000
+)  # Default: every 10 queries, min 1 (prevents division by zero), max 1000
 
 
 class HistoryDB:
@@ -63,9 +69,7 @@ class HistoryDB:
                 # Create workspace directory with secure permissions (owner-only access)
                 workspace.mkdir(parents=True, exist_ok=True, mode=0o700)
             except OSError as e:
-                raise OSError(
-                    f"Failed to create workspace directory at {workspace.absolute()}: {e}"
-                ) from e
+                raise OSError(f"Failed to create workspace directory at {workspace.absolute()}: {e}") from e
             db_path = str(workspace / "langquery_history.db")
 
         self.db_path = db_path
@@ -140,7 +144,7 @@ class HistoryDB:
             # Try to find the last complete line/row before MAX_RESULT_SIZE
             # to avoid breaking markdown table formatting mid-row
             truncated = result[:MAX_RESULT_SIZE]
-            last_newline = truncated.rfind('\n')
+            last_newline = truncated.rfind("\n")
             if last_newline > 0:
                 # Truncate at last complete line
                 truncated = result[:last_newline]
@@ -279,19 +283,19 @@ class HistoryDB:
         # - UNC paths: \\server\share\file
         # - file:// URLs: file:///path/to/file
         # - Relative paths with spaces: ./my dir/file
-        error = re.sub(r'file:///[^\s]+', '[path]', error)  # file:// URLs
-        error = re.sub(r'\\\\[^\s]+', '[path]', error)  # UNC paths
-        error = re.sub(r'/[a-zA-Z0-9_\-\.][^\s]*', '[path]', error)  # Unix paths (requires alphanumeric after /)
-        error = re.sub(r'[A-Z]:\\[^\s]+', '[path]', error)  # Windows paths
-        error = re.sub(r'\./[^\s]+', '[path]', error)  # Relative paths
-        error = re.sub(r'\.\./[^\s]+', '[path]', error)  # Parent directory paths
+        error = re.sub(r"file:///[^\s]+", "[path]", error)  # file:// URLs
+        error = re.sub(r"\\\\[^\s]+", "[path]", error)  # UNC paths
+        error = re.sub(r"/[a-zA-Z0-9_\-\.][^\s]*", "[path]", error)  # Unix paths (requires alphanumeric after /)
+        error = re.sub(r"[A-Z]:\\[^\s]+", "[path]", error)  # Windows paths
+        error = re.sub(r"\./[^\s]+", "[path]", error)  # Relative paths
+        error = re.sub(r"\.\./[^\s]+", "[path]", error)  # Parent directory paths
 
         # Remove line numbers and column references that might expose internals
-        error = re.sub(r'line \d+', 'line [redacted]', error, flags=re.IGNORECASE)
-        error = re.sub(r'column \d+', 'column [redacted]', error, flags=re.IGNORECASE)
+        error = re.sub(r"line \d+", "line [redacted]", error, flags=re.IGNORECASE)
+        error = re.sub(r"column \d+", "column [redacted]", error, flags=re.IGNORECASE)
 
         # Keep only the main error message, remove stack traces
-        lines = error.split('\n')
+        lines = error.split("\n")
         if lines:
             # Return first meaningful line
             return lines[0]

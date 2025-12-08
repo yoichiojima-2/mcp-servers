@@ -265,7 +265,7 @@ async def get_content(max_length: int = 10000) -> str:
     # Add timeout to prevent hanging
     text = await asyncio.wait_for(
         page.evaluate("() => document.body.innerText || document.body.textContent || ''"),
-        timeout=CONTENT_EVAL_TIMEOUT
+        timeout=CONTENT_EVAL_TIMEOUT,
     )
     # Return a truncated version to avoid overwhelming the model
     if len(text) > max_length:
@@ -470,8 +470,8 @@ async def force_reset() -> str:
     """Force reset the browser page if it's in a bad state."""
     await _reset_page_unsafe()
     # Create a new page to verify it works
-    page = await get_page_unsafe()
-    return f"Browser reset successfully. New page ready."
+    await get_page_unsafe()
+    return "Browser reset successfully. New page ready."
 
 
 @mcp.tool()

@@ -57,9 +57,7 @@ def get_mcp():
             ) from e
 
     lifespan_servers = [s for s in config.get_enabled_servers() if s.has_lifespan]
-    lifespan_manager = (
-        LifespanManager(lifespan_servers, repo_root) if lifespan_servers else None
-    )
+    lifespan_manager = LifespanManager(lifespan_servers, repo_root) if lifespan_servers else None
 
     @asynccontextmanager
     async def composite_lifespan():
@@ -70,9 +68,7 @@ def get_mcp():
             yield {}
 
     server_names = [s.name for s in config.get_enabled_servers()]
-    _mcp = FastMCP(
-        f"Composite: {' + '.join(server_names)}", lifespan=composite_lifespan
-    )
+    _mcp = FastMCP(f"Composite: {' + '.join(server_names)}", lifespan=composite_lifespan)
 
     for server_name, module_info in loaded_modules.items():
         source_mcp = module_info["mcp"]

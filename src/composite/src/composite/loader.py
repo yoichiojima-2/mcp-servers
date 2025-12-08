@@ -46,10 +46,7 @@ class ServerLoader:
             server_src_resolved = server_src.resolve()
             repo_root_resolved = self.repo_root.resolve()
             if not str(server_src_resolved).startswith(str(repo_root_resolved)):
-                raise ValueError(
-                    f"invalid module path '{module_name}': "
-                    f"path escapes repository root"
-                )
+                raise ValueError(f"invalid module path '{module_name}': path escapes repository root")
         except (OSError, RuntimeError) as e:
             raise ValueError(f"invalid module path '{module_name}': {e}")
 
@@ -146,9 +143,7 @@ class ServerLoader:
             and hasattr(mcp_instance._tool_manager, "_tools")
         )
 
-    def register_tools(
-        self, source_mcp: Any, target_mcp: FastMCP, prefix: str
-    ) -> int:
+    def register_tools(self, source_mcp: Any, target_mcp: FastMCP, prefix: str) -> int:
         """copy tools from source to target mcp with prefix
 
         note: accesses private _tool_manager._tools attribute as fastmcp
@@ -199,9 +194,7 @@ class ServerLoader:
 
         return count
 
-    def register_prompts(
-        self, source_mcp: Any, target_mcp: FastMCP, prefix: str
-    ) -> int:
+    def register_prompts(self, source_mcp: Any, target_mcp: FastMCP, prefix: str) -> int:
         """copy prompts from source to target mcp with prefix
 
         note: accesses private _prompt_manager._prompts attribute as fastmcp

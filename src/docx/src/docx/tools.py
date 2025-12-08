@@ -1,3 +1,4 @@
+import subprocess
 from pathlib import Path
 
 from . import mcp
@@ -21,9 +22,9 @@ def unpack(input_file: str, output_dir: str) -> str:
         if suggested_rsid:
             msg += f"\nSuggested RSID for edit session: {suggested_rsid}"
         return msg
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         return f"Error: File not found: {input_file}"
-    except PermissionError as e:
+    except PermissionError:
         return f"Error: Permission denied accessing {input_file}"
     except ValueError as e:
         return f"Error: {str(e)}"
@@ -51,9 +52,9 @@ def pack(input_dir: str, output_file: str, validate: bool = False) -> str:
         if validate:
             msg += " (validated)"
         return msg
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         return f"Error: Directory not found: {input_dir}"
-    except PermissionError as e:
+    except PermissionError:
         return f"Error: Permission denied accessing {input_dir} or {output_file}"
     except ValueError as e:
         return f"Error: {str(e)}"
@@ -73,8 +74,6 @@ def convert_to_markdown(docx_file: str, output_file: str, track_changes: str = "
     Returns:
         Success message
     """
-    import subprocess
-
     if track_changes not in ["accept", "reject", "all"]:
         return f"Invalid track_changes value: {track_changes}. Must be 'accept', 'reject', or 'all'"
 
@@ -91,7 +90,13 @@ def convert_to_markdown(docx_file: str, output_file: str, track_changes: str = "
 
     try:
         result = subprocess.run(
-            ["pandoc", f"--track-changes={track_changes}", str(docx_path), "-o", str(output_path)],
+            [
+                "pandoc",
+                f"--track-changes={track_changes}",
+                str(docx_path),
+                "-o",
+                str(output_path),
+            ],
             capture_output=True,
             text=True,
             timeout=60,
@@ -102,7 +107,7 @@ def convert_to_markdown(docx_file: str, output_file: str, track_changes: str = "
 
         return f"Converted {docx_path} to {output_path} (track-changes={track_changes})"
     except subprocess.TimeoutExpired:
-        return f"Error: Conversion timed out after 60 seconds"
+        return "Error: Conversion timed out after 60 seconds"
     except FileNotFoundError:
         return "Error: pandoc not found. Please install pandoc."
     except Exception as e:
@@ -120,8 +125,6 @@ def convert_to_pdf(docx_file: str, output_file: str = "") -> str:
     Returns:
         Success message with output path
     """
-    import subprocess
-
     # Validate and resolve input file path
     docx_path = Path(docx_file).expanduser().resolve()
     if not docx_path.exists():
@@ -140,7 +143,15 @@ def convert_to_pdf(docx_file: str, output_file: str = "") -> str:
 
     try:
         result = subprocess.run(
-            ["soffice", "--headless", "--convert-to", "pdf", "--outdir", output_dir, str(docx_path)],
+            [
+                "soffice",
+                "--headless",
+                "--convert-to",
+                "pdf",
+                "--outdir",
+                output_dir,
+                str(docx_path),
+            ],
             capture_output=True,
             text=True,
             timeout=120,
@@ -151,7 +162,7 @@ def convert_to_pdf(docx_file: str, output_file: str = "") -> str:
 
         return f"Converted {docx_path} to {output_path}"
     except subprocess.TimeoutExpired:
-        return f"Error: Conversion timed out after 120 seconds"
+        return "Error: Conversion timed out after 120 seconds"
     except FileNotFoundError:
         return "Error: soffice (LibreOffice) not found. Please install LibreOffice."
     except Exception as e:

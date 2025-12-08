@@ -70,11 +70,7 @@ async def test_run_workflow(mock_context, httpx_mock: HTTPXMock):
         json={
             "workflow_run_id": "run-123",
             "task_id": "task-456",
-            "data": {
-                "outputs": {
-                    "result": "Translated text"
-                }
-            },
+            "data": {"outputs": {"result": "Translated text"}},
         },
     )
 
