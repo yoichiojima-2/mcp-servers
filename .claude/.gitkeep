@@ -1,0 +1,2 @@
+# This directory contains Claude Code configuration files
+# settings.local.json is excluded via .gitignore as it contains user-specific settings

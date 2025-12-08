@@ -6,3 +6,4 @@ node_modules/
 assets/
 .ruff_cache/
 .venv/
+.claude/*.local.json
