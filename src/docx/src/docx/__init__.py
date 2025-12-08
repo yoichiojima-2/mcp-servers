@@ -5,7 +5,7 @@ from fastmcp import FastMCP
 
 load_dotenv()
 
-mcp = FastMCP(os.getenv("NAME", "docx-mcp"))
+mcp = FastMCP(os.getenv("NAME", "docx"))
 
 from . import prompts, server, tools  # noqa: F401, E402
 

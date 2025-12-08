@@ -27,7 +27,7 @@ uv run python -m docx
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `NAME` | `docx-mcp` | Server name |
+| `NAME` | `docx` | Server name |
 | `TRANSPORT` | `stdio` | Transport protocol (`sse` or `stdio`) |
 | `HOST` | `0.0.0.0` | Server host |
 | `PORT` | `8000` | Server port |

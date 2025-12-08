@@ -110,14 +110,26 @@ The tools provide descriptive error messages for common scenarios:
 
 ## Usage
 
-### stdio
+### Run the server
+
 ```bash
-python -m xlsx
+uv run python -m xlsx
 ```
 
-### HTTP
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `NAME` | `xlsx` | Server name |
+| `TRANSPORT` | `stdio` | Transport protocol (`sse` or `stdio`) |
+| `HOST` | `0.0.0.0` | Server host |
+| `PORT` | `8000` | Server port |
+| `ALLOW_ORIGIN` | `*` | CORS allowed origins |
+
+### Docker
+
 ```bash
-TRANSPORT=sse HOST=0.0.0.0 PORT=8000 python -m xlsx
+docker compose up
 ```
 
 ## Testing

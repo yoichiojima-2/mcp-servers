@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "xlsx-mcp"
+name = "xlsx"
 version = "0.1.0"
 description = "MCP server for Excel spreadsheet (.xlsx) creation, editing, and analysis"
 readme = "README.md"
