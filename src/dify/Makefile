@@ -2,7 +2,7 @@
 
 # Install dependencies
 install:
-	cd ../.. && uv sync --package dify
+	cd ../.. && uv sync --locked --package dify
 
 # Run tests
 test:

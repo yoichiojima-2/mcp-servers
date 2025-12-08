@@ -13,7 +13,7 @@ help:
 	@echo "  make pre-commit  - run lint and clean before committing"
 
 install:
-	cd ../.. && uv sync --package docx
+	cd ../.. && uv sync --locked --package docx
 
 build:
 	docker compose build

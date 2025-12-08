@@ -13,7 +13,7 @@ help:
 	@echo "  make pre-commit  - run lint and clean before committing"
 
 install:
-	cd ../.. && uv sync --package pdf --extra ocr
+	cd ../.. && uv sync --locked --package pdf --extra ocr
 
 build:
 	docker compose build

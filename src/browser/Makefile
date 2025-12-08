@@ -13,7 +13,7 @@ help:
 	@echo "  make pre-commit  - run lint and clean before committing"
 
 install:
-	cd ../.. && uv sync --package browser
+	cd ../.. && uv sync --locked --package browser
 	uv run playwright install chromium
 
 build:
