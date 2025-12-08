@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 import httpx
+import uvicorn
 import yaml
 from mcp.server import Server
 from mcp.server.sse import SseServerTransport
@@ -19,12 +20,13 @@ from mcp.types import (
     Tool,
 )
 from starlette.applications import Starlette
+from starlette.middleware import Middleware
+from starlette.middleware.cors import CORSMiddleware
 from starlette.routing import Mount
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -117,26 +119,30 @@ class MCPComposite:
 
         return ListToolsResult(tools=all_tools)
 
-    async def call_tool(self, name: str, arguments: dict[str, Any]) -> CallToolResult:
+    async def call_tool(
+        self, name: str, arguments: dict[str, Any]
+    ) -> CallToolResult:
         """Route tool call to appropriate backend."""
         # Find which backend owns this tool
         for backend_name, backend in self.backends.items():
             prefix = backend.get("prefix", backend_name)
             if name.startswith(f"{prefix}_"):
                 # Remove prefix and call backend
-                original_name = name[len(prefix) + 1:]
+                original_name = name[len(prefix) + 1 :]
 
                 try:
                     result = await self._fetch_from_backend(
                         backend_name,
                         "tools/call",
-                        {"name": original_name, "arguments": arguments}
+                        {"name": original_name, "arguments": arguments},
                     )
 
                     # Convert result to CallToolResult format
                     content = result.get("content", [])
                     if isinstance(content, list):
-                        content = [TextContent(type="text", text=str(c)) for c in content]
+                        content = [
+                            TextContent(type="text", text=str(c)) for c in content
+                        ]
                     else:
                         content = [TextContent(type="text", text=str(content))]
 
@@ -144,12 +150,12 @@ class MCPComposite:
                 except Exception as e:
                     return CallToolResult(
                         content=[TextContent(type="text", text=f"Error: {e}")],
-                        isError=True
+                        isError=True,
                     )
 
         return CallToolResult(
             content=[TextContent(type="text", text=f"Tool not found: {name}")],
-            isError=True
+            isError=True,
         )
 
     async def list_prompts(self) -> ListPromptsResult:
@@ -170,18 +176,20 @@ class MCPComposite:
 
         return ListPromptsResult(prompts=all_prompts)
 
-    async def get_prompt(self, name: str, arguments: dict[str, Any] | None = None) -> GetPromptResult:
+    async def get_prompt(
+        self, name: str, arguments: dict[str, Any] | None = None
+    ) -> GetPromptResult:
         """Route prompt request to appropriate backend."""
         for backend_name, backend in self.backends.items():
             prefix = backend.get("prefix", backend_name)
             if name.startswith(f"{prefix}_"):
-                original_name = name[len(prefix) + 1:]
+                original_name = name[len(prefix) + 1 :]
 
                 try:
                     result = await self._fetch_from_backend(
                         backend_name,
                         "prompts/get",
-                        {"name": original_name, "arguments": arguments or {}}
+                        {"name": original_name, "arguments": arguments or {}},
                     )
                     return GetPromptResult(**result)
                 except Exception as e:
@@ -194,7 +202,7 @@ class MCPComposite:
         await self.http_client.aclose()
 
 
-async def main():
+async def _run_server():
     """Run the MCP composite server."""
     config = load_config()
     composite = MCPComposite(config)
@@ -211,13 +219,22 @@ async def main():
         # Create SSE transport
         sse = SseServerTransport("/messages")
 
+        # Create CORS middleware
+        cors_middleware = Middleware(
+            CORSMiddleware,
+            allow_origins=[os.getenv("ALLOW_ORIGIN", "*")],
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
+
         # Create Starlette app
         app = Starlette(
             routes=[Mount("/", app=sse.get_asgi_app(composite.server))],
+            middleware=[cors_middleware],
         )
 
         # Run with uvicorn
-        import uvicorn
         await uvicorn.Server(
             uvicorn.Config(app, host=host, port=port, log_level="info")
         ).serve()
@@ -225,5 +242,6 @@ async def main():
         await composite.cleanup()
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+def serve():
+    """Start MCP server."""
+    asyncio.run(_run_server())

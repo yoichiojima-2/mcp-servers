@@ -2,6 +2,7 @@ todo.md
 node_modules/
 .playwright-mcp/
 *.png
-.claude
 .mypy_cache/
 assets/
+.ruff_cache/
+.venv/
