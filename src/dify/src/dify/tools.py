@@ -28,18 +28,13 @@ class DifyClient:
             console_base_url: Base URL for console API (default: https://api.dify.ai)
         """
         self.api_key = (api_key or os.getenv("DIFY_API_KEY") or "").strip() or None
-        self.base_url = (
-            base_url or os.getenv("DIFY_BASE_URL", "https://api.dify.ai/v1")
-        ).rstrip("/")
+        self.base_url = (base_url or os.getenv("DIFY_BASE_URL", "https://api.dify.ai/v1")).rstrip("/")
 
         # Console API for admin operations (import/export DSL, manage apps)
-        self.console_api_key = (
-            console_api_key or os.getenv("DIFY_CONSOLE_API_KEY") or ""
-        ).strip() or None
-        self.console_base_url = (
-            console_base_url
-            or os.getenv("DIFY_CONSOLE_BASE_URL", "https://api.dify.ai")
-        ).rstrip("/")
+        self.console_api_key = (console_api_key or os.getenv("DIFY_CONSOLE_API_KEY") or "").strip() or None
+        self.console_base_url = (console_base_url or os.getenv("DIFY_CONSOLE_BASE_URL", "https://api.dify.ai")).rstrip(
+            "/"
+        )
 
         # Reusable HTTP client for better performance
         self._http_client = httpx.AsyncClient(timeout=60.0)
@@ -59,9 +54,7 @@ class DifyClient:
         """
         api_key = self.console_api_key if use_console else self.api_key
         if not api_key:
-            raise ToolError(
-                f"{'DIFY_CONSOLE_API_KEY' if use_console else 'DIFY_API_KEY'} not configured"
-            )
+            raise ToolError(f"{'DIFY_CONSOLE_API_KEY' if use_console else 'DIFY_API_KEY'} not configured")
 
         return {
             "Authorization": f"Bearer {api_key}",
@@ -94,16 +87,12 @@ class DifyClient:
             headers.update(kwargs.pop("headers"))
 
         try:
-            response = await self._http_client.request(
-                method, url, headers=headers, **kwargs
-            )
+            response = await self._http_client.request(method, url, headers=headers, **kwargs)
             response.raise_for_status()
             return response.json()
         except httpx.HTTPStatusError as e:
             error_detail = e.response.text
-            raise ToolError(
-                f"Dify API error ({e.response.status_code}): {error_detail}"
-            ) from e
+            raise ToolError(f"Dify API error ({e.response.status_code}): {error_detail}") from e
         except httpx.HTTPError as e:
             raise ToolError(f"Request failed: {str(e)}") from e
 
@@ -463,9 +452,7 @@ async def export_dsl_workflow(
         response.raise_for_status()
         return response.text
     except httpx.HTTPStatusError as e:
-        raise ToolError(
-            f"Export failed ({e.response.status_code}): {e.response.text}"
-        ) from e
+        raise ToolError(f"Export failed ({e.response.status_code}): {e.response.text}") from e
     except httpx.HTTPError as e:
         raise ToolError(f"Export request failed: {str(e)}") from e
 

@@ -33,9 +33,7 @@ class ServerConfig:
         required_fields = ["name", "module", "prefix"]
         for field in required_fields:
             if field not in data:
-                raise ValueError(
-                    f"Missing required field '{field}' in server configuration"
-                )
+                raise ValueError(f"Missing required field '{field}' in server configuration")
 
         return cls(
             name=data["name"],
@@ -122,19 +120,13 @@ class CompositeConfig:
         """
         # Check for duplicate server names
         server_names = [s.name for s in self.servers]
-        duplicate_names = [
-            name for name in server_names if server_names.count(name) > 1
-        ]
+        duplicate_names = [name for name in server_names if server_names.count(name) > 1]
         if duplicate_names:
-            raise ValueError(
-                f"Duplicate server names found: {', '.join(set(duplicate_names))}"
-            )
+            raise ValueError(f"Duplicate server names found: {', '.join(set(duplicate_names))}")
 
         # Check for duplicate prefixes among enabled servers
         enabled_prefixes = [s.prefix for s in self.servers if s.enabled]
-        duplicate_prefixes = [
-            prefix for prefix in enabled_prefixes if enabled_prefixes.count(prefix) > 1
-        ]
+        duplicate_prefixes = [prefix for prefix in enabled_prefixes if enabled_prefixes.count(prefix) > 1]
         if duplicate_prefixes:
             raise ValueError(
                 f"Duplicate prefixes found among enabled servers: "

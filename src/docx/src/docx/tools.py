@@ -63,9 +63,7 @@ def pack(input_dir: str, output_file: str, validate: bool = False) -> str:
 
 
 @mcp.tool()
-def convert_to_markdown(
-    docx_file: str, output_file: str, track_changes: str = "all"
-) -> str:
+def convert_to_markdown(docx_file: str, output_file: str, track_changes: str = "all") -> str:
     """Convert .docx to markdown using pandoc.
 
     Args:

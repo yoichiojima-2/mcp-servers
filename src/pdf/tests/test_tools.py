@@ -127,9 +127,7 @@ class TestSplitPdf:
 
     def test_split_specific_pages(self, sample_pdf, output_dir):
         split_pdf = get_tool("split_pdf")
-        result = split_pdf(
-            file_path=str(sample_pdf), output_dir=str(output_dir), pages="1,3"
-        )
+        result = split_pdf(file_path=str(sample_pdf), output_dir=str(output_dir), pages="1,3")
 
         assert "Created 2 files" in result
         assert (output_dir / "sample_page_1.pdf").exists()
@@ -138,9 +136,7 @@ class TestSplitPdf:
 
     def test_file_not_found(self, output_dir):
         split_pdf = get_tool("split_pdf")
-        result = split_pdf(
-            file_path="/nonexistent/path.pdf", output_dir=str(output_dir)
-        )
+        result = split_pdf(file_path="/nonexistent/path.pdf", output_dir=str(output_dir))
 
         assert "Error" in result
 

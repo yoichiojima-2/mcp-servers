@@ -32,9 +32,7 @@ def sample_collection(temp_chroma_path):
 
     client = _get_client()
     embedding_function = _get_embedding_function()
-    collection = client.create_collection(
-        "test_collection", embedding_function=embedding_function
-    )
+    collection = client.create_collection("test_collection", embedding_function=embedding_function)
     collection.add(
         documents=[
             "Document about cats and their behavior",

@@ -16,9 +16,7 @@ from openpyxl import load_workbook
 def setup_libreoffice_macro():
     """Setup LibreOffice macro for recalculation if not already configured"""
     if platform.system() == "Darwin":
-        macro_dir = os.path.expanduser(
-            "~/Library/Application Support/LibreOffice/4/user/basic/Standard"
-        )
+        macro_dir = os.path.expanduser("~/Library/Application Support/LibreOffice/4/user/basic/Standard")
     else:
         macro_dir = os.path.expanduser("~/.config/libreoffice/4/user/basic/Standard")
 
@@ -163,11 +161,7 @@ def recalc(filename, timeout=30):
             ws = wb_formulas[sheet_name]
             for row in ws.iter_rows():
                 for cell in row:
-                    if (
-                        cell.value
-                        and isinstance(cell.value, str)
-                        and cell.value.startswith("=")
-                    ):
+                    if cell.value and isinstance(cell.value, str) and cell.value.startswith("="):
                         formula_count += 1
         wb_formulas.close()
 

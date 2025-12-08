@@ -35,9 +35,7 @@ def unpack_document(input_file: str | Path, output_dir: str | Path) -> str:
     xml_files = list(output_path.rglob("*.xml")) + list(output_path.rglob("*.rels"))
     for xml_file in xml_files:
         if xml_file.stat().st_size > MAX_XML_SIZE:
-            raise ValueError(
-                f"XML file too large: {xml_file} ({xml_file.stat().st_size} bytes)"
-            )
+            raise ValueError(f"XML file too large: {xml_file} ({xml_file.stat().st_size} bytes)")
         content = xml_file.read_text(encoding="utf-8")
         dom = defusedxml.minidom.parseString(content)
         xml_file.write_bytes(dom.toprettyxml(indent="  ", encoding="ascii"))

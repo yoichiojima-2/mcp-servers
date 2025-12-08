@@ -257,9 +257,7 @@ def parse_html_slides(html: str) -> list[SlideDefinition]:
     return parser.slides
 
 
-def create_presentation_from_html(
-    slides: list[SlideDefinition], aspect_ratio: str = "16:9"
-) -> Presentation:
+def create_presentation_from_html(slides: list[SlideDefinition], aspect_ratio: str = "16:9") -> Presentation:
     """Create a PowerPoint presentation from slide definitions."""
     prs = Presentation()
 
@@ -276,16 +274,12 @@ def create_presentation_from_html(
 
     for slide_def in slides:
         # Use blank layout
-        slide_layout = (
-            prs.slide_layouts[6] if len(prs.slide_layouts) > 6 else prs.slide_layouts[0]
-        )
+        slide_layout = prs.slide_layouts[6] if len(prs.slide_layouts) > 6 else prs.slide_layouts[0]
         slide = prs.slides.add_slide(slide_layout)
 
         # Add title if present
         if slide_def.title:
-            title_box = slide.shapes.add_textbox(
-                Inches(0.5), Inches(0.3), Inches(12), Inches(0.8)
-            )
+            title_box = slide.shapes.add_textbox(Inches(0.5), Inches(0.3), Inches(12), Inches(0.8))
             tf = title_box.text_frame
             p = tf.paragraphs[0]
             p.text = slide_def.title
@@ -304,9 +298,7 @@ def create_presentation_from_html(
 
                 if element.background_color:
                     shape.fill.solid()
-                    shape.fill.fore_color.rgb = RGBColor.from_string(
-                        element.background_color
-                    )
+                    shape.fill.fore_color.rgb = RGBColor.from_string(element.background_color)
 
                 tf = shape.text_frame
                 tf.word_wrap = True
@@ -335,9 +327,7 @@ def create_presentation_from_html(
                         if run_def.font_size:
                             run.font.size = Pt(run_def.font_size)
                         if run_def.font_color:
-                            run.font.color.rgb = RGBColor.from_string(
-                                run_def.font_color
-                            )
+                            run.font.color.rgb = RGBColor.from_string(run_def.font_color)
                         if run_def.font_name:
                             run.font.name = run_def.font_name
 
@@ -428,9 +418,7 @@ def html_to_pptx(html: str, output_path: str, aspect_ratio: str = "16:9") -> str
 
 
 @mcp.tool()
-def html_file_to_pptx(
-    html_path: str, output_path: str, aspect_ratio: str = "16:9"
-) -> str:
+def html_file_to_pptx(html_path: str, output_path: str, aspect_ratio: str = "16:9") -> str:
     """
     Convert an HTML file to a PowerPoint presentation.
 

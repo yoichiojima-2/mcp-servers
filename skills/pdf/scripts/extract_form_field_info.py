@@ -32,9 +32,7 @@ def make_field_dict(field, field_id):
             # https://opensource.adobe.com/dc-acrobat-sdk-docs/standards/pdfstandards/pdf/PDF32000_2008.pdf#page=448
             # It can be either first or second in the "/_States_" list.
             if "/Off" in states:
-                field_dict["checked_value"] = (
-                    states[0] if states[0] != "/Off" else states[1]
-                )
+                field_dict["checked_value"] = states[0] if states[0] != "/Off" else states[1]
                 field_dict["unchecked_value"] = "/Off"
             else:
                 print(
@@ -129,9 +127,7 @@ def get_field_info(reader: PdfReader):
         if "page" in field_info:
             fields_with_location.append(field_info)
         else:
-            print(
-                f"Unable to determine location for field id: {field_info.get('field_id')}, ignoring"
-            )
+            print(f"Unable to determine location for field id: {field_info.get('field_id')}, ignoring")
 
     # Sort by page number, then Y position (flipped in PDF coordinate system), then X.
     def sort_key(f):

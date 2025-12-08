@@ -42,9 +42,7 @@ def test_load_nonexistent_server(loader):
 
 
 def test_register_tools(loader):
-    config = ServerConfig(
-        name="browser", module="browser", prefix="browser", enabled=True
-    )
+    config = ServerConfig(name="browser", module="browser", prefix="browser", enabled=True)
     source_mcp = loader.load_server_module(config)
 
     target_mcp = MagicMock()
@@ -56,9 +54,7 @@ def test_register_tools(loader):
 
 
 def test_validate_server_module(loader):
-    config = ServerConfig(
-        name="browser", module="browser", prefix="browser", enabled=True
-    )
+    config = ServerConfig(name="browser", module="browser", prefix="browser", enabled=True)
     mcp = loader.load_server_module(config)
     assert loader.validate_server_module(mcp) is True
 
@@ -68,9 +64,7 @@ def test_validate_server_module(loader):
 
 def test_tool_name_collision(loader):
     """test that tool name collision is detected and raises error"""
-    config = ServerConfig(
-        name="browser", module="browser", prefix="browser", enabled=True
-    )
+    config = ServerConfig(name="browser", module="browser", prefix="browser", enabled=True)
     source_mcp = loader.load_server_module(config)
 
     target_mcp = MagicMock()
@@ -89,9 +83,7 @@ def test_prompt_name_collision(loader):
     """test that prompt name collision is detected and raises error"""
     # create mock mcp with prompts
     source_mcp = MagicMock()
-    source_mcp._prompt_manager._prompts = {
-        "test_prompt": MagicMock(name="test_prompt")
-    }
+    source_mcp._prompt_manager._prompts = {"test_prompt": MagicMock(name="test_prompt")}
 
     target_mcp = MagicMock()
     target_mcp._prompt_manager._prompts = {}

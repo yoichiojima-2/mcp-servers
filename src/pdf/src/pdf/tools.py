@@ -43,9 +43,7 @@ def extract_text(file_path: str, pages: str | None = None) -> str:
 
 
 @mcp.tool()
-def extract_tables(
-    file_path: str, pages: str | None = None, format: str = "markdown"
-) -> str:
+def extract_tables(file_path: str, pages: str | None = None, format: str = "markdown") -> str:
     """
     Extract tables from a PDF file.
 
@@ -76,9 +74,7 @@ def extract_tables(
                 for table_idx, table in enumerate(tables):
                     if table:
                         formatted = _format_table(table, format)
-                        results.append(
-                            f"--- Page {i + 1}, Table {table_idx + 1} ---\n{formatted}"
-                        )
+                        results.append(f"--- Page {i + 1}, Table {table_idx + 1} ---\n{formatted}")
 
     return "\n\n".join(results) if results else "No tables found."
 

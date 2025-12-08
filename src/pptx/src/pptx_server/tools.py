@@ -170,9 +170,7 @@ def add_text_box(
         return f"Error: Slide {slide_number} does not exist. Presentation has {len(prs.slides)} slides."
 
     slide = prs.slides[slide_number - 1]
-    txBox = slide.shapes.add_textbox(
-        Inches(left), Inches(top), Inches(width), Inches(height)
-    )
+    txBox = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
     tf = txBox.text_frame
     tf.word_wrap = True
 
@@ -379,9 +377,7 @@ def add_table(
     rows = len(data)
     cols = len(data[0])
 
-    table_shape = slide.shapes.add_table(
-        rows, cols, Inches(left), Inches(top), Inches(width), Inches(height)
-    )
+    table_shape = slide.shapes.add_table(rows, cols, Inches(left), Inches(top), Inches(width), Inches(height))
     table = table_shape.table
 
     # Fill in data
@@ -581,9 +577,7 @@ def delete_slide(file_path: str, slide_number: int) -> str:
     del prs.slides._sldIdLst[slide_number - 1]
 
     prs.save(str(path))
-    return (
-        f"Deleted slide {slide_number}. Presentation now has {len(prs.slides)} slides."
-    )
+    return f"Deleted slide {slide_number}. Presentation now has {len(prs.slides)} slides."
 
 
 @mcp.tool()
@@ -617,9 +611,7 @@ def duplicate_slide(file_path: str, slide_number: int) -> str:
     for shape in source_slide.shapes:
         if shape.has_text_frame:
             # Add text box
-            new_shape = new_slide.shapes.add_textbox(
-                shape.left, shape.top, shape.width, shape.height
-            )
+            new_shape = new_slide.shapes.add_textbox(shape.left, shape.top, shape.width, shape.height)
             new_shape.text_frame.text = shape.text_frame.text
 
     prs.save(str(path))
@@ -708,16 +700,12 @@ def apply_template(source_path: str, template_path: str, output_path: str) -> st
     for slide in source_prs.slides:
         # Use a compatible layout from template
         layout_idx = min(1, len(template_prs.slide_layouts) - 1)
-        new_slide = template_prs.slides.add_slide(
-            template_prs.slide_layouts[layout_idx]
-        )
+        new_slide = template_prs.slides.add_slide(template_prs.slide_layouts[layout_idx])
 
         # Copy text content
         for shape in slide.shapes:
             if shape.has_text_frame and shape.text_frame.text.strip():
-                tb = new_slide.shapes.add_textbox(
-                    shape.left, shape.top, shape.width, shape.height
-                )
+                tb = new_slide.shapes.add_textbox(shape.left, shape.top, shape.width, shape.height)
                 tb.text_frame.text = shape.text_frame.text
 
     template_prs.save(str(out))

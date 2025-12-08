@@ -25,10 +25,7 @@ class LifespanManager:
             server_src_resolved = server_src.resolve()
             repo_root_resolved = self.repo_root.resolve()
             if not str(server_src_resolved).startswith(str(repo_root_resolved)):
-                raise ValueError(
-                    f"invalid module path '{module_name}': "
-                    f"path escapes repository root"
-                )
+                raise ValueError(f"invalid module path '{module_name}': path escapes repository root")
         except (OSError, RuntimeError) as e:
             raise ValueError(f"invalid module path '{module_name}': {e}")
 
@@ -70,13 +67,8 @@ class LifespanManager:
                     try:
                         await ctx.__aexit__(None, None, None)
                     except Exception as cleanup_error:
-                        print(
-                            f"warning: failed to cleanup '{cleanup_name}' "
-                            f"after init error: {cleanup_error}"
-                        )
-                raise RuntimeError(
-                    f"failed to initialize lifespan for server '{server_config.name}': {e}"
-                ) from e
+                        print(f"warning: failed to cleanup '{cleanup_name}' after init error: {cleanup_error}")
+                raise RuntimeError(f"failed to initialize lifespan for server '{server_config.name}': {e}") from e
 
         try:
             yield state

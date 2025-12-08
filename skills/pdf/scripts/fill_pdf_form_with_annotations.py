@@ -51,9 +51,7 @@ def fill_pdf_form(input_pdf_path, fields_json_path, output_pdf_path):
         page_num = field["page_number"]
 
         # Get page dimensions and transform coordinates.
-        page_info = next(
-            p for p in fields_data["pages"] if p["page_number"] == page_num
-        )
+        page_info = next(p for p in fields_data["pages"] if p["page_number"] == page_num)
         image_width = page_info["image_width"]
         image_height = page_info["image_height"]
         pdf_width, pdf_height = pdf_dimensions[page_num]
@@ -103,9 +101,7 @@ def fill_pdf_form(input_pdf_path, fields_json_path, output_pdf_path):
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
-        print(
-            "Usage: fill_pdf_form_with_annotations.py [input pdf] [fields.json] [output pdf]"
-        )
+        print("Usage: fill_pdf_form_with_annotations.py [input pdf] [fields.json] [output pdf]")
         sys.exit(1)
     input_pdf = sys.argv[1]
     fields_json = sys.argv[2]

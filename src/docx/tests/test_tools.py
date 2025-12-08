@@ -55,9 +55,7 @@ async def test_unpack_pack():
                 zf.writestr("_rels/.rels", '<?xml version="1.0"?><Relationships/>')
 
             # Test unpack
-            res = await client.call_tool(
-                "unpack", {"input_file": str(docx_path), "output_dir": str(unpack_dir)}
-            )
+            res = await client.call_tool("unpack", {"input_file": str(docx_path), "output_dir": str(unpack_dir)})
             assert "Unpacked" in res.content[0].text
 
             # Test pack
