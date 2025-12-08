@@ -1,16 +1,42 @@
 """Database management for query history."""
 
 import os
+import sys
 from pathlib import Path
 from threading import Lock
 from typing import Optional
 
 import duckdb
 
+
+def _get_env_int(name: str, default: int, min_value: int = 1) -> int:
+    """Get and validate integer environment variable.
+
+    Args:
+        name: Environment variable name
+        default: Default value if not set or invalid
+        min_value: Minimum allowed value
+
+    Returns:
+        Validated integer value
+    """
+    try:
+        value = int(os.getenv(name, default))
+        if value < min_value:
+            raise ValueError(f"Must be >= {min_value}")
+        return value
+    except (ValueError, TypeError) as e:
+        print(
+            f"Warning: Invalid {name}='{os.getenv(name)}' ({e}), using default {default}",
+            file=sys.stderr,
+        )
+        return default
+
+
 # Configuration constants (configurable via environment variables)
-MAX_RESULT_SIZE = int(os.getenv("LANGQUERY_MAX_RESULT_SIZE", 1024 * 1024))  # Default: 1MB
-MAX_HISTORY_SIZE = int(os.getenv("LANGQUERY_MAX_HISTORY_SIZE", 100))  # Default: 100 queries
-CLEANUP_FREQUENCY = int(os.getenv("LANGQUERY_CLEANUP_FREQUENCY", 10))  # Default: every 10 queries
+MAX_RESULT_SIZE = _get_env_int("LANGQUERY_MAX_RESULT_SIZE", 1024 * 1024)  # Default: 1MB
+MAX_HISTORY_SIZE = _get_env_int("LANGQUERY_MAX_HISTORY_SIZE", 100)  # Default: 100 queries
+CLEANUP_FREQUENCY = _get_env_int("LANGQUERY_CLEANUP_FREQUENCY", 10)  # Default: every 10 queries
 
 
 class HistoryDB:
@@ -110,21 +136,25 @@ class HistoryDB:
         if should_cleanup:
             try:
                 with duckdb.connect(self.db_path) as conn:
-                    # Keep only the last MAX_HISTORY_SIZE queries
-                    # Use ID-based deletion which leverages primary key index
-                    conn.execute(
-                        """
-                        DELETE FROM query_history
-                        WHERE id < (
-                            SELECT MIN(id) FROM (
-                                SELECT id FROM query_history
-                                ORDER BY id DESC
-                                LIMIT ?
+                    # Double-check: verify cleanup is still needed
+                    # This prevents race where multiple threads think they should cleanup
+                    count = conn.execute("SELECT COUNT(*) FROM query_history").fetchone()[0]
+                    if count > MAX_HISTORY_SIZE:
+                        # Keep only the last MAX_HISTORY_SIZE queries
+                        # Use ID-based deletion which leverages primary key index
+                        conn.execute(
+                            """
+                            DELETE FROM query_history
+                            WHERE id < (
+                                SELECT MIN(id) FROM (
+                                    SELECT id FROM query_history
+                                    ORDER BY id DESC
+                                    LIMIT ?
+                                )
                             )
+                        """,
+                            [MAX_HISTORY_SIZE],
                         )
-                    """,
-                        [MAX_HISTORY_SIZE],
-                    )
             finally:
                 # Always reset cleanup flag
                 with self._counter_lock:
@@ -154,7 +184,7 @@ class HistoryDB:
                     row_count,
                     success
                 FROM query_history
-                ORDER BY timestamp DESC
+                ORDER BY id DESC
                 LIMIT ?
             """,
                 [limit],
@@ -211,7 +241,8 @@ class HistoryDB:
         if limit < 1 or limit > 1000:
             return "Error: limit must be between 1 and 1000"
 
-        # Escape SQL wildcards so they're treated as literal characters
+        # Escape SQL LIKE wildcards so they're treated as literal characters
+        # Note: Parameterized queries prevent SQL injection; this is only for LIKE pattern matching
         escaped_term = search_term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
         with duckdb.connect(self.db_path) as conn:
@@ -226,7 +257,7 @@ class HistoryDB:
                     success
                 FROM query_history
                 WHERE query ILIKE ? ESCAPE '\\'
-                ORDER BY timestamp DESC
+                ORDER BY id DESC
                 LIMIT ?
             """,
                 [f"%{escaped_term}%", limit],
@@ -244,10 +275,10 @@ class HistoryDB:
             Success message with count of deleted queries
         """
         with duckdb.connect(self.db_path) as conn:
-            count_result = conn.execute("SELECT COUNT(*) FROM query_history").fetchone()
-            count = count_result[0] if count_result else 0
-
-            conn.execute("DELETE FROM query_history")
+            # Use DELETE...RETURNING to get count in single query
+            # RETURNING returns one row per deleted row, so we count the results
+            result = conn.execute("DELETE FROM query_history RETURNING id").fetchall()
+            count = len(result)
 
             # Thread-safe counter reset
             with self._counter_lock:
