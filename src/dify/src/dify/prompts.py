@@ -1,7 +1,5 @@
 """MCP Prompts (Skills) for common Dify agent patterns."""
 
-from fastmcp import FastMCP
-
 from .server import mcp
 
 

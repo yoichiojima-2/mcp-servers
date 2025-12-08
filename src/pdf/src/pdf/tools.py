@@ -1,5 +1,3 @@
-import io
-import os
 from pathlib import Path
 
 import pdfplumber
@@ -45,7 +43,9 @@ def extract_text(file_path: str, pages: str | None = None) -> str:
 
 
 @mcp.tool()
-def extract_tables(file_path: str, pages: str | None = None, format: str = "markdown") -> str:
+def extract_tables(
+    file_path: str, pages: str | None = None, format: str = "markdown"
+) -> str:
     """
     Extract tables from a PDF file.
 
@@ -76,7 +76,9 @@ def extract_tables(file_path: str, pages: str | None = None, format: str = "mark
                 for table_idx, table in enumerate(tables):
                     if table:
                         formatted = _format_table(table, format)
-                        results.append(f"--- Page {i + 1}, Table {table_idx + 1} ---\n{formatted}")
+                        results.append(
+                            f"--- Page {i + 1}, Table {table_idx + 1} ---\n{formatted}"
+                        )
 
     return "\n\n".join(results) if results else "No tables found."
 
@@ -214,7 +216,12 @@ def merge_pdfs(file_paths: list[str], output_path: str) -> str:
 
 
 @mcp.tool()
-def rotate_pages(file_path: str, rotation: int, pages: str | None = None, output_path: str | None = None) -> str:
+def rotate_pages(
+    file_path: str,
+    rotation: int,
+    pages: str | None = None,
+    output_path: str | None = None,
+) -> str:
     """
     Rotate pages in a PDF file.
 
@@ -329,6 +336,7 @@ def _format_table(table: list[list], format: str) -> str:
 
     elif format == "json":
         import json
+
         if table and len(table) > 1:
             headers = [str(h) if h else f"col_{i}" for i, h in enumerate(table[0])]
             rows = []

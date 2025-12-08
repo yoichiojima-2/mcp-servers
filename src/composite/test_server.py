@@ -15,7 +15,7 @@ async def test_tools_registration():
     prompt_manager = mcp._prompt_manager
     prompts = prompt_manager._prompts
 
-    print(f"\n=== Composite Server Test ===\n")
+    print("\n=== Composite Server Test ===\n")
     print(f"Total tools registered: {len(tools)}")
     print(f"Total prompts registered: {len(prompts)}\n")
 
@@ -52,4 +52,4 @@ async def test_tools_registration():
         for prompt in sorted(browser_prompts):
             print(f"  - {prompt}")
 
-    print(f"\n=== Test Complete ===\n")
+    print("\n=== Test Complete ===\n")

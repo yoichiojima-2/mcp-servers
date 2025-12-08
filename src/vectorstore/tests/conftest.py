@@ -1,6 +1,5 @@
 import os
 import pytest
-from pathlib import Path
 
 
 @pytest.fixture(scope="function")
@@ -18,6 +17,7 @@ def temp_chroma_path(tmp_path):
 
     # Cleanup - reset client and embedding function singletons
     from vectorstore import tools
+
     tools._client = None
     tools._embedding_function = None
     # Clean up environment
@@ -32,7 +32,9 @@ def sample_collection(temp_chroma_path):
 
     client = _get_client()
     embedding_function = _get_embedding_function()
-    collection = client.create_collection("test_collection", embedding_function=embedding_function)
+    collection = client.create_collection(
+        "test_collection", embedding_function=embedding_function
+    )
     collection.add(
         documents=[
             "Document about cats and their behavior",

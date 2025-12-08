@@ -16,7 +16,9 @@ def setup_libreoffice_macro() -> bool:
         bool: True if macro setup succeeds, False otherwise
     """
     if platform.system() == "Darwin":
-        macro_dir = os.path.expanduser("~/Library/Application Support/LibreOffice/4/user/basic/Standard")
+        macro_dir = os.path.expanduser(
+            "~/Library/Application Support/LibreOffice/4/user/basic/Standard"
+        )
     else:
         macro_dir = os.path.expanduser("~/.config/libreoffice/4/user/basic/Standard")
 
@@ -45,7 +47,11 @@ def setup_libreoffice_macro() -> bool:
             pass  # If reading fails, proceed to recreate
 
     if not os.path.exists(macro_dir):
-        subprocess.run(["soffice", "--headless", "--terminate_after_init"], capture_output=True, timeout=10)
+        subprocess.run(
+            ["soffice", "--headless", "--terminate_after_init"],
+            capture_output=True,
+            timeout=10,
+        )
         os.makedirs(macro_dir, exist_ok=True)
 
     try:
@@ -99,7 +105,15 @@ def recalc(filename: str, timeout: int = 30) -> dict:
     try:
         wb = load_workbook(filename, data_only=True)
 
-        excel_errors = ["#VALUE!", "#DIV/0!", "#REF!", "#NAME?", "#NULL!", "#NUM!", "#N/A"]
+        excel_errors = [
+            "#VALUE!",
+            "#DIV/0!",
+            "#REF!",
+            "#NAME?",
+            "#NULL!",
+            "#NUM!",
+            "#N/A",
+        ]
         error_details = {err: [] for err in excel_errors}
         total_errors = 0
 
@@ -125,7 +139,10 @@ def recalc(filename: str, timeout: int = 30) -> dict:
 
         for err_type, locations in error_details.items():
             if locations:
-                result["error_summary"][err_type] = {"count": len(locations), "locations": locations[:20]}
+                result["error_summary"][err_type] = {
+                    "count": len(locations),
+                    "locations": locations[:20],
+                }
 
         wb_formulas = load_workbook(filename, data_only=False)
         formula_count = 0
@@ -133,7 +150,11 @@ def recalc(filename: str, timeout: int = 30) -> dict:
             ws = wb_formulas[sheet_name]
             for row in ws.iter_rows():
                 for cell in row:
-                    if cell.value and isinstance(cell.value, str) and cell.value.startswith("="):
+                    if (
+                        cell.value
+                        and isinstance(cell.value, str)
+                        and cell.value.startswith("=")
+                    ):
                         formula_count += 1
         wb_formulas.close()
 

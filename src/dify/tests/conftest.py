@@ -1,8 +1,6 @@
 """Test configuration and fixtures."""
 
-import pytest
 import pytest_asyncio
-from fastmcp import Context
 
 
 @pytest_asyncio.fixture(scope="function")

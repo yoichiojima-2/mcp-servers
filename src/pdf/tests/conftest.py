@@ -7,8 +7,6 @@ def sample_pdf(tmp_path_factory) -> Path:
     """Create a sample PDF for testing."""
     from reportlab.lib.pagesizes import letter
     from reportlab.pdfgen import canvas
-    from reportlab.lib import colors
-    from reportlab.platypus import Table, TableStyle
 
     pdf_path = tmp_path_factory.mktemp("data") / "sample.pdf"
     c = canvas.Canvas(str(pdf_path), pagesize=letter)
@@ -38,7 +36,6 @@ def sample_pdf(tmp_path_factory) -> Path:
 def sample_pdf_with_table(tmp_path_factory) -> Path:
     """Create a sample PDF with a table for testing."""
     from reportlab.lib.pagesizes import letter
-    from reportlab.pdfgen import canvas
     from reportlab.lib import colors
     from reportlab.platypus import Table, TableStyle, SimpleDocTemplate
 
@@ -54,16 +51,20 @@ def sample_pdf_with_table(tmp_path_factory) -> Path:
     ]
 
     table = Table(data)
-    table.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
-        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-        ("FONTSIZE", (0, 0), (-1, 0), 14),
-        ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
-        ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
-        ("GRID", (0, 0), (-1, -1), 1, colors.black),
-    ]))
+    table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("FONTSIZE", (0, 0), (-1, 0), 14),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+                ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
+                ("GRID", (0, 0), (-1, -1), 1, colors.black),
+            ]
+        )
+    )
 
     doc.build([table])
     return pdf_path

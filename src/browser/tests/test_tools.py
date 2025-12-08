@@ -148,7 +148,9 @@ async def test_invalid_selector_error_handling():
     """Test that invalid selectors are handled gracefully."""
     async with Client(mcp) as client:
         await client.call_tool("navigate", {"url": "https://example.com"})
-        res = await client.call_tool("click", {"selector": "#nonexistent-element-12345"})
+        res = await client.call_tool(
+            "click", {"selector": "#nonexistent-element-12345"}
+        )
         # Should return an error message, not crash
         assert "Error" in res.content[0].text or "Timeout" in res.content[0].text
 
@@ -172,7 +174,9 @@ async def test_invalid_javascript_error_handling():
     """Test that invalid JavaScript is handled gracefully."""
     async with Client(mcp) as client:
         await client.call_tool("navigate", {"url": "https://example.com"})
-        res = await client.call_tool("evaluate", {"script": "this.is.invalid.javascript"})
+        res = await client.call_tool(
+            "evaluate", {"script": "this.is.invalid.javascript"}
+        )
         # Should return an error message, not crash
         assert "Error" in res.content[0].text
 

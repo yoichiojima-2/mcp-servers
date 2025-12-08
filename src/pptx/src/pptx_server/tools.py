@@ -9,21 +9,19 @@ Inspired by the Anthropic PPTX skill, this module provides tools for:
 - OOXML manipulation for advanced editing
 """
 
-import io
 import json
 import os
 import shutil
 import tempfile
 import zipfile
 from pathlib import Path
-from typing import Any
 from xml.etree import ElementTree as ET
 
 from PIL import Image
 from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE
-from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
+from pptx.enum.text import PP_ALIGN
 from pptx.util import Inches, Pt
 
 from . import mcp
@@ -444,7 +442,7 @@ def get_presentation_info(file_path: str) -> str:
     info = [
         f"File: {path.name}",
         f"Slides: {len(prs.slides)}",
-        f"Dimensions: {width_inches:.2f}\" x {height_inches:.2f}\"",
+        f'Dimensions: {width_inches:.2f}" x {height_inches:.2f}"',
         f"Aspect Ratio: {aspect}",
         f"Slide Layouts: {len(prs.slide_layouts)}",
         "",
@@ -583,7 +581,9 @@ def delete_slide(file_path: str, slide_number: int) -> str:
     del prs.slides._sldIdLst[slide_number - 1]
 
     prs.save(str(path))
-    return f"Deleted slide {slide_number}. Presentation now has {len(prs.slides)} slides."
+    return (
+        f"Deleted slide {slide_number}. Presentation now has {len(prs.slides)} slides."
+    )
 
 
 @mcp.tool()
@@ -708,7 +708,9 @@ def apply_template(source_path: str, template_path: str, output_path: str) -> st
     for slide in source_prs.slides:
         # Use a compatible layout from template
         layout_idx = min(1, len(template_prs.slide_layouts) - 1)
-        new_slide = template_prs.slides.add_slide(template_prs.slide_layouts[layout_idx])
+        new_slide = template_prs.slides.add_slide(
+            template_prs.slide_layouts[layout_idx]
+        )
 
         # Copy text content
         for shape in slide.shapes:
@@ -887,11 +889,7 @@ def get_slide_notes(file_path: str, slide_number: int | None = None) -> str:
     prs = Presentation(str(path))
     results = []
 
-    slides_to_check = (
-        [prs.slides[slide_number - 1]]
-        if slide_number
-        else prs.slides
-    )
+    slides_to_check = [prs.slides[slide_number - 1]] if slide_number else prs.slides
 
     for i, slide in enumerate(slides_to_check, slide_number or 1):
         if slide.has_notes_slide:
@@ -967,8 +965,6 @@ def export_slide_as_image(
 
     if slide_number < 1 or slide_number > len(prs.slides):
         return f"Error: Slide {slide_number} does not exist."
-
-    slide = prs.slides[slide_number - 1]
 
     # Calculate height based on aspect ratio
     aspect_ratio = prs.slide_height.inches / prs.slide_width.inches

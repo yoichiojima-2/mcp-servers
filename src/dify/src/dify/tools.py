@@ -27,20 +27,19 @@ class DifyClient:
             console_api_key: Console API key for workspace operations (admin operations)
             console_base_url: Base URL for console API (default: https://api.dify.ai)
         """
-        self.api_key = api_key or os.getenv("DIFY_API_KEY")
-        self.base_url = (base_url or os.getenv("DIFY_BASE_URL", "https://api.dify.ai/v1")).rstrip("/")
-
-        # Console API for admin operations (import/export DSL, manage apps)
-        self.console_api_key = console_api_key or os.getenv("DIFY_CONSOLE_API_KEY")
-        self.console_base_url = (
-            console_base_url or os.getenv("DIFY_CONSOLE_BASE_URL", "https://api.dify.ai")
+        self.api_key = (api_key or os.getenv("DIFY_API_KEY") or "").strip() or None
+        self.base_url = (
+            base_url or os.getenv("DIFY_BASE_URL", "https://api.dify.ai/v1")
         ).rstrip("/")
 
-        # Validate API keys are not empty strings
-        if self.api_key is not None and not self.api_key.strip():
-            self.api_key = None
-        if self.console_api_key is not None and not self.console_api_key.strip():
-            self.console_api_key = None
+        # Console API for admin operations (import/export DSL, manage apps)
+        self.console_api_key = (
+            console_api_key or os.getenv("DIFY_CONSOLE_API_KEY") or ""
+        ).strip() or None
+        self.console_base_url = (
+            console_base_url
+            or os.getenv("DIFY_CONSOLE_BASE_URL", "https://api.dify.ai")
+        ).rstrip("/")
 
         # Reusable HTTP client for better performance
         self._http_client = httpx.AsyncClient(timeout=60.0)
@@ -95,7 +94,9 @@ class DifyClient:
             headers.update(kwargs.pop("headers"))
 
         try:
-            response = await self._http_client.request(method, url, headers=headers, **kwargs)
+            response = await self._http_client.request(
+                method, url, headers=headers, **kwargs
+            )
             response.raise_for_status()
             return response.json()
         except httpx.HTTPStatusError as e:
@@ -133,7 +134,7 @@ async def chat_message(
     Returns:
         Assistant's response text
     """
-    if not query or not query.strip():
+    if not query.strip():
         raise ToolError("Query cannot be empty")
 
     client = ctx.request_context.lifespan_state["client"]
@@ -300,9 +301,9 @@ async def upload_document_by_text(
     Returns:
         Document object with id, status, and indexing info
     """
-    if not text or not text.strip():
+    if not text.strip():
         raise ToolError("Document text cannot be empty")
-    if not name or not name.strip():
+    if not name.strip():
         raise ToolError("Document name cannot be empty")
 
     client = ctx.request_context.lifespan_state["client"]
@@ -550,7 +551,12 @@ async def generate_workflow_dsl(
                         "type": "end",
                         "data": {
                             "title": "End",
-                            "outputs": [{"variable": "result", "value_selector": ["llm", "text"]}],
+                            "outputs": [
+                                {
+                                    "variable": "result",
+                                    "value_selector": ["llm", "text"],
+                                }
+                            ],
                         },
                     },
                 ],

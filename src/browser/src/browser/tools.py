@@ -25,9 +25,15 @@ DEFAULT_TIMEOUT = int(os.getenv("BROWSER_TIMEOUT", "30000"))  # 30 seconds
 DEFAULT_NAVIGATION_TIMEOUT = int(os.getenv("NAVIGATION_TIMEOUT", "60000"))  # 60 seconds
 
 # Timeout constants for internal operations (configurable via environment variables)
-HEALTH_CHECK_TIMEOUT = float(os.getenv("HEALTH_CHECK_TIMEOUT", "5.0"))  # Timeout for page health checks
-CONTENT_EVAL_TIMEOUT = float(os.getenv("CONTENT_EVAL_TIMEOUT", "10.0"))  # Timeout for content evaluation
-SCRIPT_EVAL_TIMEOUT = float(os.getenv("SCRIPT_EVAL_TIMEOUT", "30.0"))  # Timeout for JavaScript evaluation
+HEALTH_CHECK_TIMEOUT = float(
+    os.getenv("HEALTH_CHECK_TIMEOUT", "5.0")
+)  # Timeout for page health checks
+CONTENT_EVAL_TIMEOUT = float(
+    os.getenv("CONTENT_EVAL_TIMEOUT", "10.0")
+)  # Timeout for content evaluation
+SCRIPT_EVAL_TIMEOUT = float(
+    os.getenv("SCRIPT_EVAL_TIMEOUT", "30.0")
+)  # Timeout for JavaScript evaluation
 
 
 def _ensure_lock(lock_name: str) -> asyncio.Lock:
@@ -52,7 +58,9 @@ def _ensure_lock(lock_name: str) -> asyncio.Lock:
         try:
             loop = asyncio.get_running_loop()
             # Check if we need to create a new lock
-            if current_lock is None or (hasattr(current_lock, "_loop") and current_lock._loop is not loop):
+            if current_lock is None or (
+                hasattr(current_lock, "_loop") and current_lock._loop is not loop
+            ):
                 # Create new lock for this event loop
                 new_lock = asyncio.Lock()
                 # Update the global variable
@@ -93,7 +101,9 @@ def handle_browser_errors(func):
                 # Attempt recovery with more aggressive cleanup
                 try:
                     await _reset_page_unsafe()
-                    return f"{error_msg}\nPage has been reset. Ready for next operation."
+                    return (
+                        f"{error_msg}\nPage has been reset. Ready for next operation."
+                    )
                 except Exception as reset_error:
                     # If page reset fails, try to close browser entirely
                     try:
@@ -264,8 +274,10 @@ async def get_content(max_length: int = 10000) -> str:
     page = await get_page_unsafe()
     # Add timeout to prevent hanging
     text = await asyncio.wait_for(
-        page.evaluate("() => document.body.innerText || document.body.textContent || ''"),
-        timeout=CONTENT_EVAL_TIMEOUT
+        page.evaluate(
+            "() => document.body.innerText || document.body.textContent || ''"
+        ),
+        timeout=CONTENT_EVAL_TIMEOUT,
     )
     # Return a truncated version to avoid overwhelming the model
     if len(text) > max_length:
@@ -470,8 +482,8 @@ async def force_reset() -> str:
     """Force reset the browser page if it's in a bad state."""
     await _reset_page_unsafe()
     # Create a new page to verify it works
-    page = await get_page_unsafe()
-    return f"Browser reset successfully. New page ready."
+    await get_page_unsafe()
+    return "Browser reset successfully. New page ready."
 
 
 @mcp.tool()

@@ -16,7 +16,9 @@ FILTER_PPTX = "html:impress_html_Export"
 FILTER_XLSX = "html:HTML (StarCalc)"
 
 
-def pack_document(input_dir: str | Path, output_file: str | Path, validate: bool = False) -> bool:
+def pack_document(
+    input_dir: str | Path, output_file: str | Path, validate: bool = False
+) -> bool:
     """Pack a directory into an Office file (.docx/.pptx/.xlsx).
 
     Args:
@@ -117,7 +119,9 @@ def condense_xml(xml_file: Path) -> None:
     # Protect against resource exhaustion - limit XML file size to 10MB
     MAX_XML_SIZE = 10 * 1024 * 1024
     if xml_file.stat().st_size > MAX_XML_SIZE:
-        raise ValueError(f"XML file too large: {xml_file} ({xml_file.stat().st_size} bytes)")
+        raise ValueError(
+            f"XML file too large: {xml_file} ({xml_file.stat().st_size} bytes)"
+        )
 
     with open(xml_file, "r", encoding="utf-8") as f:
         dom = defusedxml.minidom.parse(f)

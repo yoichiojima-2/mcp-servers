@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
-from openpyxl import Workbook, load_workbook
+from openpyxl import load_workbook
 
 from . import mcp
 from .recalc import recalc

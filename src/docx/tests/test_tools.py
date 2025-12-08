@@ -16,7 +16,11 @@ async def test_convert_to_markdown():
 
             res = await client.call_tool(
                 "convert_to_markdown",
-                {"docx_file": docx_path, "output_file": md_path, "track_changes": "all"},
+                {
+                    "docx_file": docx_path,
+                    "output_file": md_path,
+                    "track_changes": "all",
+                },
             )
             assert "docx" in res.content[0].text or "Error" in res.content[0].text
 
@@ -26,7 +30,11 @@ async def test_convert_to_markdown_invalid_track_changes():
     async with Client(mcp) as client:
         res = await client.call_tool(
             "convert_to_markdown",
-            {"docx_file": "test.docx", "output_file": "test.md", "track_changes": "invalid"},
+            {
+                "docx_file": "test.docx",
+                "output_file": "test.md",
+                "track_changes": "invalid",
+            },
         )
         assert "Invalid track_changes value" in res.content[0].text
 
@@ -47,12 +55,19 @@ async def test_unpack_pack():
                 zf.writestr("_rels/.rels", '<?xml version="1.0"?><Relationships/>')
 
             # Test unpack
-            res = await client.call_tool("unpack", {"input_file": str(docx_path), "output_dir": str(unpack_dir)})
+            res = await client.call_tool(
+                "unpack", {"input_file": str(docx_path), "output_dir": str(unpack_dir)}
+            )
             assert "Unpacked" in res.content[0].text
 
             # Test pack
             res = await client.call_tool(
-                "pack", {"input_dir": str(unpack_dir), "output_file": str(output_docx), "validate": False}
+                "pack",
+                {
+                    "input_dir": str(unpack_dir),
+                    "output_file": str(output_docx),
+                    "validate": False,
+                },
             )
             assert "Packed" in res.content[0].text
             assert output_docx.exists()

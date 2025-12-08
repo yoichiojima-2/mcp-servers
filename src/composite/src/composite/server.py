@@ -5,7 +5,7 @@ import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastmcp import FastMCP, Context
+from fastmcp import FastMCP
 from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
 
@@ -63,7 +63,7 @@ for tool_key, tool_obj in browser_tool_manager._tools.items():
 
 # Copy prompts from browser MCP instance (if any)
 browser_prompt_manager = browser_mcp._prompt_manager
-if hasattr(browser_prompt_manager, '_prompts'):
+if hasattr(browser_prompt_manager, "_prompts"):
     for prompt_key, prompt_obj in browser_prompt_manager._prompts.items():
         prefixed_name = f"browser_{prompt_obj.name}"
         mcp._prompt_manager._prompts[prefixed_name] = prompt_obj

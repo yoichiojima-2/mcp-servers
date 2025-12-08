@@ -32,7 +32,9 @@ def _get_embedding_function():
         if embedding_type == "openai":
             api_key = os.getenv("OPENAI_API_KEY")
             if not api_key:
-                raise ValueError("OPENAI_API_KEY environment variable is required when using OpenAI embeddings")
+                raise ValueError(
+                    "OPENAI_API_KEY environment variable is required when using OpenAI embeddings"
+                )
 
             model_name = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
             _embedding_function = embedding_functions.OpenAIEmbeddingFunction(
@@ -115,10 +117,7 @@ def list_collections() -> str:
     try:
         client = _get_client()
         collections = client.list_collections()
-        result = [
-            {"name": c.name, "metadata": c.metadata}
-            for c in collections
-        ]
+        result = [{"name": c.name, "metadata": c.metadata} for c in collections]
         return json.dumps(result, indent=2)
     except Exception as e:
         return f"Error: {e}"
@@ -157,7 +156,9 @@ def get_collection_info(name: str) -> str:
     try:
         client = _get_client()
         embedding_function = _get_embedding_function()
-        collection = client.get_collection(name=name, embedding_function=embedding_function)
+        collection = client.get_collection(
+            name=name, embedding_function=embedding_function
+        )
         result = {
             "name": collection.name,
             "count": collection.count(),
@@ -195,7 +196,9 @@ def add_documents(
     try:
         client = _get_client()
         embedding_function = _get_embedding_function()
-        coll = client.get_collection(name=collection, embedding_function=embedding_function)
+        coll = client.get_collection(
+            name=collection, embedding_function=embedding_function
+        )
 
         doc_ids = ids if ids else _generate_ids(len(documents))
 
@@ -235,7 +238,9 @@ def get_documents(
     try:
         client = _get_client()
         embedding_function = _get_embedding_function()
-        coll = client.get_collection(name=collection, embedding_function=embedding_function)
+        coll = client.get_collection(
+            name=collection, embedding_function=embedding_function
+        )
 
         include_fields = include if include else ["documents", "metadatas"]
 
@@ -273,7 +278,9 @@ def update_documents(
     try:
         client = _get_client()
         embedding_function = _get_embedding_function()
-        coll = client.get_collection(name=collection, embedding_function=embedding_function)
+        coll = client.get_collection(
+            name=collection, embedding_function=embedding_function
+        )
 
         coll.update(
             ids=ids,
@@ -307,7 +314,9 @@ def upsert_documents(
     try:
         client = _get_client()
         embedding_function = _get_embedding_function()
-        coll = client.get_collection(name=collection, embedding_function=embedding_function)
+        coll = client.get_collection(
+            name=collection, embedding_function=embedding_function
+        )
 
         coll.upsert(
             documents=documents,
@@ -342,7 +351,9 @@ def delete_documents(
 
         client = _get_client()
         embedding_function = _get_embedding_function()
-        coll = client.get_collection(name=collection, embedding_function=embedding_function)
+        coll = client.get_collection(
+            name=collection, embedding_function=embedding_function
+        )
 
         coll.delete(
             ids=ids,
@@ -384,7 +395,9 @@ def query(
     try:
         client = _get_client()
         embedding_function = _get_embedding_function()
-        coll = client.get_collection(name=collection, embedding_function=embedding_function)
+        coll = client.get_collection(
+            name=collection, embedding_function=embedding_function
+        )
 
         include_fields = include if include else ["documents", "metadatas", "distances"]
 
@@ -411,7 +424,7 @@ def _chunk_text(
     chunk_overlap: int = 200,
 ) -> list[str]:
     """Split text into overlapping chunks."""
-    if not text or not text.strip():
+    if not text.strip():
         return []
 
     chunks = []
@@ -485,7 +498,7 @@ def ingest_pdf(
             page = doc[page_num]
             text = page.get_text()
 
-            if not text or not text.strip():
+            if not text.strip():
                 continue
 
             chunks = _chunk_text(text, chunk_size, chunk_overlap)
