@@ -252,14 +252,13 @@ async def test_large_result_truncation():
         # Each repeat creates 100,000 characters, 20 rows = 2,000,000 characters > 1MB
         large_query = "SELECT repeat('x', 100000) as big_col FROM range(20)"
 
-        try:
-            result_res = await client.call_tool("query", {"sql": large_query})
-            result_text = result_res.content[0].text
+        # Execute the query - should succeed
+        result_res = await client.call_tool("query", {"sql": large_query})
+        result_text = result_res.content[0].text
 
-            # The result itself should be under 1MB when returned
-            # (it gets truncated before being returned from the query tool)
-        except Exception:
-            pass  # Query might fail in some environments
+        # Verify query executed successfully
+        assert result_text is not None
+        assert len(result_text) > 0
 
         # Get history to find the query ID
         history_res = await client.call_tool("get_query_history", {"limit": 1})
@@ -267,15 +266,18 @@ async def test_large_result_truncation():
 
         # Extract query ID
         match = re.search(r"\|\s*(\d+)\s*\|", history_text)
-        if match:
-            query_id = int(match.group(1))
+        assert match is not None, "Could not find query ID in history"
+        query_id = int(match.group(1))
 
-            # Get cached result
-            cached_res = await client.call_tool("get_cached_result", {"query_id": query_id})
-            cached_text = cached_res.content[0].text
+        # Get cached result
+        cached_res = await client.call_tool("get_cached_result", {"query_id": query_id})
+        cached_text = cached_res.content[0].text
 
-            # Should contain truncation marker
-            assert "truncated" in cached_text.lower(), "Large result should be truncated"
+        # Should contain truncation marker
+        assert "truncated" in cached_text.lower(), "Large result should be truncated"
+
+        # Verify the cached result is actually truncated (< 1.1MB to allow for formatting)
+        assert len(cached_text) < 1.1 * 1024 * 1024, "Cached result should be under 1.1MB"
 
 
 @pytest.mark.asyncio

@@ -25,7 +25,7 @@ def _get_env_int(name: str, default: int, min_value: int = 1) -> int:
         if value < min_value:
             raise ValueError(f"Must be >= {min_value}")
         return value
-    except (ValueError, TypeError) as e:
+    except ValueError as e:
         print(
             f"Warning: Invalid {name}='{os.getenv(name)}' ({e}), using default {default}",
             file=sys.stderr,
@@ -76,7 +76,7 @@ class HistoryDB:
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS query_history (
                     id INTEGER PRIMARY KEY DEFAULT nextval('query_history_id_seq'),
-                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
                     query TEXT NOT NULL,
                     result TEXT,
                     execution_time_ms DOUBLE,
@@ -120,12 +120,13 @@ class HistoryDB:
             )
 
         # Thread-safe counter increment and cleanup check
-        should_cleanup = False
         with self._counter_lock:
             self._query_count += 1
             if self._query_count % CLEANUP_FREQUENCY == 0 and not self._cleanup_in_progress:
                 self._cleanup_in_progress = True
                 should_cleanup = True
+            else:
+                should_cleanup = False
 
         # Run cleanup in separate transaction to avoid rolling back the insert
         if should_cleanup:
