@@ -8,22 +8,13 @@ version = "0.1.0"
 description = "MCP server for Word document (.docx) creation, editing, and analysis"
 readme = "README.md"
 requires-python = ">=3.12"
+# Server-specific dependencies only (global deps inherited from root)
 dependencies = [
     "defusedxml>=0.7.1",
-    "fastmcp>=2.12.5",
-    "python-dotenv>=1.2.1",
-    "uvicorn>=0.38.0",
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/docx"]
-
-[dependency-groups]
-dev = [
-    "pytest>=8.4.2",
-    "pytest-asyncio>=1.2.0",
-    "ruff>=0.14.1",
-]
 
 [tool.pytest.ini_options]
 pythonpath = "src"

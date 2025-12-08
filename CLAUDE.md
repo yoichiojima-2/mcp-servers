@@ -73,7 +73,22 @@ Follow conventional commits format:
 
 ### Dependency Management
 
-This repository uses `uv` for Python package management:
-- Install dependencies: `uv sync --dev`
-- Add new dependency: Edit `pyproject.toml` and run `uv sync`
-- Each MCP server has its own `pyproject.toml` in `src/<server>/`
+This repository uses a **Google-style monorepo** with `uv` workspaces for unified dependency management:
+
+**Structure:**
+- Root `pyproject.toml` contains global dependencies shared across all servers (fastmcp, python-dotenv, uvicorn, pytest, ruff, etc.)
+- Each server's `pyproject.toml` in `src/<server>/` only declares server-specific dependencies
+- Single `uv.lock` file at the root manages all dependencies across the workspace
+
+**Common Commands:**
+- Install all dependencies: `uv sync --dev` (run from root)
+- Add global dependency: Edit root `pyproject.toml` and run `uv lock`
+- Add server-specific dependency: Edit `src/<server>/pyproject.toml` and run `uv lock`
+- Run server: `cd src/<server> && uv run fastmcp run server.py`
+- Run tests: `cd src/<server> && uv run pytest -v`
+
+**Benefits:**
+- Shared dependencies are defined once at the root
+- Single lock file ensures consistent versions across all servers
+- Easier dependency updates and version management
+- Follows Google monorepo best practices
