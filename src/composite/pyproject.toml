@@ -8,26 +8,16 @@ version = "0.1.0"
 description = "A configurable composite MCP server for combining multiple MCP servers"
 readme = "README.md"
 requires-python = ">=3.12"
+# Server-specific dependencies only (global deps inherited from root)
 dependencies = [
-    "fastmcp>=2.12.5",
-    "python-dotenv>=1.2.1",
     # Individual server dependencies
     "httpx>=0.28.1",
     "pyyaml>=6.0.0",
     "playwright>=1.49.0",
-    "uvicorn>=0.38.0",
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/composite"]
-
-[dependency-groups]
-dev = [
-    "ipython>=9.6.0",
-    "pytest>=8.4.2",
-    "pytest-asyncio>=1.2.0",
-    "ruff>=0.14.1",
-]
 
 [tool.pytest.ini_options]
 pythonpath = "src"

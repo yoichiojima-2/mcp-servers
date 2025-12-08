@@ -1,0 +1,43 @@
+[project]
+name = "mcp-servers"
+version = "0.1.0"
+description = "Collection of MCP servers for document processing and data operations"
+readme = "README.md"
+requires-python = ">=3.12"
+
+# Global dependencies shared across all servers
+dependencies = [
+    "fastmcp>=2.12.5",
+    "python-dotenv>=1.2.1",
+    "uvicorn>=0.38.0",
+]
+
+[dependency-groups]
+dev = [
+    "ipython>=9.6.0",
+    "isort>=7.0.0",
+    "pytest>=8.4.2",
+    "pytest-asyncio>=1.2.0",
+    "ruff>=0.14.1",
+]
+
+# Workspace configuration
+[tool.uv.workspace]
+members = [
+    "src/browser",
+    "src/composite",
+    "src/dify",
+    "src/docx",
+    "src/langquery",
+    "src/pdf",
+    "src/pptx",
+    "src/vectorstore",
+    "src/xlsx",
+]
+
+[tool.uv]
+package = false
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
