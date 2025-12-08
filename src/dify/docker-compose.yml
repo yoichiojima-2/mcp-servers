@@ -1,0 +1,15 @@
+services:
+  dify:
+    build:
+      context: ../..
+      dockerfile: src/dify/Dockerfile
+    ports:
+      - "8006:8006"
+    volumes:
+      - ./workspace:/workspace
+      - ./src:/app/src/dify/src
+    environment:
+      - TRANSPORT=sse
+      - PORT=8006
+      - DIFY_API_KEY=${DIFY_API_KEY}
+      - DIFY_CONSOLE_API_KEY=${DIFY_CONSOLE_API_KEY}

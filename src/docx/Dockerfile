@@ -1,6 +1,6 @@
 FROM python:3.12
 
-RUN apt update && apt install -y make pandoc libreoffice
+RUN apt-get update && apt-get install -y --no-install-recommends make pandoc libreoffice && rm -rf /var/lib/apt/lists/*
 RUN pip install --upgrade pip && pip install uv
 
 # Copy monorepo configuration from root

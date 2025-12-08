@@ -10,3 +10,4 @@ services:
       - ./src:/app/src/langquery/src
     environment:
       - TRANSPORT=sse
+      - PORT=8000
