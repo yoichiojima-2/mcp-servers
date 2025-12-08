@@ -13,29 +13,74 @@ class LifespanManager:
         self.repo_root = repo_root
 
     def _add_server_to_path(self, module_name: str):
+        """add server's src directory to python path
+
+        security note: paths are added to sys.path which persists globally.
+        ensure module_name comes from trusted configuration only.
+        """
         server_src = self.repo_root / module_name / "src"
+
+        # validate path doesn't escape repo_root (security)
+        try:
+            server_src_resolved = server_src.resolve()
+            repo_root_resolved = self.repo_root.resolve()
+            if not str(server_src_resolved).startswith(str(repo_root_resolved)):
+                raise ValueError(
+                    f"invalid module path '{module_name}': "
+                    f"path escapes repository root"
+                )
+        except (OSError, RuntimeError) as e:
+            raise ValueError(f"invalid module path '{module_name}': {e}")
+
         if server_src.exists() and str(server_src) not in sys.path:
             sys.path.insert(0, str(server_src))
 
     @asynccontextmanager
     async def composite_lifespan(self):
-        """combine lifespans from multiple servers"""
+        """combine lifespans from multiple servers
+
+        servers must export an app_lifespan() function in their server module
+        that yields a dict of state to be passed to the lifespan context
+        """
         state = {}
+        cleanup_contexts = []
 
         for server_config in self.server_configs:
-            if server_config.module == "dify":
-                self._add_server_to_path("dify")
-                dify_tools = importlib.import_module("dify.tools")
-                DifyClient = dify_tools.DifyClient
+            try:
+                self._add_server_to_path(server_config.module)
+                server_module = importlib.import_module(f"{server_config.module}.server")
 
-                client = DifyClient()
-                state[server_config.name] = {"client": client}
+                # check if server has app_lifespan function
+                if not hasattr(server_module, "app_lifespan"):
+                    continue
+
+                app_lifespan = server_module.app_lifespan
+
+                # enter the lifespan context
+                ctx = app_lifespan()
+                server_state = await ctx.__aenter__()
+
+                # store state and context for cleanup
+                state[server_config.name] = server_state
+                cleanup_contexts.append((server_config.name, ctx))
+
+            except Exception as e:
+                # cleanup any already-initialized contexts
+                for _, ctx in reversed(cleanup_contexts):
+                    try:
+                        await ctx.__aexit__(None, None, None)
+                    except Exception:
+                        pass
+                raise RuntimeError(
+                    f"failed to initialize lifespan for server '{server_config.name}': {e}"
+                ) from e
 
         try:
             yield state
         finally:
-            for server_name, server_state in state.items():
-                if "client" in server_state and hasattr(
-                    server_state["client"], "close"
-                ):
-                    await server_state["client"].close()
+            # cleanup in reverse order
+            for name, ctx in reversed(cleanup_contexts):
+                try:
+                    await ctx.__aexit__(None, None, None)
+                except Exception as e:
+                    print(f"warning: error cleaning up lifespan for '{name}': {e}")

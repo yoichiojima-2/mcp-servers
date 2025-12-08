@@ -1,4 +1,4 @@
-"""Configuration module for composite MCP server."""
+"""configuration module for composite mcp server"""
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -49,10 +49,9 @@ class ServerConfig:
 
 @dataclass
 class CompositeConfig:
-    """Configuration for the composite MCP server."""
+    """configuration for the composite mcp server"""
 
     servers: List[ServerConfig]
-    prefix_format: str = "{prefix}_{tool}"
 
     @classmethod
     def from_yaml(cls, config_path: Path) -> "CompositeConfig":
@@ -72,10 +71,10 @@ class CompositeConfig:
             raise FileNotFoundError(f"Configuration file not found: {config_path}")
 
         try:
-            with open(config_path, "r") as f:
+            with open(config_path, "r", encoding="utf-8") as f:
                 data = yaml.safe_load(f)
         except yaml.YAMLError as e:
-            raise ValueError(f"Invalid YAML syntax in {config_path}: {e}")
+            raise ValueError(f"invalid yaml syntax in {config_path}: {e}")
 
         if not isinstance(data, dict):
             raise ValueError("Configuration file must contain a YAML object")
@@ -97,10 +96,8 @@ class CompositeConfig:
             except ValueError as e:
                 raise ValueError(f"Error in server at index {i}: {e}")
 
-        # Create config
-        config = cls(
-            servers=servers, prefix_format=data.get("prefix_format", "{prefix}_{tool}")
-        )
+        # create config
+        config = cls(servers=servers)
 
         # Validate configuration
         config.validate()

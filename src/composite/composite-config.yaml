@@ -63,6 +63,3 @@ servers:
     enabled: false
     has_lifespan: false
     description: language query operations
-
-# tool naming format
-prefix_format: "{prefix}_{tool}"

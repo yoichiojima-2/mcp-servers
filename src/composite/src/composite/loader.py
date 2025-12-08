@@ -23,25 +23,42 @@ class ServerLoader:
         self.loaded_servers: Dict[str, Any] = {}
 
     def add_server_to_path(self, module_name: str) -> Path:
-        """Add server's src directory to Python path.
+        """add server's src directory to python path
+
+        security note: paths are added to sys.path which persists globally.
+        ensure module_name comes from trusted configuration only.
 
         Args:
-            module_name: Name of the server module
+            module_name: name of the server module
 
         Returns:
-            Path to the server's src directory
+            path to the server's src directory
 
         Raises:
-            FileNotFoundError: If server src directory doesn't exist
+            FileNotFoundError: if server src directory doesn't exist
+            ValueError: if path escapes repository root
         """
         server_src = self.repo_root / module_name / "src"
+
+        # validate path doesn't escape repo_root (security)
+        try:
+            server_src_resolved = server_src.resolve()
+            repo_root_resolved = self.repo_root.resolve()
+            if not str(server_src_resolved).startswith(str(repo_root_resolved)):
+                raise ValueError(
+                    f"invalid module path '{module_name}': "
+                    f"path escapes repository root"
+                )
+        except (OSError, RuntimeError) as e:
+            raise ValueError(f"invalid module path '{module_name}': {e}")
+
         if not server_src.exists():
             raise FileNotFoundError(
-                f"Server source directory not found: {server_src}\n"
-                f"Expected structure: {self.repo_root}/{module_name}/src/"
+                f"server source directory not found: {server_src}\n"
+                f"expected structure: {self.repo_root}/{module_name}/src/"
             )
 
-        # Add to Python path if not already present
+        # add to python path if not already present
         server_src_str = str(server_src)
         if server_src_str not in sys.path:
             sys.path.insert(0, server_src_str)
