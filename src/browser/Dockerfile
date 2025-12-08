@@ -9,6 +9,6 @@ COPY src/browser /app/src/browser
 WORKDIR /app
 
 # Install using workspace dependencies
-RUN uv sync --package browser
+RUN uv sync --locked --package browser
 
 CMD ["uv", "run", "python", "-m", "browser"]

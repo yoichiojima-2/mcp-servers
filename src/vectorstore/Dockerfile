@@ -10,6 +10,6 @@ COPY src/vectorstore /app/src/vectorstore
 WORKDIR /app
 
 # Install using workspace dependencies
-RUN uv sync --package vectorstore
+RUN uv sync --locked --package vectorstore
 
 CMD ["uv", "run", "python", "-m", "vectorstore"]

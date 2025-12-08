@@ -10,6 +10,6 @@ COPY src/pptx /app/src/pptx
 WORKDIR /app
 
 # Install using workspace dependencies
-RUN uv sync --package pptx
+RUN uv sync --locked --package pptx
 
 CMD ["uv", "run", "python", "-m", "pptx_server"]

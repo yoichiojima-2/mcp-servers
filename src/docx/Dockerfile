@@ -10,6 +10,6 @@ COPY src/docx /app/src/docx
 WORKDIR /app
 
 # Install using workspace dependencies
-RUN uv sync --package docx
+RUN uv sync --locked --package docx
 
 CMD ["uv", "run", "python", "-m", "docx"]

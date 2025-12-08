@@ -10,6 +10,6 @@ COPY src/xlsx /app/src/xlsx
 WORKDIR /app
 
 # Install using workspace dependencies
-RUN uv sync --package xlsx
+RUN uv sync --locked --package xlsx
 
 CMD ["uv", "run", "python", "-m", "xlsx"]

@@ -9,7 +9,7 @@ COPY src/pdf /app/src/pdf
 
 WORKDIR /app
 
-# Install using workspace dependencies
-RUN uv sync --package pdf
+# Install using workspace dependencies with OCR support
+RUN uv sync --locked --package pdf --extra ocr
 
-CMD ["uv", "run", "python", "-m", "pdf", "--reload"]
+CMD ["uv", "run", "python", "-m", "pdf"]

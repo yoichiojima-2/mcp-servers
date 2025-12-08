@@ -10,6 +10,6 @@ COPY src/langquery /app/src/langquery
 WORKDIR /app
 
 # Install using workspace dependencies
-RUN uv sync --package langquery
+RUN uv sync --locked --package langquery
 
 CMD ["uv", "run", "python", "-m", "langquery"]
