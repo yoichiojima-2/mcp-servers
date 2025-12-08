@@ -38,12 +38,17 @@ This creates a new working directory outside the main repository, which:
 
 ### SSH Authentication
 
-When pushing changes, use the appropriate SSH key:
+If you need to use a specific SSH key for authentication:
 
 ```bash
-eval $(ssh-agent) && ssh-add ~/.ssh/id_ed25519_personal
-GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519_personal" git push
+# Add your SSH key to the agent
+eval $(ssh-agent) && ssh-add ~/.ssh/your_key_name
+
+# Push using the specific key
+GIT_SSH_COMMAND="ssh -i ~/.ssh/your_key_name" git push
 ```
+
+Replace `your_key_name` with your actual SSH key filename (e.g., `id_ed25519`, `id_rsa`).
 
 ## Code Principles
 
