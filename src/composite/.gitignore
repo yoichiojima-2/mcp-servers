@@ -98,7 +98,7 @@ ipython_config.py
 #   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
 #   This is especially recommended for binary packages to ensure reproducibility, and is more
 #   commonly ignored for libraries.
-uv.lock
+#   Note: This monorepo uses a single uv.lock at the root level, not per-server.
 
 # poetry
 #   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
@@ -216,5 +216,6 @@ __marimo__/
 .streamlit/secrets.toml
 
 # Claude
+#   Note: Root CLAUDE.md is checked into version control.
+#   Only ignore local .claude/ directory for user-specific settings.
 .claude/
-CLAUDE.md
