@@ -57,7 +57,7 @@ jobs:
         run: uv sync --dev
 
       - name: Install Playwright browsers
-        if: matrix.server == 'browser' || matrix.server == 'composite'
+        if: matrix.server == 'browser'
         working-directory: src/${{ matrix.server }}
         run: uv run playwright install chromium
 

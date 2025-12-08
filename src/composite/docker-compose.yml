@@ -63,7 +63,7 @@ services:
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
-      - PORT=8001
+      - PORT=8008
     networks:
       - mcp-network
 

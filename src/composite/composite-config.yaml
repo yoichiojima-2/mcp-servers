@@ -18,7 +18,7 @@ backends:
 
   # PDF operations server
   - name: pdf
-    url: http://pdf:8001/sse
+    url: http://pdf:8008/sse
     prefix: pdf
     enabled: true
     description: PDF manipulation and extraction
