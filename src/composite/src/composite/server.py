@@ -219,6 +219,15 @@ async def _run_server():
         # Create SSE transport
         sse = SseServerTransport("/messages")
 
+        # SSE handler for GET requests - wrap as ASGI app
+        async def handle_sse(scope, receive, send):
+            async with sse.connect_sse(scope, receive, send) as streams:
+                await composite.server.run(
+                    streams[0],
+                    streams[1],
+                    composite.server.create_initialization_options(),
+                )
+
         # Create CORS middleware
         cors_middleware = Middleware(
             CORSMiddleware,
@@ -228,9 +237,12 @@ async def _run_server():
             allow_headers=["*"],
         )
 
-        # Create Starlette app
+        # Create Starlette app with SSE routes
         app = Starlette(
-            routes=[Mount("/", app=sse.get_asgi_app(composite.server))],
+            routes=[
+                Mount("/sse", app=handle_sse),
+                Mount("/messages", app=sse.handle_post_message),
+            ],
             middleware=[cors_middleware],
         )
 

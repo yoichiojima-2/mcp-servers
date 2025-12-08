@@ -1,21 +1,38 @@
-# mcp proxy server
+# mcp composite server
 
-a lightweight reverse proxy that aggregates multiple mcp backend servers into a single endpoint. unlike the composite server which bundles all dependencies, the proxy routes requests to independently running backend servers.
+a bundled mcp server that aggregates multiple mcp backend servers into a single container. all dependencies are packaged together for simple deployment with no proxy overhead.
 
 ## features
 
-- **lightweight**: minimal dependencies, fast builds (<1 min vs 10+ min for composite)
-- **flexible deployment**: backends can scale independently
-- **runtime reconfiguration**: enable/disable backends without rebuilding
+- **single container**: all servers bundled into one deployment unit
+- **no network overhead**: direct in-process communication
+- **simpler deployment**: just one container to manage
 - **tool namespacing**: prefixes prevent naming conflicts
-- **single endpoint**: dify sees one url, proxy handles routing
+- **single endpoint**: dify sees one url, all tools available
 
 ## architecture comparison
 
-### proxy approach (this server)
+### composite approach (this server)
+```
+dify → composite:8000 (all servers bundled)
+```
+
+**pros:**
+- single container
+- no network overhead
+- simpler deployment
+- no latency penalty
+
+**cons:**
+- large image (~1.5gb)
+- slow builds (~10+ min)
+- monolithic scaling
+- must rebuild to change backend configuration
+
+### proxy approach (alternative)
 ```
 dify → proxy:8000 → browser:8007
-                  → pdf:8001
+                  → pdf:8008
                   → xlsx:8004
                   → ...
 ```
@@ -25,31 +42,17 @@ dify → proxy:8000 → browser:8007
 - fast builds (~1 min proxy, backends build in parallel)
 - independent scaling
 - selective deployment (only run backends you need)
+- runtime reconfiguration without rebuilding
 
 **cons:**
 - requires all backend containers running
 - network hop adds latency (~5-10ms)
 - more complex orchestration (n+1 containers)
 
-### composite approach (alternative)
-```
-dify → composite:8000 (all servers bundled)
-```
-
-**pros:**
-- single container
-- no network overhead
-- simpler deployment
-
-**cons:**
-- large image (~1.5gb)
-- slow builds (~10+ min)
-- monolithic
-
 ## installation
 
 ```bash
-cd src/proxy
+cd src/composite
 uv sync
 ```
 
@@ -64,7 +67,7 @@ cp .env.example .env
 
 ### 2. configure backends
 
-edit `proxy-config.yaml` to enable/disable backends:
+edit `composite-config.yaml` to enable/disable backends:
 
 ```yaml
 backends:
@@ -83,11 +86,11 @@ backends:
 docker compose up -d
 ```
 
-the proxy will be available at: **http://localhost:8000/sse**
+the composite server will be available at: **http://localhost:8000/sse**
 
 ## configuration
 
-### proxy-config.yaml
+### composite-config.yaml
 
 ```yaml
 backends:
@@ -107,8 +110,8 @@ backends:
 
 ### environment variables
 
-**proxy configuration:**
-- `PROXY_CONFIG_PATH`: path to yaml config (default: ./proxy-config.yaml)
+**composite configuration:**
+- `COMPOSITE_CONFIG_PATH`: path to yaml config (default: ./composite-config.yaml)
 - `HOST`: server host (default: 0.0.0.0)
 - `PORT`: server port (default: 8000)
 
@@ -124,12 +127,12 @@ backends:
 ```bash
 # start backend servers first
 cd src/browser && TRANSPORT=sse PORT=8007 uv run python -m browser &
-cd src/pdf && TRANSPORT=sse PORT=8001 uv run python -m pdf &
+cd src/pdf && TRANSPORT=sse PORT=8008 uv run python -m pdf &
 # ...
 
-# start proxy
-cd src/proxy
-PROXY_CONFIG_PATH=./proxy-config.yaml uv run python -m proxy
+# start composite server
+cd src/composite
+COMPOSITE_CONFIG_PATH=./composite-config.yaml uv run python -m composite
 ```
 
 ### docker compose
@@ -139,7 +142,7 @@ PROXY_CONFIG_PATH=./proxy-config.yaml uv run python -m proxy
 docker compose up -d
 
 # view logs
-docker compose logs -f proxy
+docker compose logs -f composite
 
 # stop services
 docker compose down
@@ -155,22 +158,21 @@ in dify configuration:
 
 see [../../DOCKER_PORTS.md](../../DOCKER_PORTS.md) for complete port assignments:
 
-- proxy: 8000
-- pdf: 8001
+- composite: 8000
 - vectorstore: 8002
 - pptx: 8003
 - xlsx: 8004
 - docx: 8005
 - langquery: 8006
 - browser: 8007
-- dify: 8001
+- pdf: 8008
 
 ## selective deployment
 
-only run the backends you need:
+disable backends you don't need:
 
 ```yaml
-# proxy-config.yaml - enable only browser and pdf
+# composite-config.yaml - enable only browser and pdf
 backends:
   - name: browser
     enabled: true
@@ -185,11 +187,11 @@ backends:
     enabled: false  # disabled
 ```
 
-then in docker-compose.yml, comment out unused services or use profiles:
+then in docker-compose.yml, comment out unused services:
 
 ```bash
-# only start proxy and enabled backends
-docker compose up -d proxy browser pdf
+# only start composite and enabled backends
+docker compose up -d composite browser pdf
 ```
 
 ## troubleshooting
@@ -202,51 +204,52 @@ docker compose ps
 docker compose logs browser  # check specific backend
 ```
 
-ensure backend urls in `proxy-config.yaml` use docker service names (not localhost).
+ensure backend urls in `composite-config.yaml` use docker service names (not localhost).
 
 ### error: no configuration file found
 
-set `PROXY_CONFIG_PATH` environment variable:
+set `COMPOSITE_CONFIG_PATH` environment variable:
 ```bash
-export PROXY_CONFIG_PATH=/path/to/proxy-config.yaml
+export COMPOSITE_CONFIG_PATH=/path/to/composite-config.yaml
 ```
 
 ### tools not appearing in dify
 
-1. check proxy logs: `docker compose logs proxy`
+1. check composite logs: `docker compose logs composite`
 2. verify backend is enabled in config
 3. test backend directly: `curl http://localhost:8007/sse` (adjust port)
 4. ensure backend has `TRANSPORT=sse` environment variable
 
-### high latency
+### slow build times
 
-the proxy adds a network hop (~5-10ms per request). if latency is critical:
-- use composite server instead (no proxy overhead)
-- ensure all containers on same docker network
-- consider deploying on same host
+the composite server bundles all dependencies, resulting in:
+- large docker image (~1.5gb)
+- slow builds (~10+ min)
 
-## comparison with composite
+if this is problematic, consider using the proxy server approach instead for faster iteration.
 
-| feature | proxy | composite |
-|---------|-------|-----------|
-| image size | ~200mb | ~1.5gb |
-| build time | ~1 min | ~10 min |
-| containers | n+1 | 1 |
-| latency | +5-10ms | none |
-| scaling | independent | monolithic |
-| deployment | complex | simple |
+## comparison with proxy
 
-**use proxy when:**
-- you need independent scaling
-- you want fast builds
-- you only need subset of servers
-- you have multiple clients with different needs
+| feature | composite | proxy |
+|---------|-----------|-------|
+| image size | ~1.5gb | ~200mb |
+| build time | ~10 min | ~1 min |
+| containers | 1 | n+1 |
+| latency | none | +5-10ms |
+| scaling | monolithic | independent |
+| deployment | simple | complex |
 
 **use composite when:**
 - you want simplest deployment
 - latency is critical
 - you always need all servers
 - you're primarily targeting dify
+
+**use proxy when:**
+- you need independent scaling
+- you want fast builds
+- you only need subset of servers
+- you have multiple clients with different needs
 
 ## testing
 
@@ -256,23 +259,23 @@ uv run pytest
 
 ## development
 
-the proxy is intentionally minimal (~150 lines). key components:
+the composite server bundles all backend dependencies. key components:
 
-- `server.py`: main proxy logic
-- `proxy-config.yaml`: backend configuration
-- `Dockerfile`: lightweight python:3.12-slim base
-- `docker-compose.yml`: orchestrates proxy + backends
+- `src/composite/server.py`: main composite server logic
+- `composite-config.yaml`: backend configuration
+- `Dockerfile`: lightweight container setup
+- `docker-compose.yml`: orchestrates composite + backends
 
 ## architecture notes
 
 **how tool routing works:**
 
 1. client calls `browser_navigate`
-2. proxy identifies prefix `browser` → routes to browser backend
+2. composite identifies prefix `browser` → routes to browser backend
 3. strips prefix: `navigate`
 4. forwards to `http://browser:8007/sse` with method `tools/call` and name `navigate`
 5. backend processes request
-6. proxy returns result to client
+6. composite returns result to client
 
 **why sse only:**
 
@@ -283,4 +286,4 @@ backends must expose sse endpoints because:
 
 **connection pooling:**
 
-proxy maintains persistent httpx client for efficient backend communication. connections are reused across requests.
+composite maintains persistent httpx client for efficient backend communication. connections are reused across requests.
