@@ -1,12 +1,13 @@
 services:
   xlsx:
-    build: .
+    build:
+      context: ../..
+      dockerfile: src/xlsx/Dockerfile
     ports:
       - "8004:8004"
     volumes:
       - ./workspace:/workspace
-      - ./src:/xlsx/src
+      - ./src:/app/src/xlsx/src
     environment:
       - TRANSPORT=sse
       - PORT=8004
-    command: make serve

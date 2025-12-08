@@ -1,5 +1,13 @@
 services:
-  mcp:
-    build: .
+  browser:
+    build:
+      context: ../..
+      dockerfile: src/browser/Dockerfile
+    ports:
+      - "8007:8007"
     volumes:
-      - ./workspace:/app/workspace
+      - ./workspace:/workspace
+      - ./src:/app/src/browser/src
+    environment:
+      - TRANSPORT=sse
+      - PORT=8007

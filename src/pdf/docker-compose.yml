@@ -1,11 +1,13 @@
 services:
   pdf:
-    build: .
+    build:
+      context: ../..
+      dockerfile: src/pdf/Dockerfile
     ports:
       - "8001:8001"
     volumes:
       - ./workspace:/workspace
-      - ./src:/pdf/src
+      - ./src:/app/src/pdf/src
     environment:
       - TRANSPORT=sse
-    command: make serve
+      - PORT=8001

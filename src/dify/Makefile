@@ -2,7 +2,7 @@
 
 # Install dependencies
 install:
-	uv sync
+	cd ../.. && uv sync --locked --package dify
 
 # Run tests
 test:
@@ -17,6 +17,14 @@ run-sse:
 	TRANSPORT=sse uv run python -m dify
 
 # Build Docker image
+build:
+	docker compose build
+
+# Start Docker compose services
+up:
+	docker compose up
+
+# Legacy Docker commands (use build and up instead)
 docker-build:
 	docker build -t mcp-dify .
 

@@ -1,18 +1,16 @@
 FROM python:3.12-slim
 
-WORKDIR /app
-
 # Install uv for faster dependency installation
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
-# Copy dependency files
-COPY pyproject.toml ./
+# Copy monorepo configuration from root
+COPY pyproject.toml uv.lock /app/
+COPY src/dify /app/src/dify
 
-# Install dependencies
-RUN uv pip install --system --no-cache -e .
+WORKDIR /app
 
-# Copy application code
-COPY src ./src
+# Install using workspace dependencies
+RUN uv sync --locked --package dify
 
 # Expose port for SSE/HTTP transport
 EXPOSE 8006
@@ -23,4 +21,4 @@ ENV TRANSPORT=sse \
     PORT=8006
 
 # Run the server
-CMD ["python", "-m", "dify"]
+CMD ["uv", "run", "python", "-m", "dify"]

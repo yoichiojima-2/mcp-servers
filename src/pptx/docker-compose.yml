@@ -1,6 +1,8 @@
 services:
   pptx:
-    build: .
+    build:
+      context: ../..
+      dockerfile: src/pptx/Dockerfile
     ports:
       - "8003:8003"
     environment:
@@ -8,5 +10,4 @@ services:
       - PORT=8003
     volumes:
       - ./workspace:/workspace
-      - ./src:/pptx/src
-    command: make serve
+      - ./src:/app/src/pptx/src

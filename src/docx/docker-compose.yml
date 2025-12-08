@@ -1,12 +1,13 @@
 services:
   docx:
-    build: .
+    build:
+      context: ../..
+      dockerfile: src/docx/Dockerfile
     ports:
       - "8005:8005"
     volumes:
       - ./workspace:/workspace
-      - ./src:/docx/src
+      - ./src:/app/src/docx/src
     environment:
       - TRANSPORT=sse
       - PORT=8005
-    command: make serve

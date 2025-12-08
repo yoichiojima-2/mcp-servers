@@ -1,11 +1,13 @@
 services:
   langquery:
-    build: .
+    build:
+      context: ../..
+      dockerfile: src/langquery/Dockerfile
     ports:
       - "8000:8000"
     volumes:
       - ./workspace:/workspace
-      - ./src:/langquery/src
+      - ./src:/app/src/langquery/src
     environment:
       - TRANSPORT=sse
-    command: make serve
+      - PORT=8000

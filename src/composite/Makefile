@@ -29,5 +29,4 @@ clean:
 	find . -name .ruff_cache -type d -exec rm -rf {} +
 	find . -name .mypy_cache -type d -exec rm -rf {} +
 	find . -name .cache -type f -exec rm {} +
-	find . -name uv.lock -type f -exec rm {} +
 	find . -name "*.egg-info" -type d -exec rm -rf {} +
