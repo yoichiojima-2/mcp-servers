@@ -1,7 +1,3 @@
-"""Composite MCP Server combining multiple MCP servers."""
+"""composite mcp server combining multiple mcp servers"""
 
 __version__ = "0.1.0"
-
-from .server import mcp
-
-__all__ = ["mcp"]

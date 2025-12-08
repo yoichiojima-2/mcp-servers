@@ -1,0 +1,68 @@
+# composite mcp server configuration
+# enable the servers you want to include in your composite
+
+servers:
+  # ai agent builder & workflows
+  # requires: DIFY_API_KEY, DIFY_CONSOLE_API_KEY
+  - name: dify
+    module: dify
+    prefix: dify
+    enabled: true
+    has_lifespan: true
+    description: ai agent building, workflow management, knowledge bases
+
+  # browser automation
+  - name: browser
+    module: browser
+    prefix: browser
+    enabled: true
+    has_lifespan: false
+    description: browser automation using playwright
+
+  # document processing (disabled by default)
+  - name: pdf
+    module: pdf
+    prefix: pdf
+    enabled: false
+    has_lifespan: false
+    description: pdf manipulation and extraction
+
+  - name: xlsx
+    module: xlsx
+    prefix: xlsx
+    enabled: false
+    has_lifespan: false
+    description: spreadsheet operations
+
+  - name: docx
+    module: docx
+    prefix: docx
+    enabled: false
+    has_lifespan: false
+    description: word document operations
+
+  - name: pptx
+    module: pptx_server
+    prefix: pptx
+    enabled: false
+    has_lifespan: false
+    description: powerpoint operations
+
+  # vector store
+  # requires: openai api key
+  - name: vectorstore
+    module: vectorstore
+    prefix: vector
+    enabled: false
+    has_lifespan: false
+    description: vector database operations
+
+  - name: langquery
+    module: langquery
+    prefix: lang
+    enabled: false
+    has_lifespan: false
+    description: language query operations
+
+# tool naming format
+prefix_format: "{prefix}_{tool}"

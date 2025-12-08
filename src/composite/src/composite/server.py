@@ -1,76 +1,95 @@
-"""Composite MCP Server that combines dify and browser servers."""
-
 import os
-import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastmcp import FastMCP, Context
+from fastmcp import FastMCP
 from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
 
-# Get paths to individual servers and add them to Python path
-repo_root = Path(__file__).parent.parent.parent.parent
-browser_src = repo_root / "browser" / "src"
-dify_src = repo_root / "dify" / "src"
+from .config import CompositeConfig
+from .lifespan import LifespanManager
+from .loader import ServerLoader
 
-# Add to path if not already there
-for path in [str(browser_src), str(dify_src)]:
-    if path not in sys.path:
-        sys.path.insert(0, path)
-
-# Import tool modules
-import dify.tools as dify_tools  # noqa: E402
-from dify.tools import DifyClient  # noqa: E402
+_mcp = None
 
 
-# Lifecycle hook to initialize Dify client
-@asynccontextmanager
-async def app_lifespan():
-    """Initialize Dify client for the session."""
-    client = DifyClient()
-    yield {"client": client}
-    await client.close()
+def get_mcp():
+    """lazy initialization of mcp server"""
+    global _mcp
+    if _mcp is not None:
+        return _mcp
 
+    repo_root = Path(__file__).parent.parent.parent.parent
 
-# Initialize composite FastMCP server with lifespan
-mcp = FastMCP("Composite: Dify + Browser", lifespan=app_lifespan)
+    config_path = os.getenv("COMPOSITE_CONFIG_PATH")
+    if not config_path:
+        for candidate in [
+            Path.cwd() / "composite-config.yaml",
+            Path(__file__).parent.parent.parent / "composite-config.yaml",
+        ]:
+            if candidate.exists():
+                config_path = str(candidate)
+                break
 
+    if not config_path:
+        raise RuntimeError(
+            "No configuration file found.\n"
+            "Create composite-config.yaml in current directory "
+            "or set COMPOSITE_CONFIG_PATH environment variable.\n"
+            f"Example config: {Path(__file__).parent.parent.parent}/composite-config.yaml"
+        )
 
-# Register Dify tools with prefixed names
-# Note: These tools expect ctx.request_context.lifespan_state["client"] to exist
-# Users should ensure DIFY_API_KEY and DIFY_CONSOLE_API_KEY are set
-mcp.tool(name="dify_chat_message")(dify_tools.chat_message)
-mcp.tool(name="dify_run_workflow")(dify_tools.run_workflow)
-mcp.tool(name="dify_get_conversation_messages")(dify_tools.get_conversation_messages)
-mcp.tool(name="dify_create_dataset")(dify_tools.create_dataset)
-mcp.tool(name="dify_upload_document_by_text")(dify_tools.upload_document_by_text)
-mcp.tool(name="dify_list_documents")(dify_tools.list_documents)
-mcp.tool(name="dify_import_dsl_workflow")(dify_tools.import_dsl_workflow)
-mcp.tool(name="dify_export_dsl_workflow")(dify_tools.export_dsl_workflow)
-mcp.tool(name="dify_generate_workflow_dsl")(dify_tools.generate_workflow_dsl)
+    config = CompositeConfig.from_yaml(Path(config_path))
+    loader = ServerLoader(repo_root)
 
-# Now import and register browser tools
-# Browser tools are registered via decorators, so we need to access the registered MCP instance
-from browser import mcp as browser_mcp  # noqa: E402
+    loaded_modules = {}
+    for server_config in config.get_enabled_servers():
+        try:
+            mcp_module = loader.load_server_module(server_config)
+            loaded_modules[server_config.name] = {
+                "mcp": mcp_module,
+                "config": server_config,
+            }
+        except Exception as e:
+            raise RuntimeError(
+                f"Failed to load server '{server_config.name}': {e}\n"
+                f"Cannot start composite server with missing servers."
+            ) from e
 
-# Copy tools from browser MCP instance using the tool manager
-browser_tool_manager = browser_mcp._tool_manager
-for tool_key, tool_obj in browser_tool_manager._tools.items():
-    prefixed_name = f"browser_{tool_obj.name}"
-    # Re-register with prefixed name
-    mcp._tool_manager._tools[prefixed_name] = tool_obj
+    lifespan_servers = [s for s in config.get_enabled_servers() if s.has_lifespan]
+    lifespan_manager = (
+        LifespanManager(lifespan_servers, repo_root) if lifespan_servers else None
+    )
 
-# Copy prompts from browser MCP instance (if any)
-browser_prompt_manager = browser_mcp._prompt_manager
-if hasattr(browser_prompt_manager, '_prompts'):
-    for prompt_key, prompt_obj in browser_prompt_manager._prompts.items():
-        prefixed_name = f"browser_{prompt_obj.name}"
-        mcp._prompt_manager._prompts[prefixed_name] = prompt_obj
+    @asynccontextmanager
+    async def composite_lifespan():
+        if lifespan_manager:
+            async with lifespan_manager.composite_lifespan() as state:
+                yield state
+        else:
+            yield {}
+
+    server_names = [s.name for s in config.get_enabled_servers()]
+    _mcp = FastMCP(
+        f"Composite: {' + '.join(server_names)}", lifespan=composite_lifespan
+    )
+
+    for server_name, module_info in loaded_modules.items():
+        source_mcp = module_info["mcp"]
+        server_config = module_info["config"]
+
+        tools_count = loader.register_tools(source_mcp, _mcp, server_config.prefix)
+        prompts_count = loader.register_prompts(source_mcp, _mcp, server_config.prefix)
+
+        print(f"loaded '{server_name}': {tools_count} tools, {prompts_count} prompts")
+
+    return _mcp
 
 
 def serve():
-    """Start the composite MCP server."""
+    """start mcp server"""
+    mcp_instance = get_mcp()
+
     cors_middleware = Middleware(
         CORSMiddleware,
         allow_origins=[os.getenv("ALLOW_ORIGIN", "*")],
@@ -82,9 +101,9 @@ def serve():
     transport = os.getenv("TRANSPORT", "stdio")
 
     if transport == "stdio":
-        mcp.run(transport="stdio")
+        mcp_instance.run(transport="stdio")
     else:
-        mcp.run(
+        mcp_instance.run(
             transport=transport,
             host=os.getenv("HOST", "0.0.0.0"),
             port=int(os.getenv("PORT", 8000)),
