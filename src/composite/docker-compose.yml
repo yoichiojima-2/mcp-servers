@@ -20,6 +20,7 @@ services:
       - docx
       - pptx
       - vectorstore
+      - langquery
     restart: unless-stopped
     networks:
       - mcp-network
@@ -113,6 +114,18 @@ services:
       - HOST=0.0.0.0
       - PORT=8002
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+    networks:
+      - mcp-network
+
+  langquery:
+    image: langquery:latest
+    build:
+      context: ../..
+      dockerfile: src/langquery/Dockerfile
+    environment:
+      - TRANSPORT=sse
+      - HOST=0.0.0.0
+      - PORT=8006
     networks:
       - mcp-network
 

@@ -6,15 +6,15 @@ This document tracks port assignments for all MCP servers to prevent conflicts w
 
 | Server       | Port | URL                           | Notes                                    |
 |--------------|------|-------------------------------|------------------------------------------|
-| pdf          | 8001 | http://localhost:8001/sse     | PDF manipulation and extraction          |
+| dify         | 8001 | http://localhost:8001/sse     | Dify AI platform integration             |
 | vectorstore  | 8002 | http://localhost:8002/sse     | Vector database operations               |
 | pptx         | 8003 | http://localhost:8003/sse     | PowerPoint operations                    |
 | xlsx         | 8004 | http://localhost:8004/sse     | Spreadsheet operations                   |
 | docx         | 8005 | http://localhost:8005/sse     | Word document operations                 |
 | langquery    | 8006 | http://localhost:8006/sse     | Language query operations                |
 | browser      | 8007 | http://localhost:8007/sse     | Browser automation (Playwright)          |
-| **composite**| **8000** | **http://localhost:8000/sse** | **Unified server (all servers bundled)** |
-| **proxy**    | **8000** | **http://localhost:8000/sse** | **Lightweight proxy (routes to backends)** |
+| pdf          | 8008 | http://localhost:8008/sse     | PDF manipulation and extraction          |
+| **composite**| **8000** | **http://localhost:8000/sse** | **Lightweight proxy routing to backends** |
 
 ## Usage Notes
 
@@ -29,58 +29,37 @@ docker compose up -d
 
 ### Running Composite Server
 
-The composite server bundles all MCP servers into one container:
+The composite server is a lightweight HTTP proxy that routes requests to independent backend containers:
 
 ```bash
 cd src/composite
 docker compose up -d
 ```
 
-**Use composite when:**
-- You want simplest deployment (one container)
-- Latency is critical (no network overhead)
-- You always need multiple servers together
-
-### Running Proxy Server
-
-The proxy server routes requests to independent backend containers:
-
-```bash
-cd src/proxy
-docker compose up -d
-```
-
-**Use proxy when:**
-- You need independent backend scaling
-- You want fast builds (proxy is lightweight)
-- You only need subset of servers
-- You want microservices architecture
+**Benefits:**
+- Fast builds (lightweight proxy, <1 min)
+- Independent backend scaling
+- Enable/disable backends via YAML config
+- Microservices architecture
 
 ### For Dify Integration
 
-**Two Options** - both expose the same URL for Dify:
-
-**Option A: Composite Server** (simpler)
-- Edit `src/composite/composite-config.yaml` to enable/disable servers
+Edit `src/composite/composite-config.yaml` to enable/disable backends:
 - Run: `cd src/composite && docker compose up -d`
 - Connect Dify to: `http://localhost:8000/sse`
 
-**Option B: Proxy Server** (more flexible)
-- Edit `src/proxy/proxy-config.yaml` to enable/disable backends
-- Run: `cd src/proxy && docker compose up -d`
-- Connect Dify to: `http://localhost:8000/sse`
-
-**Important**: Do NOT run composite AND proxy simultaneously - they both use port 8000.
+The composite server will route requests to the appropriate backend based on tool name prefixes.
 
 ### Port Conflict Prevention
 
 **Scenario 1**: Running composite + individual servers
-- ❌ DON'T: Run `composite` with browser enabled AND `browser` container
-- ✓ DO: Disable browser in composite config, run browser container separately
+- The composite server in `src/composite/docker-compose.yml` starts all backends automatically
+- Backend services are on an internal Docker network, not exposed to host
+- Only the composite proxy is exposed on port 8000
 
-**Scenario 2**: Running multiple individual servers
+**Scenario 2**: Running individual backend servers standalone
 - ✓ DO: Run any combination of individual servers (no conflicts)
-- Example: `browser` (8007) + `pdf` (8001) + `xlsx` (8004)
+- Example: `browser` (8007) + `pdf` (8008) + `xlsx` (8004)
 
 **Scenario 3**: Testing locally vs Docker
 - ✓ DO: Change docker-compose port mappings if running local dev on same port

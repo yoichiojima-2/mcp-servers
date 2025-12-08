@@ -1,26 +1,21 @@
-# MCP Proxy Server - Quick Start
+# MCP Composite Server - Quick Start
 
 Get all MCP servers accessible through a single URL using a lightweight proxy architecture.
 
-## What's the Difference?
+## Architecture
 
-### Proxy (This Approach)
 ```
-Dify → proxy:8000 → browser:8007
-                  → pdf:8001
-                  → xlsx:8004
+Dify → composite:8000 → browser:8007
+                      → dify:8001
+                      → pdf:8008
+                      → xlsx:8004
+                      → ...
 ```
-- Lightweight proxy container (~200MB, builds in <1 min)
-- Backend servers run independently
-- Good for: flexible deployment, independent scaling
 
-### Composite (Alternative)
-```
-Dify → composite:8000 (all servers bundled)
-```
-- Single large container (~1.5GB, builds in ~10 min)
-- Everything in one place
-- Good for: simplest deployment, lowest latency
+- Lightweight HTTP proxy (~200MB, builds in <1 min)
+- Backend servers run independently on internal network
+- Proxy routes MCP JSON-RPC requests based on tool name prefixes
+- Good for: flexible deployment, independent scaling, microservices
 
 ## Prerequisites
 
@@ -32,7 +27,7 @@ Dify → composite:8000 (all servers bundled)
 ### 1. Configure Environment Variables
 
 ```bash
-cd src/proxy
+cd src/composite
 cp .env.example .env
 ```
 
@@ -45,7 +40,7 @@ OPENAI_API_KEY=sk-your-openai-key-here  # if vectorstore enabled
 
 ### 2. Choose Which Backends to Enable
 
-Edit `proxy-config.yaml` to control which MCP servers are included:
+Edit `composite-config.yaml` to control which MCP servers are included:
 
 ```yaml
 backends:
@@ -67,13 +62,13 @@ backends:
 docker compose up -d
 ```
 
-The proxy will be available at: **http://localhost:8000/sse**
+The composite server will be available at: **http://localhost:8000/sse**
 
 This command will:
-1. Build all enabled backend containers (in parallel)
-2. Build the lightweight proxy container
-3. Start the proxy and backends
-4. Configure networking between containers
+1. Build all backend containers (in parallel)
+2. Build the lightweight composite proxy container
+3. Start the composite proxy and backends
+4. Configure internal networking between containers
 
 ## Connect to Dify
 
@@ -88,13 +83,13 @@ You'll now have access to all enabled MCP tools through this single endpoint!
 
 Check the logs:
 ```bash
-docker compose logs -f proxy
+docker compose logs -f composite
 ```
 
 You should see:
 ```
-Starting MCP Proxy Server
-Backends: browser, pdf, xlsx, docx
+Starting MCP Composite Server
+Backends: browser, dify, pdf, xlsx, docx
 Listening on 0.0.0.0:8000/sse
 ```
 
@@ -119,8 +114,8 @@ docker compose logs -f          # all services
 
 ### Restart after config changes
 ```bash
-# After editing proxy-config.yaml
-docker compose restart proxy
+# After editing composite-config.yaml
+docker compose restart composite
 ```
 
 ### Rebuild after code changes
@@ -130,12 +125,12 @@ docker compose up -d --build
 
 ## Enable/Disable Backends
 
-To enable or disable backends, edit `proxy-config.yaml` and restart:
+To enable or disable backends, edit `composite-config.yaml` and restart:
 
 ```bash
-# 1. Edit proxy-config.yaml (change enabled: true/false)
-# 2. Restart only the proxy
-docker compose restart proxy
+# 1. Edit composite-config.yaml (change enabled: true/false)
+# 2. Restart only the composite proxy
+docker compose restart composite
 
 # Or restart backend if you changed its config
 docker compose restart browser
@@ -148,7 +143,7 @@ No rebuild needed for config changes!
 Only run the backends you need to save resources:
 
 ```yaml
-# proxy-config.yaml
+# composite-config.yaml
 backends:
   - name: browser
     enabled: true
@@ -162,7 +157,7 @@ backends:
 
 Then start only enabled services:
 ```bash
-docker compose up -d proxy browser pdf
+docker compose up -d composite browser pdf
 # Don't need to start xlsx
 ```
 
@@ -187,13 +182,13 @@ services:
 ```
 
 ### Connection Pooling
-The proxy maintains persistent HTTP connections to backends for efficiency.
+The composite proxy maintains persistent HTTP connections to backends for efficiency.
 
 ## Troubleshooting
 
 ### Error: connection refused to backend
 
-**Problem**: Proxy can't reach backend service
+**Problem**: Composite proxy can't reach backend service
 
 **Solutions**:
 ```bash
@@ -203,7 +198,7 @@ docker compose ps
 # 2. Check backend logs
 docker compose logs browser
 
-# 3. Verify backend URL in proxy-config.yaml uses Docker service name
+# 3. Verify backend URL in composite-config.yaml uses Docker service name
 backends:
   - name: browser
     url: http://browser:8007/sse  # ✓ Use service name
@@ -220,7 +215,7 @@ backends:
 docker ps  # find container using port 8000
 docker stop <container-id>
 
-# Option 2: Change proxy port in docker-compose.yml
+# Option 2: Change composite port in docker-compose.yml
 ports:
   - "9000:8000"  # Use external port 9000
 ```
@@ -228,44 +223,40 @@ ports:
 ### Tools not appearing in Dify
 
 **Checklist**:
-1. ✓ Backend is enabled in `proxy-config.yaml`
+1. ✓ Backend is enabled in `composite-config.yaml`
 2. ✓ Backend container is running: `docker compose ps`
 3. ✓ Backend is healthy: `docker compose logs browser`
-4. ✓ Proxy sees the backend: `docker compose logs proxy`
+4. ✓ Composite proxy sees the backend: `docker compose logs composite`
 
 **Debug**:
 ```bash
-# Test backend directly
-curl http://localhost:8007/sse
+# Test backend directly (only works if backend port is exposed)
+docker exec -it composite curl http://browser:8007/sse
 
-# Check proxy logs for errors
-docker compose logs proxy | grep ERROR
+# Check composite logs for errors
+docker compose logs composite | grep -i error
 ```
 
 ### Slow response times
 
-**Expected**: Proxy adds ~5-10ms latency per request (network hop)
+**Expected**: HTTP proxy adds ~5-10ms latency per request (internal network hop)
 
 **If slower**:
 - Check if backends are overloaded: `docker stats`
 - Ensure all containers on same Docker network
-- Consider composite server if latency is critical
+- Check composite logs for backend timeout warnings
 
-## Comparing with Composite
+## Architecture Benefits
 
-| Feature          | Proxy                  | Composite           |
-|------------------|------------------------|---------------------|
-| Image size       | ~200MB (proxy only)    | ~1.5GB              |
-| Build time       | ~1 min                 | ~10 min             |
-| Containers       | N+1 (proxy + backends) | 1                   |
-| Latency          | +5-10ms                | none                |
-| Scaling          | Independent            | Monolithic          |
-| Resource usage   | Higher (multiple)      | Lower (single)      |
-| Flexibility      | High                   | Medium              |
-
-**Use proxy when**: You need flexibility, independent scaling, or fast development cycles
-
-**Use composite when**: You want simplest deployment, or latency is critical
+| Feature          | This Architecture       |
+|------------------|-------------------------|
+| Image size       | ~200MB (proxy) + backends |
+| Build time       | ~1 min (proxy)          |
+| Containers       | N+1 (proxy + backends)  |
+| Latency          | +5-10ms per request     |
+| Scaling          | Independent backends    |
+| Flexibility      | High (enable/disable)   |
+| Development      | Fast iteration cycles   |
 
 ## Next Steps
 
@@ -280,13 +271,13 @@ For production Kubernetes deployment:
 1. Build and push images to registry:
 ```bash
 docker compose build
-docker tag proxy:latest your-registry/proxy:latest
-docker push your-registry/proxy:latest
+docker tag composite:latest your-registry/composite:latest
+docker push your-registry/composite:latest
 ```
 
 2. Create Kubernetes manifests for each service
 3. Use Kubernetes services for backend discovery
-4. Update proxy-config.yaml with K8s service names
+4. Update composite-config.yaml with K8s service names
 
 Example backend URL in K8s:
 ```yaml
