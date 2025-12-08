@@ -56,13 +56,17 @@ def query(sql: str) -> str:
         execution_time_ms = (time.time() - start_time) * 1000
         error_msg = str(e)
 
-        # Log failed query
-        history_db.log_query(
-            query=sql,
-            execution_time_ms=execution_time_ms,
-            error=error_msg,
-            success=False,
-        )
+        # Log failed query, but don't mask the original error if logging fails
+        try:
+            history_db.log_query(
+                query=sql,
+                execution_time_ms=execution_time_ms,
+                error=error_msg,
+                success=False,
+            )
+        except Exception:
+            # Logging failed, but we still want to raise the original query error
+            pass
 
         raise
 

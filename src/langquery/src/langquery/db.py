@@ -37,6 +37,7 @@ class HistoryDB:
         self.db_path = db_path
         self._query_count = 0  # Track queries for cleanup optimization
         self._counter_lock = Lock()  # Lock for thread-safe counter increment
+        self._cleanup_in_progress = False  # Flag to prevent concurrent cleanup
         self._init_schema()
 
     def _init_schema(self):
@@ -81,6 +82,7 @@ class HistoryDB:
         if result and len(result) > MAX_RESULT_SIZE:
             result = result[:MAX_RESULT_SIZE] + "\n... (truncated)"
 
+        # Insert query in its own transaction
         with duckdb.connect(self.db_path) as conn:
             conn.execute(
                 """
@@ -90,37 +92,51 @@ class HistoryDB:
                 [query, result, execution_time_ms, row_count, error, success],
             )
 
-            # Thread-safe counter increment and cleanup check
-            with self._counter_lock:
-                self._query_count += 1
-                should_cleanup = self._query_count % CLEANUP_FREQUENCY == 0
+        # Thread-safe counter increment and cleanup check
+        should_cleanup = False
+        with self._counter_lock:
+            self._query_count += 1
+            if self._query_count % CLEANUP_FREQUENCY == 0 and not self._cleanup_in_progress:
+                self._cleanup_in_progress = True
+                should_cleanup = True
 
-            if should_cleanup:
-                # Keep only the last MAX_HISTORY_SIZE queries
-                # More efficient: delete based on timestamp threshold
-                conn.execute(
-                    """
-                    DELETE FROM query_history
-                    WHERE timestamp < (
-                        SELECT MIN(timestamp) FROM (
-                            SELECT timestamp FROM query_history
-                            ORDER BY timestamp DESC
-                            LIMIT ?
+        # Run cleanup in separate transaction to avoid rolling back the insert
+        if should_cleanup:
+            try:
+                with duckdb.connect(self.db_path) as conn:
+                    # Keep only the last MAX_HISTORY_SIZE queries
+                    # Use ID-based deletion which leverages primary key index
+                    conn.execute(
+                        """
+                        DELETE FROM query_history
+                        WHERE id < (
+                            SELECT MIN(id) FROM (
+                                SELECT id FROM query_history
+                                ORDER BY id DESC
+                                LIMIT ?
+                            )
                         )
+                    """,
+                        [MAX_HISTORY_SIZE],
                     )
-                """,
-                    [MAX_HISTORY_SIZE],
-                )
+            finally:
+                # Always reset cleanup flag
+                with self._counter_lock:
+                    self._cleanup_in_progress = False
 
     def get_history(self, limit: int = 20) -> str:
         """Get recent query history.
 
         Args:
-            limit: Maximum number of queries to return
+            limit: Maximum number of queries to return (1-1000)
 
         Returns:
             Query history as markdown table
         """
+        # Validate limit parameter
+        if limit < 1 or limit > 1000:
+            return "Error: limit must be between 1 and 1000"
+
         with duckdb.connect(self.db_path) as conn:
             result = conn.execute(
                 """
@@ -180,11 +196,15 @@ class HistoryDB:
 
         Args:
             search_term: Term to search for in queries
-            limit: Maximum number of results
+            limit: Maximum number of results (1-1000)
 
         Returns:
             Matching queries as markdown table
         """
+        # Validate limit parameter
+        if limit < 1 or limit > 1000:
+            return "Error: limit must be between 1 and 1000"
+
         with duckdb.connect(self.db_path) as conn:
             result = conn.execute(
                 """

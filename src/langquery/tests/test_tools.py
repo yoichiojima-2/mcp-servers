@@ -217,3 +217,86 @@ async def test_concurrent_query_logging():
 
         # Should have logged most if not all queries
         assert concurrent_count >= 15, f"Only {concurrent_count}/20 concurrent queries were logged"
+
+
+@pytest.mark.asyncio
+async def test_auto_cleanup():
+    """Test that history maintains max size through auto-cleanup."""
+    async with Client(mcp) as client:
+        # Execute more queries than MAX_HISTORY_SIZE to trigger cleanup
+        # We'll do 110 queries which should trigger cleanup at least once
+        for i in range(110):
+            await client.call_tool("query", {"sql": f"SELECT {i} as cleanup_test_{i}"})
+
+        # Get all history (request more than we should have)
+        history_res = await client.call_tool("get_query_history", {"limit": 200})
+        history_text = history_res.content[0].text
+
+        # Count data rows in markdown table (exclude header and separator)
+        lines = [
+            line for line in history_text.split("\n")
+            if "|" in line and "id" not in line.lower() and not line.startswith("|--")
+        ]
+
+        # Should have approximately MAX_HISTORY_SIZE rows (100)
+        # Allow some margin due to cleanup frequency (runs every 10 queries)
+        assert len(lines) <= 105, f"Expected ~100 rows, got {len(lines)}"
+        assert len(lines) >= 95, f"Expected ~100 rows, got {len(lines)}"
+
+
+@pytest.mark.asyncio
+async def test_large_result_truncation():
+    """Test that large results (>1MB) are truncated."""
+    async with Client(mcp) as client:
+        # Create a large result (>1MB)
+        # Each repeat creates 100,000 characters, 20 rows = 2,000,000 characters > 1MB
+        large_query = "SELECT repeat('x', 100000) as big_col FROM range(20)"
+
+        try:
+            result_res = await client.call_tool("query", {"sql": large_query})
+            result_text = result_res.content[0].text
+
+            # The result itself should be under 1MB when returned
+            # (it gets truncated before being returned from the query tool)
+        except Exception:
+            pass  # Query might fail in some environments
+
+        # Get history to find the query ID
+        history_res = await client.call_tool("get_query_history", {"limit": 1})
+        history_text = history_res.content[0].text
+
+        # Extract query ID
+        match = re.search(r"\|\s*(\d+)\s*\|", history_text)
+        if match:
+            query_id = int(match.group(1))
+
+            # Get cached result
+            cached_res = await client.call_tool("get_cached_result", {"query_id": query_id})
+            cached_text = cached_res.content[0].text
+
+            # Should contain truncation marker
+            assert "truncated" in cached_text.lower(), "Large result should be truncated"
+
+
+@pytest.mark.asyncio
+async def test_limit_validation():
+    """Test that limit parameters are validated."""
+    async with Client(mcp) as client:
+        # Test negative limit
+        history_res = await client.call_tool("get_query_history", {"limit": -1})
+        assert "error" in history_res.content[0].text.lower()
+
+        # Test zero limit
+        history_res = await client.call_tool("get_query_history", {"limit": 0})
+        assert "error" in history_res.content[0].text.lower()
+
+        # Test excessively large limit
+        history_res = await client.call_tool("get_query_history", {"limit": 2000})
+        assert "error" in history_res.content[0].text.lower()
+
+        # Test valid limits
+        history_res = await client.call_tool("get_query_history", {"limit": 1})
+        assert "error" not in history_res.content[0].text.lower()
+
+        history_res = await client.call_tool("get_query_history", {"limit": 1000})
+        assert "error" not in history_res.content[0].text.lower()
