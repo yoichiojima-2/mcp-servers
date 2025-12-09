@@ -6,7 +6,7 @@ servers:
     enabled: true
     prefix: lang
     module: langquery
-    description: data querying and shell commands
+    description: data querying with DuckDB SQL
 
   xlsx:
     enabled: false

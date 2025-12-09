@@ -2,11 +2,17 @@
 
 MCP server for executing shell commands.
 
+## Security Warning
+
+This tool executes arbitrary shell commands with full shell capabilities including pipes, redirects, and variable expansion. **Only use with trusted input.**
+
+For untrusted environments, consider implementing additional sandboxing or command whitelisting.
+
 ## Features
 
 - Execute shell commands
 - Capture stdout and stderr
-- Return combined output
+- Return exit code for programmatic success/failure detection
 
 ## Tools
 
@@ -18,7 +24,7 @@ Execute a shell command and return the output.
 - `command` (required): Shell command to execute
 
 **Returns:**
-- Command output (stdout, and stderr if present)
+- Exit code, stdout, and stderr
 
 ## Installation
 

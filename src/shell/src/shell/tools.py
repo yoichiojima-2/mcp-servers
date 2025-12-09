@@ -8,11 +8,14 @@ def shell(command: str) -> str:
     """
     Execute a shell command and return the output.
 
+    WARNING: This tool executes arbitrary shell commands with full shell capabilities
+    including pipes, redirects, and variable expansion. Only use with trusted input.
+
     Args:
         command: Shell command to execute
 
     Returns:
-        Command output (stdout, and stderr if present)
+        Command output including exit code, stdout, and stderr
     """
     res = subprocess.run(
         command,
@@ -20,9 +23,13 @@ def shell(command: str) -> str:
         capture_output=True,
         text=True,
     )
-    output = res.stdout
 
-    if err := res.stderr:
-        output = f"**stdout**: {output}\n\n**stderr**: {err}"
+    parts = [f"**exit code**: {res.returncode}"]
 
-    return output
+    if res.stdout:
+        parts.append(f"**stdout**:\n{res.stdout}")
+
+    if res.stderr:
+        parts.append(f"**stderr**:\n{res.stderr}")
+
+    return "\n\n".join(parts)
