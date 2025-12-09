@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 from fastmcp import Client
+from pptx import Presentation
 
 from pptx_server import mcp
 
@@ -12,6 +13,136 @@ def temp_pptx():
     """Create a temporary pptx file path for testing."""
     with tempfile.TemporaryDirectory() as tmpdir:
         yield Path(tmpdir) / "test.pptx"
+
+
+@pytest.fixture
+def sample_pptx(temp_pptx):
+    """Create a sample PPTX file for testing analysis tools."""
+    prs = Presentation()
+    # Add a title slide
+    title_slide_layout = prs.slide_layouts[0]
+    slide = prs.slides.add_slide(title_slide_layout)
+    title = slide.shapes.title
+    if title:
+        title.text = "Test Presentation"
+    if len(slide.placeholders) > 1:
+        slide.placeholders[1].text = "Test Subtitle"
+    prs.save(str(temp_pptx))
+    return temp_pptx
+
+
+# ======================================================
+# Analysis Tools Tests
+# ======================================================
+
+
+@pytest.mark.asyncio
+async def test_get_presentation_info(sample_pptx):
+    """Test getting presentation metadata."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "get_presentation_info",
+            {"file_path": str(sample_pptx)},
+        )
+        text = res.content[0].text
+        assert "Slides:" in text
+        assert "Dimensions:" in text
+        assert "Aspect Ratio:" in text
+
+
+@pytest.mark.asyncio
+async def test_get_presentation_info_file_not_found():
+    """Test error handling for missing file."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "get_presentation_info",
+            {"file_path": "/nonexistent/file.pptx"},
+        )
+        text = res.content[0].text
+        assert "Error" in text
+        assert "not found" in text
+
+
+@pytest.mark.asyncio
+async def test_extract_text(sample_pptx):
+    """Test extracting text from presentation."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "extract_text",
+            {"file_path": str(sample_pptx)},
+        )
+        text = res.content[0].text
+        assert "Slide 1" in text
+        assert "Test Presentation" in text
+
+
+@pytest.mark.asyncio
+async def test_extract_text_with_slide_numbers(sample_pptx):
+    """Test extracting text from specific slides."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "extract_text",
+            {"file_path": str(sample_pptx), "slide_numbers": "1"},
+        )
+        text = res.content[0].text
+        assert "Slide 1" in text
+
+
+@pytest.mark.asyncio
+async def test_get_slide_shapes(sample_pptx):
+    """Test getting shape information from a slide."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "get_slide_shapes",
+            {"file_path": str(sample_pptx), "slide_number": 1},
+        )
+        text = res.content[0].text
+        # Should return JSON array
+        assert "[" in text
+        assert "shape_type" in text
+
+
+@pytest.mark.asyncio
+async def test_get_slide_shapes_invalid_slide(sample_pptx):
+    """Test error handling for invalid slide number."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "get_slide_shapes",
+            {"file_path": str(sample_pptx), "slide_number": 999},
+        )
+        text = res.content[0].text
+        assert "Error" in text
+        assert "does not exist" in text
+
+
+@pytest.mark.asyncio
+async def test_get_slide_notes(sample_pptx):
+    """Test getting speaker notes."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "get_slide_notes",
+            {"file_path": str(sample_pptx)},
+        )
+        text = res.content[0].text
+        assert "Slide 1 Notes" in text
+
+
+@pytest.mark.asyncio
+async def test_export_slide_as_image(sample_pptx, tmp_path):
+    """Test exporting slide as placeholder image."""
+    output_path = tmp_path / "slide.png"
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "export_slide_as_image",
+            {
+                "file_path": str(sample_pptx),
+                "slide_number": 1,
+                "output_path": str(output_path),
+            },
+        )
+        text = res.content[0].text
+        assert "placeholder" in text.lower()
+        assert output_path.exists()
 
 
 # ======================================================
