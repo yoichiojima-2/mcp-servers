@@ -706,7 +706,7 @@ td {
   padding: 0.8em 1em;
 }
 tr:hover td {
-  background: #fafafa;
+  background: #f4f4f5;
 }
 
 a {

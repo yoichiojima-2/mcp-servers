@@ -25,6 +25,7 @@ class TestThemes:
         assert "neon" in themes
         assert "minimal" in themes
         assert "retro" in themes
+        assert "modern" in themes
 
     def test_list_themes_includes_required_fields(self):
         """Each theme should have required fields."""
