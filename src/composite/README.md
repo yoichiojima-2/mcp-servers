@@ -92,6 +92,7 @@ currently mounts the following servers with prefixes:
 | pptx | `pptx_` | powerpoint operations |
 | vectorstore | `vec_` | vector database operations |
 | browser | `browser_` | browser automation |
+| frontend-design | `design_` | design principles, themes, and color palettes |
 
 ## testing
 

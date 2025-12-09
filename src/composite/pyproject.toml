@@ -7,6 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "browser",
     "docx",
+    "frontend-design",
     "langquery",
     "pdf",
     "pptx",
@@ -19,6 +20,7 @@ dependencies = [
 [tool.uv.sources]
 browser = { workspace = true }
 docx = { workspace = true }
+frontend-design = { workspace = true }
 langquery = { workspace = true }
 pdf = { workspace = true }
 pptx = { workspace = true }

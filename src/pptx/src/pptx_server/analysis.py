@@ -90,10 +90,7 @@ def extract_text(file_path: str, slide_numbers: str | None = None) -> str:
             target_slides = set(int(s.strip()) for s in slide_numbers.split(","))
             invalid = [n for n in target_slides if n < 1 or n > total_slides]
             if invalid:
-                return (
-                    f"Error: Invalid slide number(s): {invalid}. "
-                    f"Presentation has {total_slides} slides."
-                )
+                return f"Error: Invalid slide number(s): {invalid}. Presentation has {total_slides} slides."
         except ValueError:
             return "Error: slide_numbers must be comma-separated integers (e.g., '1,3,5')"
 
@@ -138,10 +135,7 @@ def get_slide_shapes(file_path: str, slide_number: int) -> str:
     prs = Presentation(str(path))
 
     if slide_number < 1 or slide_number > len(prs.slides):
-        return (
-            f"Error: Slide {slide_number} does not exist. "
-            f"Presentation has {len(prs.slides)} slides."
-        )
+        return f"Error: Slide {slide_number} does not exist. Presentation has {len(prs.slides)} slides."
 
     slide = prs.slides[slide_number - 1]
     shapes_info = []
@@ -192,10 +186,7 @@ def get_slide_notes(file_path: str, slide_number: int | None = None) -> str:
     # Validate slide_number if provided
     if slide_number is not None:
         if slide_number < 1 or slide_number > total_slides:
-            return (
-                f"Error: Slide {slide_number} does not exist. "
-                f"Presentation has {total_slides} slides."
-            )
+            return f"Error: Slide {slide_number} does not exist. Presentation has {total_slides} slides."
 
     results = []
 
@@ -243,10 +234,7 @@ def get_slide_export_instructions(file_path: str, slide_number: int) -> str:
     total_slides = len(prs.slides)
 
     if slide_number < 1 or slide_number > total_slides:
-        return (
-            f"Error: Slide {slide_number} does not exist. "
-            f"Presentation has {total_slides} slides."
-        )
+        return f"Error: Slide {slide_number} does not exist. Presentation has {total_slides} slides."
 
     return f"""To export slide {slide_number} from {path.name}:
 

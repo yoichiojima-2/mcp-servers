@@ -9,19 +9,19 @@ servers:
     description: data querying and shell commands
 
   xlsx:
-    enabled: true
+    enabled: false
     prefix: xlsx
     module: xlsx
     description: excel spreadsheet operations
 
   pdf:
-    enabled: true
+    enabled: false
     prefix: pdf
     module: pdf
     description: pdf document operations
 
   docx:
-    enabled: true
+    enabled: false
     prefix: docx
     module: docx
     description: word document operations
@@ -33,13 +33,19 @@ servers:
     description: powerpoint operations
 
   vectorstore:
-    enabled: true
+    enabled: false
     prefix: vec
     module: vectorstore
     description: vector database operations
 
   browser:
-    enabled: true
+    enabled: false
     prefix: browser
     module: browser
     description: browser automation
+
+  frontend-design:
+    enabled: true
+    prefix: design
+    module: frontend_design
+    description: design principles, themes, and color palettes
