@@ -114,6 +114,17 @@ Follow conventional commits format:
 - `refactor:` for code refactoring
 - `test:` for test updates
 
+### Adding New MCP Servers
+
+When adding a new MCP server to the workspace:
+
+1. Create the server directory structure under `src/<server-name>/`
+2. Add the server to the workspace members in root `pyproject.toml`
+3. Add the server to `.github/workflows/test.yml` matrix to ensure CI runs tests
+4. If the server should be available in composite, add it to:
+   - `src/composite/pyproject.toml` dependencies and `[tool.uv.sources]`
+   - `src/composite/composite-config.yaml` with appropriate settings
+
 ### Dependency Management
 
 This repository uses a **Google-style monorepo** with `uv` workspaces for unified dependency management:
