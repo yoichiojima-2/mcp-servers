@@ -28,10 +28,12 @@ members = [
     "src/composite",
     "src/dify",
     "src/docx",
+    "src/file-management",
     "src/frontend-design",
     "src/langquery",
     "src/pdf",
     "src/pptx",
+    "src/shell",
     "src/vectorstore",
     "src/xlsx",
 ]

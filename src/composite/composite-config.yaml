@@ -6,7 +6,7 @@ servers:
     enabled: true
     prefix: lang
     module: langquery
-    description: data querying and shell commands
+    description: data querying with DuckDB SQL
 
   xlsx:
     enabled: false
@@ -49,3 +49,15 @@ servers:
     prefix: design
     module: frontend_design
     description: design principles, themes, and color palettes
+
+  file-management:
+    enabled: true
+    prefix: file
+    module: file_management
+    description: file read/write operations
+
+  shell:
+    enabled: true
+    prefix: sh
+    module: shell
+    description: shell command execution

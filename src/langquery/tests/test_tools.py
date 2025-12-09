@@ -36,14 +36,6 @@ async def test_div():
 
 
 @pytest.mark.asyncio
-async def test_shell():
-    async with Client(mcp) as client:
-        msg = "test"
-        res = await client.call_tool("shell", {"command": f"echo {msg}"})
-        assert res.content[0].text == f"{msg}\n"
-
-
-@pytest.mark.asyncio
 async def test_query():
     async with Client(mcp) as client:
         res = await client.call_tool("query", {"sql": "SELECT 1 as test"})

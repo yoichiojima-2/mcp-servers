@@ -1,4 +1,3 @@
-import subprocess
 import sys
 import time
 
@@ -10,23 +9,6 @@ from .db import get_history_db
 # ======================================================
 # core
 # ======================================================
-
-
-@mcp.tool()
-def shell(command: str) -> str:
-    """execute a shell command and return the output"""
-    res = subprocess.run(
-        command,
-        shell=True,
-        capture_output=True,
-        text=True,
-    )
-    output = res.stdout
-
-    if err := res.stderr:
-        output = f"**stdout**: {output}\n\n**stderr**: {err}"
-
-    return output
 
 
 @mcp.tool()

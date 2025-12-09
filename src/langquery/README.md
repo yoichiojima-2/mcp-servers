@@ -7,7 +7,6 @@ An MCP server that allows clients to manipulate table data using natural languag
 - **SQL Query**: Execute DuckDB SQL queries on any data files (CSV, Parquet, JSON, etc.)
 - **Query History**: Automatic logging of all queries with results, execution time, and error tracking
 - **Result Caching**: Retrieve results from previous queries without re-execution
-- **Shell Commands**: Run shell commands for file operations and data preparation
 - **Math Operations**: Basic arithmetic tools (add, sub, mul, div)
 - **Prompts**: Pre-built prompt for data analysis workflows
 
@@ -50,7 +49,6 @@ docker compose up
 | `get_cached_result` | Retrieve cached result from a previous query by ID |
 | `search_query_history` | Search query history by query text |
 | `clear_query_history` | Clear all query history (WARNING: permanently deletes all logged queries) |
-| `shell` | Execute shell commands |
 | `add` | Add two numbers |
 | `sub` | Subtract two numbers |
 | `mul` | Multiply two numbers |

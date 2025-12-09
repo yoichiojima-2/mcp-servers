@@ -7,11 +7,13 @@ requires-python = ">=3.12"
 dependencies = [
     "browser",
     "docx",
+    "file-management",
     "frontend-design",
     "langquery",
     "pdf",
     "pptx",
     "pyyaml>=6.0",
+    "shell",
     "starlette>=0.41.3",
     "vectorstore",
     "xlsx",
@@ -20,10 +22,12 @@ dependencies = [
 [tool.uv.sources]
 browser = { workspace = true }
 docx = { workspace = true }
+file-management = { workspace = true }
 frontend-design = { workspace = true }
 langquery = { workspace = true }
 pdf = { workspace = true }
 pptx = { workspace = true }
+shell = { workspace = true }
 vectorstore = { workspace = true }
 xlsx = { workspace = true }
 
