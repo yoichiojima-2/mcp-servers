@@ -2,17 +2,29 @@
 
 import os
 
+from browser import mcp as browser_mcp
+from docx import mcp as docx_mcp
 from dotenv import load_dotenv
 from fastmcp import FastMCP
 from langquery import mcp as langquery_mcp
+from pdf import mcp as pdf_mcp
+from pptx_server import mcp as pptx_mcp
+from vectorstore import mcp as vectorstore_mcp
+from xlsx import mcp as xlsx_mcp
 
 load_dotenv()
 
 mcp = FastMCP(os.getenv("NAME", "composite"))
 
-# Mount langquery server with "lang" prefix
-# Tools will be available as: lang_shell, lang_query, lang_add, etc.
+# Mount all backend MCP servers with prefixes
+# Tools will be available as: lang_*, xlsx_*, pdf_*, docx_*, pptx_*, vec_*, browser_*
 mcp.mount(langquery_mcp, prefix="lang")
+mcp.mount(xlsx_mcp, prefix="xlsx")
+mcp.mount(pdf_mcp, prefix="pdf")
+mcp.mount(docx_mcp, prefix="docx")
+mcp.mount(pptx_mcp, prefix="pptx")
+mcp.mount(vectorstore_mcp, prefix="vec")
+mcp.mount(browser_mcp, prefix="browser")
 
 
 def serve():

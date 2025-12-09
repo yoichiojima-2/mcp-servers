@@ -393,20 +393,26 @@ name = "composite"
 version = "0.1.0"
 source = { editable = "src/composite" }
 dependencies = [
-    { name = "httpx" },
-    { name = "mcp" },
-    { name = "pyyaml" },
+    { name = "browser" },
+    { name = "docx" },
+    { name = "langquery" },
+    { name = "pdf" },
+    { name = "pptx" },
     { name = "starlette" },
-    { name = "uvicorn" },
+    { name = "vectorstore" },
+    { name = "xlsx" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "httpx", specifier = ">=0.28.1" },
-    { name = "mcp", specifier = ">=1.1.3" },
-    { name = "pyyaml", specifier = ">=6.0.2" },
+    { name = "browser", editable = "src/browser" },
+    { name = "docx", editable = "src/docx" },
+    { name = "langquery", editable = "src/langquery" },
+    { name = "pdf", editable = "src/pdf" },
+    { name = "pptx", editable = "src/pptx" },
     { name = "starlette", specifier = ">=0.41.3" },
-    { name = "uvicorn", specifier = ">=0.34.0" },
+    { name = "vectorstore", editable = "src/vectorstore" },
+    { name = "xlsx", editable = "src/xlsx" },
 ]
 
 [[package]]

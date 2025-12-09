@@ -70,18 +70,19 @@ mcp.mount(another_mcp, prefix="another")
 
 tools will be available as `lang_*` and `another_*`.
 
-## available tools
+## mounted servers
 
-currently mounts langquery server with `lang_` prefix:
+currently mounts the following servers with prefixes:
 
-- `lang_get_langquery_prompt` - get prompt for langquery
-- `lang_shell` - execute shell commands
-- `lang_query` - query data sources
-- `lang_get_query_history` - get query history
-- `lang_get_cached_result` - get cached results
-- `lang_search_query_history` - search query history
-- `lang_clear_query_history` - clear query history
-- `lang_add`, `lang_sub`, `lang_mul`, `lang_div` - arithmetic operations
+| server | prefix | description |
+|--------|--------|-------------|
+| langquery | `lang_` | data querying and shell commands |
+| xlsx | `xlsx_` | excel spreadsheet operations |
+| pdf | `pdf_` | pdf document operations |
+| docx | `docx_` | word document operations |
+| pptx | `pptx_` | powerpoint operations |
+| vectorstore | `vec_` | vector database operations |
+| browser | `browser_` | browser automation |
 
 ## testing
 
