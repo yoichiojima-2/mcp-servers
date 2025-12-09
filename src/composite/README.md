@@ -56,12 +56,6 @@ in dify mcp configuration:
 
 ### server configuration
 
-copy the example config to create your own:
-
-```bash
-cp composite-config.example.yaml composite-config.yaml
-```
-
 servers are configured via `composite-config.yaml`. enable/disable servers by setting `enabled: true/false`:
 
 ```yaml
@@ -98,6 +92,7 @@ currently mounts the following servers with prefixes:
 | pptx | `pptx_` | powerpoint operations |
 | vectorstore | `vec_` | vector database operations |
 | browser | `browser_` | browser automation |
+| frontend-design | `design_` | design principles, themes, and color palettes |
 
 ## testing
 
@@ -110,5 +105,4 @@ uv run pytest -v
 
 key files:
 - `src/composite/server.py`: main server with dynamic mount logic
-- `composite-config.example.yaml`: example server configuration
-- `composite-config.yaml`: your local server configuration (gitignored)
+- `composite-config.yaml`: server configuration

@@ -337,54 +337,68 @@ def marp_create_presentation(
     theme: str = "minimal",
 ) -> str:
     """
-    Create a professionally-designed PPTX from Markdown using Marp.
+    [RECOMMENDED] Create a professionally-designed PPTX from Markdown.
 
-    Uses distinctive themes that avoid generic AI aesthetics.
-    Each theme has bold, intentional design choices.
+    This is the PRIMARY tool for creating presentations. Design quality comes
+    from CSS themes, not from describing design in slide content.
+
+    WORKFLOW:
+    1. Write content in Markdown (focus on WHAT to say, not how it looks)
+    2. Use CSS classes for slide types (lead, invert)
+    3. Pick a theme (design is applied automatically)
+    4. Call this tool ONCE at the end to generate PPTX
+
+    IMPORTANT: Never put design descriptions as slide content.
+    The theme CSS handles typography, colors, and layout.
 
     Args:
-        markdown: Marp-formatted Markdown content. Use '---' to separate slides.
-                  Supports: headings, lists, code blocks, tables, images, blockquotes.
-                  Use '<!-- _class: lead -->' for title slides.
-                  Use '<!-- _class: invert -->' for accent/inverted slides.
+        markdown: Marp-formatted Markdown content.
+                  - Use '---' to separate slides
+                  - Use '<!-- _class: lead -->' for title/hero slides
+                  - Use '<!-- _class: invert -->' for accent slides
+                  - Supports: # headings, - lists, **bold**, *italic*, > quotes, `code`
         output_path: Path for the output PPTX file
-        theme: Theme name - one of: noir, brutalist, organic, neon, minimal, retro
+        theme: Theme name. Each has distinctive, professional styling:
+               - noir: Dark, cinematic, red accents (tech, premium)
+               - brutalist: Bold, raw, blue/red on light (design, architecture)
+               - organic: Warm, natural, earth tones (wellness, sustainability)
+               - neon: Electric, cyberpunk, glowing accents (gaming, startups)
+               - minimal: Clean, refined, lots of whitespace (professional, enterprise)
+               - retro: Nostalgic 70s/80s, fun geometric (creative, campaigns)
 
     Returns:
         Path to the created PPTX file
 
-    Example markdown:
+    Example:
+        ```markdown
         ---
         marp: true
+        paginate: true
         ---
 
         <!-- _class: lead -->
-        # My Presentation
-        Subtitle goes here
+        # Q4 Results
+        Exceeding expectations
 
         ---
 
-        ## First Topic
+        ## Revenue Growth
 
-        - Key point one
-        - Key point two
-        - Key point three
+        - **42%** year-over-year increase
+        - Strongest quarter in history
+        - All regions exceeded targets
 
         ---
 
         <!-- _class: invert -->
         ## Questions?
 
-        Contact: email@example.com
+        Contact: team@company.com
+        ```
 
     Limits:
         - Maximum markdown size: 2MB
         - Conversion timeout: 60 seconds
-
-    Security:
-        - Frontmatter is sanitized (dangerous directives like backgroundImage removed)
-        - Inline HTML <style> tags in markdown are NOT sanitized (user responsibility)
-        - Output paths to system directories are blocked
     """
     try:
         result_path = convert_markdown_to_pptx(markdown, output_path, theme)

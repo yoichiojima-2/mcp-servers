@@ -62,11 +62,6 @@ jobs:
         working-directory: src/${{ matrix.server }}
         run: uv run playwright install chromium
 
-      - name: Setup composite config
-        if: matrix.server == 'composite'
-        working-directory: src/${{ matrix.server }}
-        run: cp composite-config.example.yaml composite-config.yaml
-
       - name: Run tests for ${{ matrix.server }}
         working-directory: src/${{ matrix.server }}
         run: uv run pytest -v

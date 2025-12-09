@@ -8,4 +8,4 @@ assets/
 .venv/
 .claude/*.local.json
 workspace/
-src/composite/composite-config.yaml
+chroma_data/

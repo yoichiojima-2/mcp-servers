@@ -500,6 +500,7 @@ def ingest_pdf(
                 all_ids.append(chunk_id)
                 all_metadatas.append(metadata)
 
+        total_pages = len(doc)
         doc.close()
 
         if not all_chunks:
@@ -513,7 +514,7 @@ def ingest_pdf(
 
         return (
             f"Successfully ingested '{filename}' into collection '{collection}': "
-            f"{len(all_chunks)} chunks from {len(doc)} pages"
+            f"{len(all_chunks)} chunks from {total_pages} pages"
         )
     except Exception as e:
         return f"Error: {e}"

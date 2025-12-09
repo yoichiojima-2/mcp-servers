@@ -220,5 +220,3 @@ __marimo__/
 #   Only ignore local .claude/ directory for user-specific settings.
 .claude/
 
-# composite
-composite-config.yaml

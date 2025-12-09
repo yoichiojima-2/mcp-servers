@@ -396,6 +396,7 @@ source = { editable = "src/composite" }
 dependencies = [
     { name = "browser" },
     { name = "docx" },
+    { name = "frontend-design" },
     { name = "langquery" },
     { name = "pdf" },
     { name = "pptx" },
@@ -409,6 +410,7 @@ dependencies = [
 requires-dist = [
     { name = "browser", editable = "src/browser" },
     { name = "docx", editable = "src/docx" },
+    { name = "frontend-design", editable = "src/frontend-design" },
     { name = "langquery", editable = "src/langquery" },
     { name = "pdf", editable = "src/pdf" },
     { name = "pptx", editable = "src/pptx" },

@@ -3,8 +3,9 @@ from pathlib import Path
 
 import pytest
 from fastmcp import Client
+from pptx import Presentation
 
-from pptx_server.tools import mcp
+from pptx_server import mcp
 
 
 @pytest.fixture
@@ -14,163 +15,171 @@ def temp_pptx():
         yield Path(tmpdir) / "test.pptx"
 
 
-@pytest.mark.asyncio
-async def test_create_presentation(temp_pptx):
-    async with Client(mcp) as client:
-        res = await client.call_tool(
-            "create_presentation",
-            {
-                "output_path": str(temp_pptx),
-                "title": "Test Presentation",
-                "subtitle": "Test Subtitle",
-            },
-        )
-        assert "Created presentation" in res.content[0].text
-        assert temp_pptx.exists()
+@pytest.fixture
+def sample_pptx(temp_pptx):
+    """Create a sample PPTX file for testing analysis tools."""
+    prs = Presentation()
+    # Add a title slide
+    title_slide_layout = prs.slide_layouts[0]
+    slide = prs.slides.add_slide(title_slide_layout)
+    title = slide.shapes.title
+    if title:
+        title.text = "Test Presentation"
+    if len(slide.placeholders) > 1:
+        slide.placeholders[1].text = "Test Subtitle"
+    prs.save(str(temp_pptx))
+    return temp_pptx
+
+
+# ======================================================
+# Analysis Tools Tests
+# ======================================================
 
 
 @pytest.mark.asyncio
-async def test_add_slide(temp_pptx):
+async def test_get_presentation_info(sample_pptx):
+    """Test getting presentation metadata."""
     async with Client(mcp) as client:
-        # First create a presentation
-        await client.call_tool(
-            "create_presentation",
-            {"output_path": str(temp_pptx), "title": "Test"},
-        )
-        # Then add a slide
-        res = await client.call_tool(
-            "add_slide",
-            {
-                "file_path": str(temp_pptx),
-                "layout": 1,
-                "title": "New Slide",
-                "content": "Some content",
-            },
-        )
-        assert "Added slide" in res.content[0].text
-
-
-@pytest.mark.asyncio
-async def test_get_presentation_info(temp_pptx):
-    async with Client(mcp) as client:
-        # Create a presentation
-        await client.call_tool(
-            "create_presentation",
-            {"output_path": str(temp_pptx), "title": "Info Test"},
-        )
-        # Get info
         res = await client.call_tool(
             "get_presentation_info",
-            {"file_path": str(temp_pptx)},
+            {"file_path": str(sample_pptx)},
         )
-        assert "Slides:" in res.content[0].text
-        assert "Dimensions:" in res.content[0].text
+        text = res.content[0].text
+        assert "Slides:" in text
+        assert "Dimensions:" in text
+        assert "Aspect Ratio:" in text
 
 
 @pytest.mark.asyncio
-async def test_extract_text(temp_pptx):
+async def test_get_presentation_info_file_not_found():
+    """Test error handling for missing file."""
     async with Client(mcp) as client:
-        # Create a presentation with content
-        await client.call_tool(
-            "create_presentation",
-            {"output_path": str(temp_pptx), "title": "Text Test"},
+        res = await client.call_tool(
+            "get_presentation_info",
+            {"file_path": "/nonexistent/file.pptx"},
         )
-        # Extract text
+        text = res.content[0].text
+        assert "Error" in text
+        assert "not found" in text
+
+
+@pytest.mark.asyncio
+async def test_extract_text(sample_pptx):
+    """Test extracting text from presentation."""
+    async with Client(mcp) as client:
         res = await client.call_tool(
             "extract_text",
-            {"file_path": str(temp_pptx)},
+            {"file_path": str(sample_pptx)},
         )
-        assert "Slide 1" in res.content[0].text
+        text = res.content[0].text
+        assert "Slide 1" in text
+        assert "Test Presentation" in text
 
 
 @pytest.mark.asyncio
-async def test_add_text_box(temp_pptx):
+async def test_extract_text_with_slide_numbers(sample_pptx):
+    """Test extracting text from specific slides."""
     async with Client(mcp) as client:
-        # Create a presentation
-        await client.call_tool(
-            "create_presentation",
-            {"output_path": str(temp_pptx), "title": "TextBox Test"},
-        )
-        # Add text box
         res = await client.call_tool(
-            "add_text_box",
-            {
-                "file_path": str(temp_pptx),
-                "slide_number": 1,
-                "text": "Hello World",
-                "left": 1.0,
-                "top": 1.0,
-                "width": 3.0,
-                "height": 1.0,
-            },
+            "extract_text",
+            {"file_path": str(sample_pptx), "slide_numbers": "1"},
         )
-        assert "Added text box" in res.content[0].text
+        text = res.content[0].text
+        assert "Slide 1" in text
 
 
 @pytest.mark.asyncio
-async def test_add_shape(temp_pptx):
+async def test_get_slide_shapes(sample_pptx):
+    """Test getting shape information from a slide."""
     async with Client(mcp) as client:
-        # Create a presentation
-        await client.call_tool(
-            "create_presentation",
-            {"output_path": str(temp_pptx), "title": "Shape Test"},
-        )
-        # Add shape
-        res = await client.call_tool(
-            "add_shape",
-            {
-                "file_path": str(temp_pptx),
-                "slide_number": 1,
-                "shape_type": "rectangle",
-                "left": 1.0,
-                "top": 1.0,
-                "width": 2.0,
-                "height": 1.0,
-                "fill_color": "4472C4",
-            },
-        )
-        assert "Added rectangle shape" in res.content[0].text
-
-
-@pytest.mark.asyncio
-async def test_add_table(temp_pptx):
-    async with Client(mcp) as client:
-        # Create a presentation
-        await client.call_tool(
-            "create_presentation",
-            {"output_path": str(temp_pptx), "title": "Table Test"},
-        )
-        # Add table
-        res = await client.call_tool(
-            "add_table",
-            {
-                "file_path": str(temp_pptx),
-                "slide_number": 1,
-                "data": [["Header 1", "Header 2"], ["Row 1", "Data 1"]],
-                "left": 1.0,
-                "top": 2.0,
-                "width": 6.0,
-                "height": 2.0,
-            },
-        )
-        assert "Added 2x2 table" in res.content[0].text
-
-
-@pytest.mark.asyncio
-async def test_get_slide_shapes(temp_pptx):
-    async with Client(mcp) as client:
-        # Create a presentation
-        await client.call_tool(
-            "create_presentation",
-            {"output_path": str(temp_pptx), "title": "Shapes Test"},
-        )
-        # Get shapes
         res = await client.call_tool(
             "get_slide_shapes",
-            {"file_path": str(temp_pptx), "slide_number": 1},
+            {"file_path": str(sample_pptx), "slide_number": 1},
         )
+        text = res.content[0].text
         # Should return JSON array
-        assert "[" in res.content[0].text
+        assert "[" in text
+        assert "shape_type" in text
+
+
+@pytest.mark.asyncio
+async def test_get_slide_shapes_invalid_slide(sample_pptx):
+    """Test error handling for invalid slide number."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "get_slide_shapes",
+            {"file_path": str(sample_pptx), "slide_number": 999},
+        )
+        text = res.content[0].text
+        assert "Error" in text
+        assert "does not exist" in text
+
+
+@pytest.mark.asyncio
+async def test_get_slide_notes(sample_pptx):
+    """Test getting speaker notes."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "get_slide_notes",
+            {"file_path": str(sample_pptx)},
+        )
+        text = res.content[0].text
+        assert "Slide 1 Notes" in text
+
+
+@pytest.mark.asyncio
+async def test_get_slide_export_instructions(sample_pptx):
+    """Test getting slide export instructions."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "get_slide_export_instructions",
+            {
+                "file_path": str(sample_pptx),
+                "slide_number": 1,
+            },
+        )
+        text = res.content[0].text
+        assert "libreoffice" in text.lower()
+        assert "slide 1" in text.lower()
+
+
+@pytest.mark.asyncio
+async def test_extract_text_invalid_slide_numbers(sample_pptx):
+    """Test error handling for invalid slide numbers."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "extract_text",
+            {"file_path": str(sample_pptx), "slide_numbers": "999"},
+        )
+        text = res.content[0].text
+        assert "Error" in text
+        assert "Invalid slide number" in text
+
+
+@pytest.mark.asyncio
+async def test_extract_text_malformed_slide_numbers(sample_pptx):
+    """Test error handling for malformed slide numbers."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "extract_text",
+            {"file_path": str(sample_pptx), "slide_numbers": "abc,def"},
+        )
+        text = res.content[0].text
+        assert "Error" in text
+        assert "comma-separated integers" in text
+
+
+@pytest.mark.asyncio
+async def test_get_slide_notes_invalid_slide(sample_pptx):
+    """Test error handling for invalid slide number in get_slide_notes."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "get_slide_notes",
+            {"file_path": str(sample_pptx), "slide_number": 999},
+        )
+        text = res.content[0].text
+        assert "Error" in text
+        assert "does not exist" in text
 
 
 # ======================================================
@@ -256,7 +265,7 @@ def test_marp_extension_validation():
 
 def test_marp_markdown_size_validation():
     """Test that oversized markdown is rejected (limit: 2MB)."""
-    from pptx_server.marp import convert_markdown_to_pptx, MAX_MARKDOWN_SIZE
+    from pptx_server.marp import MAX_MARKDOWN_SIZE, convert_markdown_to_pptx
 
     # Verify the limit is 2MB
     assert MAX_MARKDOWN_SIZE == 2_000_000
