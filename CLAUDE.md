@@ -77,6 +77,10 @@ Replace `your_key_name` with your actual SSH key filename (e.g., `id_ed25519`, `
 - Use `pytest` with `uv run` for consistent dependency management
 - For servers requiring special setup (browser, composite), check `.github/workflows/test.yml` for environment variables
 
+**E2E Testing with Claude Desktop:**
+- Claude Desktop MCP settings path: `~/Library/Application Support/Claude`
+- Use this path when testing MCP servers with Claude Code or Claude Desktop integration
+
 ### Documentation Standards
 
 Each MCP server must have a README.md with:
