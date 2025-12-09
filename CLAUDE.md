@@ -79,6 +79,7 @@ Replace `your_key_name` with your actual SSH key filename (e.g., `id_ed25519`, `
 
 **E2E Testing with Claude Desktop:**
 - Claude Desktop MCP settings path: `~/Library/Application Support/Claude`
+- Claude Desktop logs path: `~/Library/Logs/Claude`
 - Use this path when testing MCP servers with Claude Code or Claude Desktop integration
 
 ### Linting and Formatting

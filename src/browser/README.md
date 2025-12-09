@@ -24,6 +24,18 @@ make serve
 - `TRANSPORT` - Transport protocol (default: `stdio`)
 - `NAME` - MCP server name (default: `browser`)
 
+### Stability Tuning (New in this version)
+- `HEALTH_CHECK_TIMEOUT` - Timeout for page health checks in seconds (default: `10.0`, increased from `5.0`)
+- `CONTENT_EVAL_TIMEOUT` - Timeout for content evaluation in seconds (default: `20.0`, increased from `10.0`)
+- `SCRIPT_EVAL_TIMEOUT` - Timeout for JavaScript execution in seconds (default: `60.0`, increased from `30.0`)
+
+**Note**: If you experience "this isn't working right now" errors, try increasing these timeouts:
+```bash
+export HEALTH_CHECK_TIMEOUT=15.0
+export CONTENT_EVAL_TIMEOUT=30.0
+export SCRIPT_EVAL_TIMEOUT=90.0
+```
+
 ## Features
 
 ### Concurrency Safety
@@ -95,10 +107,12 @@ This version includes comprehensive fixes to eliminate flakiness:
 ### Fixed Issues
 1. **Race Conditions**: Added async locks to prevent concurrent access issues
 2. **Event Loop Compatibility**: Locks are now event loop-aware, preventing "bound to different event loop" errors
-3. **Page Health Checks**: Atomic health checks with timeout protection (5s)
-4. **JavaScript Evaluation**: All evaluations now have timeout protection (10-30s)
+3. **Page Health Checks**: Atomic health checks with timeout protection (10s, increased from 5s)
+4. **JavaScript Evaluation**: All evaluations now have timeout protection (20-60s, increased from 10-30s)
 5. **Error Recovery**: Improved recovery that handles browser-level failures
 6. **Concurrency**: Safe concurrent operations - multiple tools can run simultaneously
+7. **Better Logging**: Added debug/warning logs for health check failures
+8. **Enhanced Status Tool**: `get_page_status()` now provides detailed diagnostics and recovery recommendations
 
 ### Testing
 The server includes extensive tests:
@@ -111,6 +125,32 @@ The server includes extensive tests:
 All 18 tests pass consistently, validating the robustness improvements.
 
 ## Troubleshooting
+
+### "This isn't working right now" Error in Claude Desktop
+
+This error typically indicates the MCP server is not responding in time. Common causes and solutions:
+
+1. **Page Health Check Timeout**: The page is taking too long to respond to health checks
+   - **Solution**: Increase `HEALTH_CHECK_TIMEOUT` environment variable
+   - Add to your MCP config: `"env": { "HEALTH_CHECK_TIMEOUT": "15.0" }`
+
+2. **Long-running Operations**: JavaScript evaluation or content retrieval is timing out
+   - **Solution**: Increase `CONTENT_EVAL_TIMEOUT` or `SCRIPT_EVAL_TIMEOUT`
+   - For heavy pages: `"env": { "CONTENT_EVAL_TIMEOUT": "30.0", "SCRIPT_EVAL_TIMEOUT": "90.0" }`
+
+3. **Browser in Bad State**: The browser page crashed or became unresponsive
+   - **Solution**: Use the `get_page_status()` tool to check health
+   - If unhealthy, use `force_reset()` or `close_browser()` to recover
+
+4. **Resource Exhaustion**: Browser has been running for a long time
+   - **Solution**: Periodically use `close_browser()` to clean up and restart
+
+### How to Debug
+
+1. Check server logs at `~/Library/Logs/Claude/mcp-server-browser.log`
+2. Use `get_page_status()` tool to diagnose page health
+3. Look for timeout warnings in the logs
+4. Try `force_reset()` if the page is stuck
 
 ### "No compatible message available" Error
 This error occurs when the browser page crashes or becomes unresponsive. The improvements in this version handle this automatically by:
