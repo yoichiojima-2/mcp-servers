@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import logging
 import os
 import threading
 from contextlib import asynccontextmanager
@@ -9,6 +10,9 @@ from typing import Optional
 from playwright.async_api import Browser, Page, TimeoutError, async_playwright
 
 from . import mcp
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Global browser state
 _browser: Optional[Browser] = None
@@ -25,9 +29,15 @@ DEFAULT_TIMEOUT = int(os.getenv("BROWSER_TIMEOUT", "30000"))  # 30 seconds
 DEFAULT_NAVIGATION_TIMEOUT = int(os.getenv("NAVIGATION_TIMEOUT", "60000"))  # 60 seconds
 
 # Timeout constants for internal operations (configurable via environment variables)
-HEALTH_CHECK_TIMEOUT = float(os.getenv("HEALTH_CHECK_TIMEOUT", "5.0"))  # Timeout for page health checks
-CONTENT_EVAL_TIMEOUT = float(os.getenv("CONTENT_EVAL_TIMEOUT", "10.0"))  # Timeout for content evaluation
-SCRIPT_EVAL_TIMEOUT = float(os.getenv("SCRIPT_EVAL_TIMEOUT", "30.0"))  # Timeout for JavaScript evaluation
+HEALTH_CHECK_TIMEOUT = float(
+    os.getenv("HEALTH_CHECK_TIMEOUT", "10.0")
+)  # Timeout for page health checks (increased from 5.0)
+CONTENT_EVAL_TIMEOUT = float(
+    os.getenv("CONTENT_EVAL_TIMEOUT", "20.0")
+)  # Timeout for content evaluation (increased from 10.0)
+SCRIPT_EVAL_TIMEOUT = float(
+    os.getenv("SCRIPT_EVAL_TIMEOUT", "60.0")
+)  # Timeout for JavaScript evaluation (increased from 30.0)
 
 
 def _ensure_lock(lock_name: str) -> asyncio.Lock:
@@ -146,13 +156,19 @@ async def _is_page_healthy_unsafe() -> bool:
     """Check if the page is in a healthy state. MUST be called with _page_lock held."""
     global _page
     if _page is None or _page.is_closed():
+        logger.debug("Page is None or closed")
         return False
     try:
         # Try to evaluate a simple script to check if page is responsive
         # Add a timeout to prevent hanging
         await asyncio.wait_for(_page.evaluate("1 + 1"), timeout=HEALTH_CHECK_TIMEOUT)
+        logger.debug("Page health check passed")
         return True
-    except (asyncio.TimeoutError, Exception):
+    except asyncio.TimeoutError:
+        logger.warning(f"Page health check timed out after {HEALTH_CHECK_TIMEOUT}s")
+        return False
+    except Exception as e:
+        logger.warning(f"Page health check failed: {type(e).__name__}: {str(e)}")
         return False
 
 
@@ -478,9 +494,13 @@ async def force_reset() -> str:
 @handle_browser_errors
 async def get_page_status() -> str:
     """Check if the page is in a healthy state."""
+    global _browser, _page
     is_healthy = await _is_page_healthy_unsafe()
+    browser_running = _browser is not None
+    page_exists = _page is not None and not _page.is_closed()
+
     if is_healthy:
         page = await get_page_unsafe()
-        return f"Page is healthy. URL: {page.url}"
+        return f"✓ Page is healthy\nURL: {page.url}\nBrowser running: {browser_running}"
     else:
-        return "Page is not healthy or not initialized"
+        return f"✗ Page is not healthy\nBrowser running: {browser_running}\nPage exists: {page_exists}\nRecommendation: Try force_reset or close_browser to recover"
