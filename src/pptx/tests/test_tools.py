@@ -128,21 +128,58 @@ async def test_get_slide_notes(sample_pptx):
 
 
 @pytest.mark.asyncio
-async def test_export_slide_as_image(sample_pptx, tmp_path):
-    """Test exporting slide as placeholder image."""
-    output_path = tmp_path / "slide.png"
+async def test_get_slide_export_instructions(sample_pptx):
+    """Test getting slide export instructions."""
     async with Client(mcp) as client:
         res = await client.call_tool(
-            "export_slide_as_image",
+            "get_slide_export_instructions",
             {
                 "file_path": str(sample_pptx),
                 "slide_number": 1,
-                "output_path": str(output_path),
             },
         )
         text = res.content[0].text
-        assert "placeholder" in text.lower()
-        assert output_path.exists()
+        assert "libreoffice" in text.lower()
+        assert "slide 1" in text.lower()
+
+
+@pytest.mark.asyncio
+async def test_extract_text_invalid_slide_numbers(sample_pptx):
+    """Test error handling for invalid slide numbers."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "extract_text",
+            {"file_path": str(sample_pptx), "slide_numbers": "999"},
+        )
+        text = res.content[0].text
+        assert "Error" in text
+        assert "Invalid slide number" in text
+
+
+@pytest.mark.asyncio
+async def test_extract_text_malformed_slide_numbers(sample_pptx):
+    """Test error handling for malformed slide numbers."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "extract_text",
+            {"file_path": str(sample_pptx), "slide_numbers": "abc,def"},
+        )
+        text = res.content[0].text
+        assert "Error" in text
+        assert "comma-separated integers" in text
+
+
+@pytest.mark.asyncio
+async def test_get_slide_notes_invalid_slide(sample_pptx):
+    """Test error handling for invalid slide number in get_slide_notes."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "get_slide_notes",
+            {"file_path": str(sample_pptx), "slide_number": 999},
+        )
+        text = res.content[0].text
+        assert "Error" in text
+        assert "does not exist" in text
 
 
 # ======================================================

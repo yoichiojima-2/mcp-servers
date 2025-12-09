@@ -8,7 +8,6 @@ without modification.
 import json
 from pathlib import Path
 
-from PIL import Image
 from pptx import Presentation
 
 from . import mcp
@@ -82,11 +81,21 @@ def extract_text(file_path: str, slide_numbers: str | None = None) -> str:
         return f"Error: File not found: {path}"
 
     prs = Presentation(str(path))
+    total_slides = len(prs.slides)
 
-    # Parse slide numbers if provided
+    # Parse and validate slide numbers if provided
     target_slides = None
     if slide_numbers:
-        target_slides = set(int(s.strip()) for s in slide_numbers.split(","))
+        try:
+            target_slides = set(int(s.strip()) for s in slide_numbers.split(","))
+            invalid = [n for n in target_slides if n < 1 or n > total_slides]
+            if invalid:
+                return (
+                    f"Error: Invalid slide number(s): {invalid}. "
+                    f"Presentation has {total_slides} slides."
+                )
+        except ValueError:
+            return "Error: slide_numbers must be comma-separated integers (e.g., '1,3,5')"
 
     results = []
     for i, slide in enumerate(prs.slides, 1):
@@ -129,19 +138,25 @@ def get_slide_shapes(file_path: str, slide_number: int) -> str:
     prs = Presentation(str(path))
 
     if slide_number < 1 or slide_number > len(prs.slides):
-        return f"Error: Slide {slide_number} does not exist."
+        return (
+            f"Error: Slide {slide_number} does not exist. "
+            f"Presentation has {len(prs.slides)} slides."
+        )
 
     slide = prs.slides[slide_number - 1]
     shapes_info = []
+
+    # EMU to inches conversion factor
+    EMU_PER_INCH = 914400
 
     for shape in slide.shapes:
         info = {
             "name": shape.name,
             "shape_type": str(shape.shape_type),
-            "left": shape.left.inches if shape.left else 0,
-            "top": shape.top.inches if shape.top else 0,
-            "width": shape.width.inches if shape.width else 0,
-            "height": shape.height.inches if shape.height else 0,
+            "left": shape.left / EMU_PER_INCH,
+            "top": shape.top / EMU_PER_INCH,
+            "width": shape.width / EMU_PER_INCH,
+            "height": shape.height / EMU_PER_INCH,
         }
 
         if shape.has_text_frame:
@@ -172,67 +187,80 @@ def get_slide_notes(file_path: str, slide_number: int | None = None) -> str:
         return f"Error: File not found: {path}"
 
     prs = Presentation(str(path))
+    total_slides = len(prs.slides)
+
+    # Validate slide_number if provided
+    if slide_number is not None:
+        if slide_number < 1 or slide_number > total_slides:
+            return (
+                f"Error: Slide {slide_number} does not exist. "
+                f"Presentation has {total_slides} slides."
+            )
+
     results = []
 
-    slides_to_check = [prs.slides[slide_number - 1]] if slide_number else prs.slides
-
-    for i, slide in enumerate(slides_to_check, slide_number or 1):
+    if slide_number is not None:
+        # Single slide
+        slide = prs.slides[slide_number - 1]
         if slide.has_notes_slide:
-            notes_slide = slide.notes_slide
-            notes_text = notes_slide.notes_text_frame.text
-            results.append(f"--- Slide {i} Notes ---\n{notes_text}")
+            notes_text = slide.notes_slide.notes_text_frame.text
+            results.append(f"--- Slide {slide_number} Notes ---\n{notes_text}")
         else:
-            results.append(f"--- Slide {i} Notes ---\n(no notes)")
+            results.append(f"--- Slide {slide_number} Notes ---\n(no notes)")
+    else:
+        # All slides
+        for i, slide in enumerate(prs.slides, 1):
+            if slide.has_notes_slide:
+                notes_text = slide.notes_slide.notes_text_frame.text
+                results.append(f"--- Slide {i} Notes ---\n{notes_text}")
+            else:
+                results.append(f"--- Slide {i} Notes ---\n(no notes)")
 
     return "\n\n".join(results)
 
 
 @mcp.tool()
-def export_slide_as_image(
-    file_path: str,
-    slide_number: int,
-    output_path: str,
-    width: int = 1920,
-) -> str:
+def get_slide_export_instructions(file_path: str, slide_number: int) -> str:
     """
-    Export a slide as an image (requires unpacking and reading embedded images).
+    Get instructions for exporting a slide as an image.
 
-    Note: This creates a thumbnail-like representation, not a full render.
-    For full rendering, use LibreOffice or similar tools.
+    Note: python-pptx cannot render slides as images. This tool provides
+    instructions for using external tools like LibreOffice.
 
     Args:
         file_path: Path to the PowerPoint file
         slide_number: Slide number (1-indexed)
-        output_path: Path for the output image
-        width: Image width in pixels
 
     Returns:
-        Path to the created image or instructions for full rendering
+        Instructions for exporting the slide using external tools
     """
     path = Path(file_path).expanduser().resolve()
-    out_path = Path(output_path).expanduser().resolve()
 
     if not path.exists():
         return f"Error: File not found: {path}"
 
-    # Create a simple placeholder image
     prs = Presentation(str(path))
+    total_slides = len(prs.slides)
 
-    if slide_number < 1 or slide_number > len(prs.slides):
-        return f"Error: Slide {slide_number} does not exist."
+    if slide_number < 1 or slide_number > total_slides:
+        return (
+            f"Error: Slide {slide_number} does not exist. "
+            f"Presentation has {total_slides} slides."
+        )
 
-    # Calculate height based on aspect ratio
-    aspect_ratio = prs.slide_height.inches / prs.slide_width.inches
-    height = int(width * aspect_ratio)
+    return f"""To export slide {slide_number} from {path.name}:
 
-    # Create image with slide text
-    img = Image.new("RGB", (width, height), color=(255, 255, 255))
+Using LibreOffice (recommended):
+  libreoffice --headless --convert-to png --outdir /output/dir "{path}"
 
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    img.save(str(out_path))
+This exports ALL slides as PNG files. For slide {slide_number}, look for:
+  {path.stem}-{slide_number}.png
 
-    return (
-        f"Created placeholder image: {out_path}\n\n"
-        f"For full slide rendering, use:\n"
-        f"  libreoffice --headless --convert-to png {path}"
-    )
+Using soffice (macOS):
+  /Applications/LibreOffice.app/Contents/MacOS/soffice --headless --convert-to png "{path}"
+
+Note: LibreOffice exports all slides. To get a specific slide only,
+you can use the pdf export first, then convert:
+  libreoffice --headless --convert-to pdf "{path}"
+  # Then use a PDF tool to extract and convert page {slide_number}
+"""
