@@ -6,6 +6,8 @@ A collection of Model Context Protocol (MCP) servers for document processing, da
 
 This monorepo contains multiple MCP servers built with [FastMCP](https://github.com/jlowin/fastmcp), each specialized for different tasks. All servers follow consistent patterns and can be deployed individually or as a composite server.
 
+**[Live Demo](https://yoichiojima-2.github.io/mcp-servers/)** - See the servers in action
+
 ## Available Servers
 
 | Server | Description |
@@ -167,6 +169,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Resources
 
+- [Live Demo](https://yoichiojima-2.github.io/mcp-servers/)
 - [MCP Documentation](https://modelcontextprotocol.io/)
 - [FastMCP Framework](https://github.com/jlowin/fastmcp)
 - [uv Package Manager](https://github.com/astral-sh/uv)
