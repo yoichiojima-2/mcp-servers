@@ -189,3 +189,59 @@ async def test_marp_check_requirements():
         text = res.content[0].text
         # Should check for Node.js
         assert "Node.js" in text
+
+
+@pytest.mark.asyncio
+async def test_marp_create_presentation_invalid_theme():
+    """Test that invalid theme names are rejected."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "marp_create_presentation",
+            {
+                "markdown": "# Test",
+                "output_path": "/tmp/test.pptx",
+                "theme": "nonexistent_theme",
+            },
+        )
+        text = res.content[0].text
+        assert "Error" in text or "Unknown theme" in text
+
+
+@pytest.mark.asyncio
+async def test_marp_create_presentation_from_file_not_found():
+    """Test that missing files return error."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "marp_create_presentation_from_file",
+            {
+                "markdown_file": "/nonexistent/path/to/file.md",
+                "output_path": "/tmp/test.pptx",
+            },
+        )
+        text = res.content[0].text
+        assert "Error" in text or "not found" in text
+
+
+# Test validation functions directly
+def test_marp_path_validation():
+    """Test that forbidden paths are rejected."""
+    from pptx_server.marp import _validate_output_path
+    from pathlib import Path
+
+    # Should raise for system directories
+    with pytest.raises(ValueError, match="system directory"):
+        _validate_output_path(Path("/etc/passwd"))
+
+    with pytest.raises(ValueError, match="system directory"):
+        _validate_output_path(Path("/usr/bin/test.pptx"))
+
+
+def test_marp_markdown_size_validation():
+    """Test that oversized markdown is rejected."""
+    from pptx_server.marp import convert_markdown_to_pptx, MAX_MARKDOWN_SIZE
+
+    # Create oversized content
+    huge_content = "x" * (MAX_MARKDOWN_SIZE + 1)
+
+    with pytest.raises(ValueError, match="too large"):
+        convert_markdown_to_pptx(huge_content, "/tmp/test.pptx")

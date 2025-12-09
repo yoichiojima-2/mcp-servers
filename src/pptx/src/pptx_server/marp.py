@@ -8,6 +8,7 @@ package.
 Requires: Node.js v18+ and a browser (Chrome, Edge, or Firefox)
 """
 
+import os
 import shutil
 import subprocess
 import tempfile
@@ -16,6 +17,11 @@ from pathlib import Path
 from frontend_design.themes import THEMES, get_theme
 
 from . import mcp
+
+# Constants
+MAX_MARKDOWN_SIZE = 10_000_000  # 10MB limit for markdown content
+MARP_TIMEOUT = 60  # Seconds timeout for marp-cli conversion
+FORBIDDEN_PATHS = frozenset(["/bin", "/sbin", "/usr", "/etc", "/sys", "/proc", "/var", "/root"])
 
 
 def _check_marp_cli() -> bool:
@@ -35,14 +41,45 @@ def _check_marp_cli() -> bool:
 def _check_browser() -> bool:
     """Check if a supported browser is available for PPTX conversion."""
     browsers = [
+        # Cross-platform (via PATH)
         shutil.which("google-chrome"),
         shutil.which("chromium"),
         shutil.which("chrome"),
+        shutil.which("firefox"),
+        shutil.which("msedge"),
+        # macOS paths
         "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
         "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
         "/Applications/Firefox.app/Contents/MacOS/firefox",
     ]
+    # Windows paths
+    if os.name == "nt":
+        browsers.extend(
+            [
+                os.path.expandvars(r"%ProgramFiles%\Google\Chrome\Application\chrome.exe"),
+                os.path.expandvars(r"%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe"),
+                os.path.expandvars(r"%ProgramFiles%\Microsoft\Edge\Application\msedge.exe"),
+                os.path.expandvars(r"%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe"),
+                os.path.expandvars(r"%ProgramFiles%\Mozilla Firefox\firefox.exe"),
+                os.path.expandvars(r"%LocalAppData%\Google\Chrome\Application\chrome.exe"),
+            ]
+        )
     return any(b and Path(b).exists() for b in browsers if b)
+
+
+def _validate_output_path(path: Path) -> None:
+    """Validate output path is safe to write to."""
+    path_str = str(path)
+    # Check for forbidden system directories
+    for forbidden in FORBIDDEN_PATHS:
+        if path_str.startswith(forbidden):
+            raise ValueError(f"Cannot write to system directory: {forbidden}")
+    # Ensure parent directory exists or can be created
+    if not path.parent.exists():
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+        except PermissionError:
+            raise ValueError(f"Permission denied: cannot create {path.parent}")
 
 
 def convert_markdown_to_pptx(
@@ -61,11 +98,15 @@ def convert_markdown_to_pptx(
     Returns:
         Path to the created PPTX file
     """
+    # Validate inputs
+    if len(markdown_content) > MAX_MARKDOWN_SIZE:
+        raise ValueError(f"Markdown content too large (max {MAX_MARKDOWN_SIZE // 1_000_000}MB)")
+
     if theme not in THEMES:
         raise ValueError(f"Unknown theme: {theme}. Available: {list(THEMES.keys())}")
 
     output_path = Path(output_path).expanduser().resolve()
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    _validate_output_path(output_path)
 
     theme_data = get_theme(theme)
     theme_css = theme_data.get("marp_css", "")
@@ -123,7 +164,7 @@ paginate: true
                 cmd,
                 capture_output=True,
                 text=True,
-                timeout=120,
+                timeout=MARP_TIMEOUT,
                 cwd=tmpdir,
             )
 
@@ -132,7 +173,7 @@ paginate: true
                 raise RuntimeError(f"Marp conversion failed: {error_msg}")
 
         except subprocess.TimeoutExpired:
-            raise RuntimeError("Marp conversion timed out after 120 seconds")
+            raise RuntimeError(f"Marp conversion timed out after {MARP_TIMEOUT} seconds")
         except FileNotFoundError:
             raise RuntimeError("npx not found. Please install Node.js v18+ to use Marp. Visit: https://nodejs.org/")
 
