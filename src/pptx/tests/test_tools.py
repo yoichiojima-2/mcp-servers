@@ -237,8 +237,11 @@ def test_marp_path_validation():
 
 
 def test_marp_markdown_size_validation():
-    """Test that oversized markdown is rejected."""
+    """Test that oversized markdown is rejected (limit: 2MB)."""
     from pptx_server.marp import convert_markdown_to_pptx, MAX_MARKDOWN_SIZE
+
+    # Verify the limit is 2MB
+    assert MAX_MARKDOWN_SIZE == 2_000_000
 
     # Create oversized content
     huge_content = "x" * (MAX_MARKDOWN_SIZE + 1)

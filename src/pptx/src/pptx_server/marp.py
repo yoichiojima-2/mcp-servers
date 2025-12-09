@@ -19,7 +19,7 @@ from frontend_design.themes import THEMES, get_theme
 from . import mcp
 
 # Constants
-MAX_MARKDOWN_SIZE = 10_000_000  # 10MB limit for markdown content
+MAX_MARKDOWN_SIZE = 2_000_000  # 2MB limit for markdown content (prevents resource exhaustion)
 MARP_TIMEOUT = 60  # Seconds timeout for marp-cli conversion
 FORBIDDEN_PATHS = frozenset(["/bin", "/sbin", "/usr", "/etc", "/sys", "/proc", "/var", "/root"])
 
@@ -325,6 +325,15 @@ def marp_create_presentation(
         ## Questions?
 
         Contact: email@example.com
+
+    Limits:
+        - Maximum markdown size: 2MB
+        - Conversion timeout: 60 seconds
+
+    Security:
+        - Frontmatter is sanitized (dangerous directives like backgroundImage removed)
+        - Inline HTML <style> tags in markdown are NOT sanitized (user responsibility)
+        - Output paths to system directories are blocked
     """
     try:
         result_path = convert_markdown_to_pptx(markdown, output_path, theme)
