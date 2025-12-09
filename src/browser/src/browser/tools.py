@@ -493,8 +493,13 @@ async def force_reset() -> str:
 @mcp.tool()
 @handle_browser_errors
 async def get_page_status() -> str:
-    """Check if the page is in a healthy state."""
+    """Check if the page is in a healthy state.
+
+    Note: _page_lock is already held by @handle_browser_errors decorator,
+    so it's safe to call _is_page_healthy_unsafe() and get_page_unsafe() here.
+    """
     global _browser, _page
+    # Safe to call _unsafe functions because @handle_browser_errors holds _page_lock
     is_healthy = await _is_page_healthy_unsafe()
     browser_running = _browser is not None
     page_exists = _page is not None and not _page.is_closed()
