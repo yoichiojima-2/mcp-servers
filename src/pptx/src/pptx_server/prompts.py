@@ -8,18 +8,25 @@ def pptx_workflow_overview() -> str:
 
 ## Choosing Your Workflow
 
+### Creating New Presentation (RECOMMENDED)
+→ Use **Marp** workflow - Markdown to PPTX with professional themes
+- Write slides in simple Markdown syntax
+- Choose from distinctive, professionally-designed themes
+- Themes: `noir`, `brutalist`, `organic`, `neon`, `minimal`, `retro`
+- Use `marp_create_presentation()` tool
+- See `pptx_marp_workflow()` prompt for details
+
 ### Reading and Analyzing Content
 - **Text extraction**: `markitdown path-to-file.pptx` - Convert to markdown
 - **Raw XML access**: Unpack with `python ooxml/scripts/unpack.py` for comments, speaker notes, layouts, animations
 
-### Creating New Presentation WITHOUT Template
-→ Use **html2pptx** workflow
+### Creating Presentation with Pixel-Perfect Control
+→ Use **html2pptx** workflow (when you need precise positioning)
 - Create HTML slides with proper dimensions (720pt × 405pt for 16:9)
 - Convert to PowerPoint with accurate positioning
-- Add charts/tables via PptxGenJS API
 - See `pptx_html2pptx()` prompt for details
 
-### Creating New Presentation WITH Template
+### Creating Presentation from Existing Template
 → Use **template workflow**
 - Extract template text and create visual thumbnails
 - Analyze template inventory
@@ -44,6 +51,92 @@ def pptx_workflow_overview() -> str:
 - `ppt/slideMasters/` - Master slide templates
 - `ppt/theme/` - Theme and styling
 - `ppt/media/` - Images and media
+"""
+
+
+@mcp.prompt()
+def pptx_marp_workflow() -> str:
+    """Marp-based Markdown to PPTX workflow - the recommended approach."""
+    return """# Creating PowerPoint with Marp (RECOMMENDED)
+
+Marp converts Markdown to professionally-designed PPTX with distinctive themes
+that avoid generic AI aesthetics.
+
+## Available Themes
+
+Each theme has a bold, intentional design direction:
+
+| Theme | Aesthetic | Best For |
+|-------|-----------|----------|
+| `noir` | Editorial/Film Noir, high-contrast dark | Tech, cinema, premium brands |
+| `brutalist` | Raw, bold, Swiss typography | Design, architecture, statements |
+| `organic` | Warm, natural, earthy | Wellness, sustainability, lifestyle |
+| `neon` | Cyberpunk, glowing accents | Gaming, tech startups, innovation |
+| `minimal` | Swiss/Minimalist, refined | Professional, content-heavy |
+| `retro` | 70s/80s nostalgic, geometric | Creative, fun, distinctive |
+
+## Quick Start
+
+Use `marp_create_presentation()` with Markdown:
+
+```markdown
+---
+marp: true
+---
+
+<!-- _class: lead -->
+# Presentation Title
+Subtitle goes here
+
+---
+
+## First Topic
+
+- Key point one
+- Key point two
+- Key point three
+
+---
+
+<!-- _class: invert -->
+## Questions?
+
+Contact: email@example.com
+```
+
+## Markdown Syntax
+
+### Slide Separators
+- Use `---` to separate slides
+- First `---` ends the frontmatter
+
+### Slide Classes
+- `<!-- _class: lead -->` - Title/hero slides (centered, larger text)
+- `<!-- _class: invert -->` - Inverted colors for accent slides
+
+### Content Elements
+- `# H1` through `###### H6` - Headings
+- `- item` or `* item` - Bullet lists
+- `1. item` - Numbered lists
+- `**bold**` and `*italic*` - Text formatting
+- `> quote` - Blockquotes
+- `` `code` `` - Inline code
+- `![alt](image.png)` - Images
+- Tables with `|` syntax
+
+## Requirements
+
+- Node.js v18+ (for npx/marp-cli)
+- A browser (Chrome, Edge, or Firefox) for PPTX export
+- Use `marp_check_requirements()` to verify setup
+
+## Workflow
+
+1. Check requirements: `marp_check_requirements()`
+2. List themes: `design_list_themes()` (from frontend-design server)
+3. Create presentation: `marp_create_presentation(markdown, output_path, theme)`
+
+For design principles and theme details, see the frontend-design server prompts.
 """
 
 
@@ -297,85 +390,23 @@ python scripts/thumbnail.py template.pptx workspace/analysis --cols 4
 
 @mcp.prompt()
 def pptx_design_principles() -> str:
-    """Design principles and visual details for presentations."""
+    """Design principles for presentations - references frontend-design server."""
     return """# PPTX Design Principles
 
-## Core Design Requirements
+For comprehensive design guidance, use the **frontend-design** MCP server.
 
-1. **Content-First Design**
-   - Analyze subject matter before choosing design
-   - Consider: tone, industry, mood, target audience
-   - Match palette to content (don't use autopilot choices)
-   - State design approach BEFORE coding
+## Design Prompts (via frontend-design)
+- `design_thinking` - Purpose, audience, and differentiation strategy
+- `color_strategy` - Building intentional color palettes
+- `typography_principles` - Distinctive font choices and hierarchy
+- `layout_principles` - Visual structure and composition
+- `design_for_presentations` - Presentation-specific guidance
 
-2. **Typography**
-   - Web-safe fonts ONLY: Arial, Helvetica, Times New Roman, Georgia, Courier New, Verdana, Tahoma, Trebuchet MS, Impact
-   - Clear visual hierarchy via size, weight, color
-   - Strong contrast for readability
-   - Consistent patterns across slides
+## Design Tools (via frontend-design)
+- `design_list_themes()` - View available themes with aesthetics
+- `design_get_theme(name)` - Get full theme details (colors, fonts, CSS)
+- `design_suggest_palette(mood, industry)` - Get palette recommendations
+- `design_check_contrast(fg, bg)` - Verify WCAG accessibility
 
-3. **Color Strategy**
-   - Think beyond defaults
-   - Be adventurous with combinations
-   - Pick 3-5 colors that work together
-   - Ensure text/background contrast
-
-## Visual Details Library
-
-### Typography Treatments
-- Extreme size contrast (72pt headlines vs 11pt body)
-- All-caps headers with wide letter spacing
-- Numbered sections in oversized display type
-- Monospace (Courier New) for data/stats
-- Outlined text for emphasis
-
-### Geometric Patterns
-- Diagonal section dividers
-- Asymmetric column widths (30/70, 40/60, 25/75)
-- Rotated text headers (90° or 270°)
-- Circular/hexagonal frames for images
-- Triangular accent shapes in corners
-- Overlapping shapes for depth
-
-### Border & Frame Treatments
-- Thick single-color borders (10-20pt) on one side
-- Double-line borders with contrasting colors
-- Corner brackets instead of full frames
-- L-shaped borders (top+left or bottom+right)
-- Underline accents beneath headers (3-5pt thick)
-
-### Chart & Data Styling
-- Monochrome charts with single accent color for key data
-- Horizontal bar charts instead of vertical
-- Dot plots instead of bar charts
-- Minimal gridlines or none
-- Data labels directly on elements (no legends)
-- Oversized numbers for key metrics
-
-### Layout Innovations
-- Full-bleed images with text overlays
-- Sidebar column (20-30% width) for navigation/context
-- Modular grid systems (3×3, 4×4 blocks)
-- Z-pattern or F-pattern content flow
-- Floating text boxes over colored shapes
-- Magazine-style multi-column layouts
-
-### Background Treatments
-- Solid color blocks occupying 40-60% of slide
-- Gradient fills (vertical or diagonal only)
-- Split backgrounds (two colors, diagonal or vertical)
-- Edge-to-edge color bands
-- Negative space as design element
-
-## Layout Best Practices
-
-**Charts/Tables**:
-- Two-column preferred: header + content side-by-side
-- Full-slide for maximum impact
-- Never vertical stack (chart below text)
-
-**Content Matching**:
-- Match layout structure to actual content count
-- Don't force 2 items into 3-column layout
-- Use appropriate placeholders for your content type
+For theme details and design guidance, query the frontend-design server.
 """

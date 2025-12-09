@@ -28,6 +28,7 @@ members = [
     "src/composite",
     "src/dify",
     "src/docx",
+    "src/frontend-design",
     "src/langquery",
     "src/pdf",
     "src/pptx",

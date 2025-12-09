@@ -1,0 +1,21 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "frontend-design"
+version = "0.1.0"
+description = "MCP server providing design principles, themes, and color palettes for composable use"
+readme = "README.md"
+requires-python = ">=3.12"
+# Minimal dependencies - fastmcp, python-dotenv are inherited from root workspace
+dependencies = []
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/frontend_design"]
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+testpaths = [
+    "tests",
+]

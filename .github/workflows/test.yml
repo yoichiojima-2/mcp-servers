@@ -34,6 +34,7 @@ jobs:
           - composite
           - dify
           - docx
+          - frontend-design
           - langquery
           - pdf
           - pptx
