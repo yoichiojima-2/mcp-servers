@@ -411,96 +411,203 @@ Distinctive visual details separate memorable designs from generic output.
 
 
 @mcp.prompt()
-def design_for_presentations() -> str:
-    """Specific guidance for presentation design."""
-    return """# Presentation Design
+def presentation_workflow() -> str:
+    """
+    [PRIMARY] Step-by-step workflow for creating presentations with Marp.
 
-Create presentations that command attention and communicate clearly.
+    Use this prompt when creating any presentation. Design is applied through
+    CSS themes, not written as slide content.
+    """
+    return """# Presentation Creation Workflow
 
-## Slide Types & Their Purpose
+## CRITICAL: Design Through CSS, Not Text
 
-### Title Slide
-- Maximum impact, minimum text
-- Clear hierarchy: Title > Subtitle > Attribution
-- Set the visual tone for the entire deck
+**WRONG**: Writing "This slide uses bold typography and high contrast" on the slide
+**RIGHT**: Using `<!-- _class: lead -->` and selecting the `noir` theme
 
-### Section Dividers
-- Pause and reset attention
-- Often inverted colors (dark if deck is light)
-- Large section number or title
+Design is applied through:
+1. Theme selection (noir, brutalist, organic, neon, minimal, retro)
+2. CSS classes (`lead`, `invert`)
+3. Markdown structure (headings, lists, emphasis)
 
-### Content Slides
-- One idea per slide
-- Support the spoken word, don't replace it
-- Visual > Text when possible
+NEVER put design descriptions as slide content.
 
-### Data Slides
-- Let the data be the hero
-- Minimal chrome and decoration
-- Clear callouts for key insights
+---
 
-### Closing Slide
-- Call to action or key takeaway
-- Contact information if relevant
-- Thank you (optional, often unnecessary)
+## Step 1: Choose a Theme
+
+Pick ONE theme based on the presentation purpose:
+
+| Theme | Use For | Avoid For |
+|-------|---------|-----------|
+| `noir` | Tech, premium, cinematic | Children, healthcare |
+| `brutalist` | Design, architecture, bold | Conservative finance |
+| `organic` | Wellness, sustainability | Tech startups |
+| `neon` | Gaming, innovation, startups | Traditional business |
+| `minimal` | Professional, enterprise | Creative agencies |
+| `retro` | Creative, fun campaigns | Serious topics |
+
+---
+
+## Step 2: Write Content in Marp Markdown
+
+Structure your slides using this format:
+
+```markdown
+---
+marp: true
+paginate: true
+---
+
+<!-- _class: lead -->
+# Presentation Title
+Subtitle or tagline here
+
+---
+
+## First Topic
+
+- Key point one
+- Key point two
+- Key point three
+
+---
+
+## Second Topic
+
+> Important quote or callout
+
+Supporting explanation below.
+
+---
+
+<!-- _class: invert -->
+## Call to Action
+
+**Contact**: email@example.com
+```
+
+---
+
+## Step 3: Use CSS Classes for Styling
+
+| Class | Effect |
+|-------|--------|
+| `lead` | Title/hero slide - centered, larger text |
+| `invert` | Inverted colors - accent background |
+
+Apply with HTML comments:
+```markdown
+<!-- _class: lead -->
+# Title Slide
+
+---
+
+<!-- _class: invert -->
+## Accent Slide
+```
+
+---
+
+## Step 4: Markdown Formatting = Design
+
+| Markdown | Visual Result |
+|----------|---------------|
+| `# Heading` | Large, styled heading |
+| `**bold**` | Emphasized text (often colored) |
+| `*italic*` | Secondary emphasis |
+| `> quote` | Styled blockquote |
+| `- list` | Bulleted list with styled markers |
+| `` `code` `` | Monospace with background |
+
+---
+
+## Step 5: Convert to PPTX
+
+Only after content is finalized, call `marp_create_presentation`:
+
+```python
+marp_create_presentation(
+    markdown="...",
+    output_path="/path/to/output.pptx",
+    theme="noir"
+)
+```
+
+---
 
 ## Content Guidelines
 
-### Text
 - **6x6 Rule**: Max 6 bullets, max 6 words each
-- Headlines as takeaways, not topics
-- Sentence case preferred over ALL CAPS body
+- **Headlines as takeaways**, not topics
+- **One idea per slide**
+- **Data slides**: Let charts be the hero, minimal text
 
-### Images
-- Full-bleed for impact
-- Consistent treatment (all photos or all illustrations)
-- High quality, no pixelation
+---
 
-### Data
-- One chart per slide
-- Call out the insight, not just the data
-- Simplify: remove non-essential elements
+## Example: Complete Presentation
 
-## Layout Templates
+```markdown
+---
+marp: true
+paginate: true
+---
 
-### Left-Heavy
+<!-- _class: lead -->
+# Q4 Results
+Exceeding expectations
+
+---
+
+## Revenue Growth
+
+- **42%** year-over-year increase
+- Strongest Q4 in company history
+- All regions exceeded targets
+
+---
+
+## Key Wins
+
+> "Best product launch we have ever executed"
+> — VP of Sales
+
+- Enterprise deals: +67%
+- New markets: 3 regions
+- Customer satisfaction: 94%
+
+---
+
+<!-- _class: invert -->
+## 2025 Outlook
+
+**Target**: $50M ARR
+
+Next steps: Q1 planning session
 ```
-[Large Title/Stat  ]  [Supporting]
-[Main content      ]  [Visual   ]
-[Continues here    ]  [Element  ]
+
+---
+
+## Anti-Patterns to Avoid
+
+### NEVER do this:
+```markdown
+## Slide Design Principles
+
+This presentation uses a dark theme with red accents.
+The typography is bold and impactful.
+We chose high contrast for readability.
 ```
 
-### Center Stage
-```
-        [Title]
-   [Main Visual/Stat]
-     [Supporting text]
-```
+### ALWAYS do this:
+```markdown
+<!-- _class: lead -->
+# Clear, Concise Title
 
-### Two Column
-```
-[Heading spans full width------]
-[Point A     ]  [Point B      ]
-[Details     ]  [Details      ]
+The actual content goes here.
 ```
 
-## Transition Strategy
-
-- Consistent throughout deck
-- Simple is better (cut, fade)
-- Never: spinning, bouncing, flying
-- Build reveals for complex info
-
-## Theme Selection Guide
-
-| Theme | Best For | Avoid For |
-|-------|----------|-----------|
-| noir | Tech, premium, cinematic | Children, healthcare |
-| brutalist | Design, architecture | Conservative finance |
-| organic | Wellness, sustainability | Tech startups |
-| neon | Gaming, innovation | Traditional business |
-| minimal | Professional, content-heavy | Creative agencies |
-| retro | Creative, fun campaigns | Serious topics |
+The THEME provides the design. You provide the CONTENT.
 """
 
 

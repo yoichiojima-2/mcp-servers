@@ -50,12 +50,13 @@ class TestDesignPrompts:
             assert "Visual Elements" in res.messages[0].content.text
 
     @pytest.mark.asyncio
-    async def test_design_for_presentations_prompt(self):
-        """Test design_for_presentations prompt is available and has content."""
+    async def test_presentation_workflow_prompt(self):
+        """Test presentation_workflow prompt is available and has content."""
         async with Client(mcp) as client:
-            res = await client.get_prompt("design_for_presentations", {})
+            res = await client.get_prompt("presentation_workflow", {})
             assert res.messages[0].content.text
             assert "Presentation" in res.messages[0].content.text
+            assert "marp_create_presentation" in res.messages[0].content.text
 
     @pytest.mark.asyncio
     async def test_design_for_documents_prompt(self):
