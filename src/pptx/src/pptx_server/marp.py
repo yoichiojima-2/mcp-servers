@@ -215,7 +215,7 @@ def _sanitize_frontmatter(markdown_content: str) -> str:
 def convert_markdown_to_pptx(
     markdown_content: str,
     output_path: str,
-    theme: str = "minimal",
+    theme: str = "modern",
 ) -> str:
     """
     Convert Marp-formatted Markdown to PPTX using marp-cli.
@@ -334,7 +334,7 @@ paginate: true
 def marp_create_presentation(
     markdown: str,
     output_path: str,
-    theme: str = "minimal",
+    theme: str = "modern",
 ) -> str:
     """
     [RECOMMENDED] Create a professionally-designed PPTX from Markdown.
@@ -359,6 +359,7 @@ def marp_create_presentation(
                   - Supports: # headings, - lists, **bold**, *italic*, > quotes, `code`
         output_path: Path for the output PPTX file
         theme: Theme name. Each has distinctive, professional styling:
+               - modern: Clean SaaS-inspired, gradient accents (default, tech, startups)
                - noir: Dark, cinematic, red accents (tech, premium)
                - brutalist: Bold, raw, blue/red on light (design, architecture)
                - organic: Warm, natural, earth tones (wellness, sustainability)
@@ -412,7 +413,7 @@ def marp_create_presentation(
 def marp_create_presentation_from_file(
     markdown_file: str,
     output_path: str,
-    theme: str = "minimal",
+    theme: str = "modern",
 ) -> str:
     """
     Create a PPTX from a Markdown file using Marp.
@@ -420,7 +421,7 @@ def marp_create_presentation_from_file(
     Args:
         markdown_file: Path to the Markdown file
         output_path: Path for the output PPTX file
-        theme: Theme name - one of: noir, brutalist, organic, neon, minimal, retro
+        theme: Theme name - one of: modern, noir, brutalist, organic, neon, minimal, retro
 
     Returns:
         Path to the created PPTX file

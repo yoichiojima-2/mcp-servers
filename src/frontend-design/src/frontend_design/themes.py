@@ -532,6 +532,198 @@ tr:nth-child(even) td { background: #ffe4b5; }
 a { color: #1982c4; text-decoration: underline; text-decoration-thickness: 2px; }
 """,
     },
+    "modern": {
+        "name": "Modern",
+        "description": "Clean, refined design inspired by contemporary frontend aesthetics. Subtle gradients, soft shadows, and polished typography.",
+        "aesthetic": "Modern SaaS/Frontend with glass morphism accents",
+        "colors": {
+            "background": "#FAFAFA",
+            "surface": "#FFFFFF",
+            "primary": "#18181B",
+            "accent": "#6366F1",
+            "secondary": "#8B5CF6",
+            "text": "#18181B",
+            "text_muted": "#71717A",
+            "heading": "#09090B",
+            "border": "#E4E4E7",
+        },
+        "fonts": {
+            "heading": "Arial",
+            "body": "Arial",
+        },
+        "marp_css": """
+/* @theme modern */
+@import 'default';
+
+section {
+  background: linear-gradient(180deg, #fafafa 0%, #f4f4f5 100%);
+  color: #18181b;
+  font-family: 'Arial', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 26px;
+  padding: 60px 80px;
+  position: relative;
+}
+
+section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+}
+
+h1 {
+  font-family: 'Arial', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 2.8em;
+  font-weight: 700;
+  color: #09090b;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+h2 {
+  font-family: 'Arial', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.8em;
+  font-weight: 600;
+  color: #18181b;
+  letter-spacing: -0.02em;
+}
+
+h3 {
+  font-size: 1em;
+  font-weight: 500;
+  color: #6366f1;
+  letter-spacing: 0.02em;
+}
+
+p, li {
+  line-height: 1.7;
+  color: #3f3f46;
+}
+
+ul { list-style: none; padding-left: 0; }
+ul li {
+  padding-left: 1.8em;
+  position: relative;
+  margin-bottom: 0.5em;
+}
+ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+}
+
+strong {
+  color: #09090b;
+  font-weight: 600;
+}
+em {
+  color: #6366f1;
+  font-style: normal;
+  font-weight: 500;
+}
+code {
+  background: #f4f4f5;
+  color: #6366f1;
+  padding: 0.2em 0.5em;
+  border-radius: 6px;
+  font-size: 0.9em;
+  border: 1px solid #e4e4e7;
+}
+
+blockquote {
+  background: #ffffff;
+  border-left: 3px solid #6366f1;
+  border-radius: 0 12px 12px 0;
+  padding: 1.2em 1.8em;
+  color: #52525b;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+section.lead {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+  background: linear-gradient(135deg, #fafafa 0%, #f4f4f5 50%, #ede9fe 100%);
+}
+section.lead::before {
+  height: 6px;
+}
+section.lead h1 {
+  font-size: 3.5em;
+  background: linear-gradient(135deg, #18181b 0%, #6366f1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+section.lead p {
+  color: #71717a;
+  font-size: 1.3em;
+  max-width: 70%;
+}
+
+section.invert {
+  background: linear-gradient(135deg, #18181b 0%, #27272a 100%);
+  color: #fafafa;
+}
+section.invert::before {
+  background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 50%, #c084fc 100%);
+}
+section.invert h1, section.invert h2 { color: #fafafa; }
+section.invert h3 { color: #a5b4fc; }
+section.invert p, section.invert li { color: #a1a1aa; }
+section.invert code {
+  background: #27272a;
+  border-color: #3f3f46;
+  color: #a5b4fc;
+}
+section.invert blockquote {
+  background: #27272a;
+  border-left-color: #8b5cf6;
+  color: #a1a1aa;
+  box-shadow: none;
+}
+
+th {
+  background: #f4f4f5;
+  color: #18181b;
+  font-weight: 600;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid #e4e4e7;
+}
+td {
+  border-bottom: 1px solid #e4e4e7;
+  padding: 0.8em 1em;
+}
+tr:hover td {
+  background: #f4f4f5;
+}
+
+a {
+  color: #6366f1;
+  text-decoration: none;
+  font-weight: 500;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+img {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
+""",
+    },
 }
 
 

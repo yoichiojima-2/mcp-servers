@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Titanic Dataset – Exploratory Data Analysis</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg-alt: #020617;
+      --card: #1e293b;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.1);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --border: #334155;
+      --danger: #f97373;
+      --success: #4ade80;
+      --warning: #facc15;
+      --mono: "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --radius-lg: 14px;
+      --radius-sm: 8px;
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.7);
+      --shadow-subtle: 0 10px 30px rgba(15, 23, 42, 0.6);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top left, #1e293b 0, #020617 35%, #000 100%);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 40px auto 60px;
+      padding: 0 20px;
+    }
+
+    .hero {
+      position: relative;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(59, 130, 246, 0.05));
+      border-radius: 22px;
+      padding: 28px 26px 26px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.25), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.25), transparent 55%);
+      opacity: 0.7;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-kicker {
+      font-size: 0.8rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .hero-title {
+      font-size: 2.2rem;
+      margin: 0 0 10px;
+      letter-spacing: 0.02em;
+    }
+
+    .hero-subtitle {
+      margin: 0;
+      color: var(--muted);
+      max-width: 640px;
+      font-size: 0.98rem;
+    }
+
+    .hero-meta {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero-pill strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      gap: 20px;
+      margin-top: 22px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.9));
+      border-radius: var(--radius-lg);
+      padding: 18px 18px 16px;
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      box-shadow: var(--shadow-subtle);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.09), transparent 55%);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 1.1rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .card-tag {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border-radius: 999px;
+      padding: 2px 9px;
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      white-space: nowrap;
+    }
+
+    .card + .card {
+      margin-top: 18px;
+    }
+
+    h2.section-title {
+      margin: 30px 0 10px;
+      font-size: 1.25rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    p {
+      margin: 0 0 8px;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .stat {
+      padding: 10px 10px 8px;
+      border-radius: var(--radius-sm);
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      font-size: 0.86rem;
+    }
+
+    .stat-label {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+
+    .stat-value {
+      font-size: 1.02rem;
+      font-weight: 600;
+    }
+
+    .stat-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 6px 0 10px;
+      font-size: 0.86rem;
+    }
+
+    th, td {
+      padding: 6px 8px;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.95);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      font-weight: 600;
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    tbody tr:hover {
+      background: rgba(30, 64, 175, 0.35);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border: 1px solid rgba(148, 163, 184, 0.65);
+      color: var(--muted);
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .badge-success {
+      border-color: rgba(74, 222, 128, 0.8);
+      color: var(--success);
+      background: rgba(22, 101, 52, 0.35);
+    }
+
+    .badge-danger {
+      border-color: rgba(248, 113, 113, 0.8);
+      color: var(--danger);
+      background: rgba(127, 29, 29, 0.35);
+    }
+
+    .badge-neutral {
+      border-color: rgba(148, 163, 184, 0.7);
+      color: var(--muted);
+      background: rgba(15, 23, 42, 0.7);
+    }
+
+    .callout {
+      margin-top: 6px;
+      padding: 7px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px dashed rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.85);
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    code {
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      background: rgba(15, 23, 42, 0.95);
+      padding: 2px 5px;
+      border-radius: 4px;
+      border: 1px solid rgba(30, 64, 175, 0.6);
+      color: var(--accent);
+    }
+
+    .section-note {
+      margin-top: 2px;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+      font-size: 0.8rem;
+    }
+
+    .pill {
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--muted);
+    }
+
+    footer {
+      margin-top: 24px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: right;
+      border-top: 1px solid rgba(51, 65, 85, 0.9);
+      padding-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="hero-content">
+        <div class="hero-kicker">Exploratory Data Analysis</div>
+        <h1 class="hero-title">Titanic Passenger Dataset</h1>
+        <p class="hero-subtitle">
+          A compact analysis of passenger demographics, ticket classes, and survival outcomes
+          based on the <code>titanic.csv</code> file (714 passengers, 8 variables). This report
+          focuses on structure, distributions, and the main patterns associated with survival.
+        </p>
+        <div class="hero-meta">
+          <div class="hero-pill">
+            <span>Rows</span>
+            <strong>714 passengers</strong>
+          </div>
+          <div class="hero-pill">
+            <span>Columns</span>
+            <strong>8 variables</strong>
+          </div>
+          <div class="hero-pill">
+            <span>Target</span>
+            <strong>survived (0/1)</strong>
+          </div>
+          <div class="hero-pill">
+            <span>Missingness</span>
+            <strong>0 columns with NULLs</strong>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2 class="section-title">1. Dataset Structure</h2>
+        <div class="layout">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Schema Summary</h3>
+              <span class="card-tag">Structure</span>
+            </div>
+            <p class="muted">
+              The dataset contains 714 unique passengers with 8 attributes describing ticket
+              class, demographics, and survival outcome.
+            </p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Description (inferred)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>survived</td>
+                  <td>BIGINT</td>
+                  <td>Target variable: <code>1</code> = survived, <code>0</code> = died</td>
+                </tr>
+                <tr>
+                  <td>pclass</td>
+                  <td>BIGINT</td>
+                  <td>Passenger class: 1st, 2nd, or 3rd</td>
+                </tr>
+                <tr>
+                  <td>name</td>
+                  <td>VARCHAR</td>
+                  <td>Passenger’s full name (includes title)</td>
+                </tr>
+                <tr>
+                  <td>sex</td>
+                  <td>VARCHAR</td>
+                  <td>Biological sex: <code>male</code>, <code>female</code></td>
+                </tr>
+                <tr>
+                  <td>age</td>
+                  <td>DOUBLE</td>
+                  <td>Age in years (including fractional values for infants)</td>
+                </tr>
+                <tr>
+                  <td>fare</td>
+                  <td>DOUBLE</td>
+                  <td>Ticket fare paid (in British pounds)</td>
+                </tr>
+                <tr>
+                  <td>sibsp</td>
+                  <td>BIGINT</td>
+                  <td>Number of siblings and spouses aboard</td>
+                </tr>
+                <tr>
+                  <td>parch</td>
+                  <td>BIGINT</td>
+                  <td>Number of parents and children aboard</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="section-note">
+              Each row represents a unique passenger–there are 714 distinct names.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Global Metrics</h3>
+              <span class="card-tag">Overview</span>
+            </div>
+            <div class="stat-grid">
+              <div class="stat">
+                <div class="stat-label">Survival rate</div>
+                <div class="stat-value">40.6%</div>
+                <div class="stat-sub"><span class="badge badge-danger">59.4% died</span></div>
+              </div>
+              <div class="stat">
+                <div class="stat-label">Class mix</div>
+                <div class="stat-value">~50% in 3rd class</div>
+                <div class="stat-sub">1st: 26.1%, 2nd: 24.2%, 3rd: 49.7%</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label">Sex distribution</div>
+                <div class="stat-value">63.4% male</div>
+                <div class="stat-sub">36.6% female</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label">Missing values</div>
+                <div class="stat-value">0 columns</div>
+                <div class="stat-sub">No NULLs detected in any field</div>
+              </div>
+            </div>
+            <div class="callout">
+              This Titanic extract is fully populated: <strong>no imputation is required</strong>
+              for basic modeling and visualization.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">2. Demographic and Ticket Distributions</h2>
+        <div class="layout">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Passenger Class &amp; Sex</h3>
+              <span class="card-tag">Categorical</span>
+            </div>
+            <p>
+              The passenger list is dominated by third-class and male passengers, with roughly
+              half of all travelers in third class and about two-thirds of passengers being men.
+            </p>
+
+            <h4 class="muted" style="margin-top:10px;">Class distribution</h4>
+            <table>
+              <thead>
+                <tr>
+                  <th>pclass</th>
+                  <th>Passengers</th>
+                  <th>Share</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1st</td>
+                  <td>186</td>
+                  <td>26.1%</td>
+                </tr>
+                <tr>
+                  <td>2nd</td>
+                  <td>173</td>
+                  <td>24.2%</td>
+                </tr>
+                <tr>
+                  <td>3rd</td>
+                  <td>355</td>
+                  <td>49.7%</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h4 class="muted" style="margin-top:10px;">Sex distribution</h4>
+            <table>
+              <thead>
+                <tr>
+                  <th>sex</th>
+                  <th>Passengers</th>
+                  <th>Share</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>female</td>
+                  <td>261</td>
+                  <td>36.6%</td>
+                </tr>
+                <tr>
+                  <td>male</td>
+                  <td>453</td>
+                  <td>63.4%</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="callout">
+              In visual form, bar charts of class and sex counts would quickly show the
+              dominance of third-class and male passengers.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Age &amp; Fare</h3>
+              <span class="card-tag">Continuous</span>
+            </div>
+            <p class="muted">
+              Ages range from infants to elderly passengers, while fares span several
+              orders of magnitude and are strongly right-skewed.
+            </p>
+
+            <h4 class="muted" style="margin-top:10px;">Age summary</h4>
+            <table>
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Age (years)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Min</td>
+                  <td>0.42</td>
+                </tr>
+                <tr>
+                  <td>Median</td>
+                  <td>28.0</td>
+                </tr>
+                <tr>
+                  <td>Mean</td>
+                  <td>29.7</td>
+                </tr>
+                <tr>
+                  <td>Max</td>
+                  <td>80.0</td>
+                </tr>
+                <tr>
+                  <td>Std. dev.</td>
+                  <td>14.5</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h4 class="muted" style="margin-top:10px;">Fare summary</h4>
+            <table>
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Fare</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Min</td>
+                  <td>0.00</td>
+                </tr>
+                <tr>
+                  <td>Median</td>
+                  <td>15.74</td>
+                </tr>
+                <tr>
+                  <td>Mean</td>
+                  <td>34.69</td>
+                </tr>
+                <tr>
+                  <td>Max</td>
+                  <td>512.33</td>
+                </tr>
+                <tr>
+                  <td>Std. dev.</td>
+                  <td>52.92</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="callout">
+              The large gap between median and mean fare reflects a handful of
+              very high-priced tickets. In plots, a log-scale on fare makes the
+              distribution easier to interpret.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">3. Survival Patterns</h2>
+        <div class="layout">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Overall Survival</h3>
+              <span class="card-tag">Target</span>
+            </div>
+            <p>
+              Out of 714 passengers in this dataset, fewer than half survived.
+              Survival is moderately imbalanced towards the negative class.
+            </p>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>survived</th>
+                  <th>Passengers</th>
+                  <th>Share</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="badge badge-danger">0 (died)</span></td>
+                  <td>424</td>
+                  <td>59.4%</td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-success">1 (survived)</span></td>
+                  <td>290</td>
+                  <td>40.6%</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="callout">
+              From a modeling perspective, this is a binary classification
+              problem with a majority negative class.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Survival by Sex</h3>
+              <span class="card-tag">Key Driver</span>
+            </div>
+            <p>
+              Sex is one of the strongest predictors of survival. Women were
+              heavily prioritized during evacuation.
+            </p>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>sex</th>
+                  <th>survived</th>
+                  <th>Passengers</th>
+                  <th>% within sex</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>female</td>
+                  <td>0 (died)</td>
+                  <td>64</td>
+                  <td>24.5%</td>
+                </tr>
+                <tr>
+                  <td>female</td>
+                  <td>1 (survived)</td>
+                  <td>197</td>
+                  <td>75.5%</td>
+                </tr>
+                <tr>
+                  <td>male</td>
+                  <td>0 (died)</td>
+                  <td>360</td>
+                  <td>79.5%</td>
+                </tr>
+                <tr>
+                  <td>male</td>
+                  <td>1 (survived)</td>
+                  <td>93</td>
+                  <td>20.5%</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="callout">
+              Roughly three-quarters of women survived, while about four out of five men
+              died—capturing the historical “women and children first” policy in the
+              data itself.
+            </div>
+          </div>
+        </div>
+
+        <div class="layout" style="margin-top:18px;">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Survival by Class</h3>
+              <span class="card-tag">Socioeconomic</span>
+            </div>
+            <p>
+              Passenger class shows a clear socioeconomic gradient in survival:
+              higher classes had substantially better outcomes.
+            </p>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>pclass</th>
+                  <th>survived</th>
+                  <th>Passengers</th>
+                  <th>% within class</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1st</td>
+                  <td>0 (died)</td>
+                  <td>64</td>
+                  <td>34.4%</td>
+                </tr>
+                <tr>
+                  <td>1st</td>
+                  <td>1 (survived)</td>
+                  <td>122</td>
+                  <td>65.6%</td>
+                </tr>
+                <tr>
+                  <td>2nd</td>
+                  <td>0 (died)</td>
+                  <td>90</td>
+                  <td>52.0%</td>
+                </tr>
+                <tr>
+                  <td>2nd</td>
+                  <td>1 (survived)</td>
+                  <td>83</td>
+                  <td>48.0%</td>
+                </tr>
+                <tr>
+                  <td>3rd</td>
+                  <td>0 (died)</td>
+                  <td>270</td>
+                  <td>76.1%</td>
+                </tr>
+                <tr>
+                  <td>3rd</td>
+                  <td>1 (survived)</td>
+                  <td>85</td>
+                  <td>23.9%</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="callout">
+              About two-thirds of first-class passengers survived, compared with just
+              one-quarter of third-class passengers. Cabin location and access to
+              lifeboats are likely key mediating factors.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Class × Sex Interaction</h3>
+              <span class="card-tag">Combined Effect</span>
+            </div>
+            <p>
+              The combination of class and sex produces the most pronounced
+              contrasts in survival rates.
+            </p>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>pclass</th>
+                  <th>sex</th>
+                  <th>survived</th>
+                  <th>Passengers</th>
+                  <th>% within group</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1st</td>
+                  <td>female</td>
+                  <td>0 (died)</td>
+                  <td>3</td>
+                  <td>3.5%</td>
+                </tr>
+                <tr>
+                  <td>1st</td>
+                  <td>female</td>
+                  <td>1 (survived)</td>
+                  <td>82</td>
+                  <td>96.5%</td>
+                </tr>
+                <tr>
+                  <td>1st</td>
+                  <td>male</td>
+                  <td>0 (died)</td>
+                  <td>61</td>
+                  <td>60.4%</td>
+                </tr>
+                <tr>
+                  <td>1st</td>
+                  <td>male</td>
+                  <td>1 (survived)</td>
+                  <td>40</td>
+                  <td>39.6%</td>
+                </tr>
+                <tr>
+                  <td>2nd</td>
+                  <td>female</td>
+                  <td>0 (died)</td>
+                  <td>6</td>
+                  <td>8.1%</td>
+                </tr>
+                <tr>
+                  <td>2nd</td>
+                  <td>female</td>
+                  <td>1 (survived)</td>
+                  <td>68</td>
+                  <td>91.9%</td>
+                </tr>
+                <tr>
+                  <td>2nd</td>
+                  <td>male</td>
+                  <td>0 (died)</td>
+                  <td>84</td>
+                  <td>84.8%</td>
+                </tr>
+                <tr>
+                  <td>2nd</td>
+                  <td>male</td>
+                  <td>1 (survived)</td>
+                  <td>15</td>
+                  <td>15.2%</td>
+                </tr>
+                <tr>
+                  <td>3rd</td>
+                  <td>female</td>
+                  <td>0 (died)</td>
+                  <td>55</td>
+                  <td>53.9%</td>
+                </tr>
+                <tr>
+                  <td>3rd</td>
+                  <td>female</td>
+                  <td>1 (survived)</td>
+                  <td>47</td>
+                  <td>46.1%</td>
+                </tr>
+                <tr>
+                  <td>3rd</td>
+                  <td>male</td>
+                  <td>0 (died)</td>
+                  <td>215</td>
+                  <td>85.0%</td>
+                </tr>
+                <tr>
+                  <td>3rd</td>
+                  <td>male</td>
+                  <td>1 (survived)</td>
+                  <td>38</td>
+                  <td>15.0%</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="callout">
+              First-class women had an almost universal survival rate (~97%), while
+              third-class men faced the worst outcomes (85% died). This interaction
+              between class and sex provides a powerful narrative for visual
+              storytelling (for example, as a heatmap).
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">4. Continuous Variables and Survival</h2>
+        <div class="layout">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Age vs. Survival</h3>
+              <span class="card-tag">Demographic</span>
+            </div>
+            <p>
+              Age differences between survivors and non-survivors are more subtle
+              than those for sex or class, but still informative.
+            </p>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>survived</th>
+                  <th>Mean age</th>
+                  <th>Median age</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>0 (died)</td>
+                  <td>30.6</td>
+                  <td>28</td>
+                </tr>
+                <tr>
+                  <td>1 (survived)</td>
+                  <td>28.3</td>
+                  <td>28</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="callout">
+              Survivors are slightly younger on average, though the median age is
+              identical. Density plots or age-band analyses (e.g., “children vs
+              adults vs elderly”) would show that children tend to survive at
+              higher rates.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Fare vs. Survival</h3>
+              <span class="card-tag">Wealth Proxy</span>
+            </div>
+            <p>
+              Ticket fare is a continuous proxy for wealth and cabin quality.
+              Survivors, on average, paid substantially higher fares.
+            </p>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>survived</th>
+                  <th>Mean fare</th>
+                  <th>Median fare</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>0 (died)</td>
+                  <td>23.0</td>
+                  <td>11.89</td>
+                </tr>
+                <tr>
+                  <td>1 (survived)</td>
+                  <td>51.8</td>
+                  <td>26.25</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="callout">
+              Both mean and median fares for survivors are more than twice those of
+              non-survivors, reflecting their concentration in higher classes. Box
+              plots of fare by survival, especially on a log scale, visually reinforce
+              this pattern.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="section-title">5. Takeaways &amp; Next Steps</h2>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Summary</h3>
+            <span class="card-tag">Insights</span>
+          </div>
+          <p>
+            This exploratory analysis confirms a clear, structured pattern in Titanic
+            survival:
+          </p>
+          <ul>
+            <li>
+              <strong>Sex and class are the dominant drivers of survival.</strong>
+              Women, especially in first and second class, had very high survival
+              rates, while third-class men fared the worst.
+            </li>
+            <li>
+              <strong>Fare and class align strongly with survival.</strong>
+              Higher fares, typical of first-class cabins, are associated with much
+              better outcomes.
+            </li>
+            <li>
+              <strong>Age plays a secondary but meaningful role.</strong>
+              Survivors are slightly younger on average, with children more likely
+              to survive than older adults, though the effect is weaker than that of
+              sex or class.
+            </li>
+            <li>
+              <strong>No missingness simplifies downstream modeling.</strong>
+              All variables are fully populated, so imputation is not required for
+              this particular extract.
+            </li>
+          </ul>
+
+          <p>
+            For modeling, useful next steps would include feature engineering (e.g.
+            extracting titles from <code>name</code>, constructing family-size
+            features from <code>sibsp</code> and <code>parch</code>), and training
+            baseline classifiers to quantify the predictive power of these
+            variables.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Titanic EDA &mdash; generated from <code>titanic.csv</code> (714 rows, 8 columns).
+    </footer>
+  </div>
+</body>
+</html>
