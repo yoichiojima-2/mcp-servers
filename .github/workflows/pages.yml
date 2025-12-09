@@ -1,0 +1,55 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'examples/langquery/*.html'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Prepare site content
+        run: |
+          if [ ! -f examples/langquery/titanic_eda.html ]; then
+            echo "Error: titanic_eda.html not found"
+            exit 1
+          fi
+          if [ ! -f examples/langquery/titanic_eda_ja.html ]; then
+            echo "Error: titanic_eda_ja.html not found"
+            exit 1
+          fi
+          mkdir -p _site
+          cp examples/langquery/titanic_eda.html _site/index.html
+          cp examples/langquery/titanic_eda_ja.html _site/titanic_eda_ja.html
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
