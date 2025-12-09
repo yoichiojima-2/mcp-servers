@@ -7,3 +7,4 @@ assets/
 .ruff_cache/
 .venv/
 .claude/*.local.json
+workspace/
