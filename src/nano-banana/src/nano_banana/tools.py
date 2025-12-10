@@ -3,7 +3,7 @@ Nano Banana image generation tools.
 
 Provides AI image generation using Google Gemini's Nano Banana models:
 - gemini-2.5-flash-image (Nano Banana): Fast, efficient image generation
-- gemini-2.5-pro (Nano Banana Pro): Higher quality, better reasoning
+- gemini-3-pro-image-preview (Nano Banana Pro): Higher quality, up to 4K resolution
 """
 
 import base64
@@ -25,7 +25,7 @@ FORBIDDEN_PATHS = frozenset(["/bin", "/sbin", "/usr", "/etc", "/sys", "/proc", "
 # Model configuration
 MODELS = {
     "flash": "gemini-2.5-flash-image",
-    "pro": "gemini-2.5-pro",
+    "pro": "gemini-3-pro-image-preview",
 }
 DEFAULT_MODEL = "flash"
 

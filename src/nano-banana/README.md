@@ -94,8 +94,8 @@ uv run python -m nano_banana
 
 | Model | ID | Best For |
 |-------|-----|----------|
-| flash | `gemini-2.5-flash-image` | Fast iteration, drafts |
-| pro | `gemini-2.5-pro` | Final assets, complex compositions |
+| flash | `gemini-2.5-flash-image` (Nano Banana) | Fast iteration, drafts |
+| pro | `gemini-3-pro-image-preview` (Nano Banana Pro) | Final assets, up to 4K resolution |
 
 ## Testing
 
