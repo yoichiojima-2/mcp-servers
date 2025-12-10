@@ -31,10 +31,15 @@ uv run python -m <server> --help
 
 | Argument         | Environment Variable | Default   | Description                       |
 |------------------|---------------------|-----------|-----------------------------------|
-| `--transport`    | `TRANSPORT`         | `stdio`   | Transport protocol (`stdio`, `sse`, `streamable-http`) |
+| `--transport`    | `TRANSPORT`         | `stdio`   | Transport protocol (see below) |
 | `--host`         | `HOST`              | `0.0.0.0` | Host to bind to                   |
 | `--port`         | `PORT`              | Server-specific | Port to listen on            |
 | `--allow-origin` | `ALLOW_ORIGIN`      | `*`       | CORS allowed origin               |
+
+**Transport protocols:**
+- `stdio` - Standard input/output (default, for CLI usage)
+- `sse` - Server-Sent Events over HTTP (for web clients)
+- `streamable-http` - HTTP with streaming support (alternative to SSE)
 
 ### Security Note
 

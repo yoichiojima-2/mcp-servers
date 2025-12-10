@@ -4,6 +4,7 @@ import argparse
 import importlib
 import logging
 import os
+import sys
 from pathlib import Path
 
 import yaml
@@ -59,6 +60,29 @@ def mount_servers():
 mount_servers()
 
 
+def _get_port_default() -> int:
+    """Get port from environment variable with validation."""
+    port_str = os.getenv("PORT")
+    if port_str is None:
+        return DEFAULT_PORT
+    try:
+        return int(port_str)
+    except ValueError:
+        print(f"Error: Invalid PORT environment variable '{port_str}'. Must be an integer.", file=sys.stderr)
+        sys.exit(1)
+
+
+def _validate_port(value: str) -> int:
+    """Validate port is in valid range."""
+    try:
+        port = int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"'{value}' is not a valid integer")
+    if not (1 <= port <= 65535):
+        raise argparse.ArgumentTypeError(f"Port must be between 1 and 65535, got {port}")
+    return port
+
+
 def parse_args() -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="composite MCP Server")
@@ -75,8 +99,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--port",
-        type=int,
-        default=int(os.getenv("PORT", DEFAULT_PORT)),
+        type=_validate_port,
+        default=_get_port_default(),
         help=f"Port to listen on (default: {DEFAULT_PORT})",
     )
     parser.add_argument(

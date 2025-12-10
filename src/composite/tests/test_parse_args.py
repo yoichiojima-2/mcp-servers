@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 
-from composite.server import DEFAULT_PORT, parse_args
+from composite.server import DEFAULT_PORT, _validate_port, parse_args
 
 
 class TestParseArgs:
@@ -56,3 +56,48 @@ class TestParseArgs:
         with patch("sys.argv", ["server.py", "--allow-origin", "https://example.com"]):
             args = parse_args()
             assert args.allow_origin == "https://example.com"
+
+    def test_port_range_validation(self):
+        """Test port must be within valid range."""
+        with patch("sys.argv", ["server.py", "--port", "70000"]):
+            with pytest.raises(SystemExit):
+                parse_args()
+
+    def test_port_invalid_value(self):
+        """Test port rejects non-integer values."""
+        with patch("sys.argv", ["server.py", "--port", "abc"]):
+            with pytest.raises(SystemExit):
+                parse_args()
+
+    def test_invalid_port_env_var(self):
+        """Test invalid PORT environment variable causes exit."""
+        with patch.dict(os.environ, {"PORT": "not_a_number"}, clear=False):
+            with patch("sys.argv", ["server.py"]):
+                with pytest.raises(SystemExit):
+                    parse_args()
+
+
+class TestValidatePort:
+    """Tests for _validate_port function."""
+
+    def test_valid_port(self):
+        """Test valid port values."""
+        assert _validate_port("8080") == 8080
+        assert _validate_port("1") == 1
+        assert _validate_port("65535") == 65535
+
+    def test_port_out_of_range(self):
+        """Test port outside valid range raises error."""
+        import argparse
+
+        with pytest.raises(argparse.ArgumentTypeError):
+            _validate_port("0")
+        with pytest.raises(argparse.ArgumentTypeError):
+            _validate_port("65536")
+
+    def test_invalid_port_string(self):
+        """Test non-numeric port raises error."""
+        import argparse
+
+        with pytest.raises(argparse.ArgumentTypeError):
+            _validate_port("abc")
