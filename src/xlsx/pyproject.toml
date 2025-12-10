@@ -1,25 +1,26 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [project]
 name = "xlsx"
 version = "0.1.0"
 description = "MCP server for Excel spreadsheet (.xlsx) creation, editing, and analysis"
 readme = "README.md"
 requires-python = ">=3.12"
-# Server-specific dependencies only (global deps inherited from root)
 dependencies = [
+    "core",
     "openpyxl>=3.1.0",
     "pandas>=2.3.3",
     "tabulate>=0.9.0",
 ]
+
+[tool.uv.sources]
+core = { workspace = true }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/xlsx"]
 
 [tool.pytest.ini_options]
 pythonpath = "src"
-testpaths = [
-    "tests",
-]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -6,11 +6,12 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "browser",
+    "core",
+    "data-analysis",
     "dify",
     "docx",
     "file-management",
     "frontend-design",
-    "langquery",
     "nano-banana",
     "o3-search",
     "pdf",
@@ -24,11 +25,12 @@ dependencies = [
 
 [tool.uv.sources]
 browser = { workspace = true }
+core = { workspace = true }
+data-analysis = { workspace = true }
 dify = { workspace = true }
 docx = { workspace = true }
 file-management = { workspace = true }
 frontend-design = { workspace = true }
-langquery = { workspace = true }
 nano-banana = { workspace = true }
 o3-search = { workspace = true }
 pdf = { workspace = true }
@@ -36,6 +38,13 @@ pptx = { workspace = true }
 shell = { workspace = true }
 vectorstore = { workspace = true }
 xlsx = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/composite"]
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+testpaths = ["tests"]
 
 [build-system]
 requires = ["hatchling"]

@@ -1,6 +1,6 @@
 # docx
 
-An MCP server for Word document (.docx) creation, editing, and analysis. Built with [FastMCP](https://github.com/jlowin/fastmcp).
+MCP server for Word document (.docx) creation, editing, and analysis.
 
 ## Features
 
@@ -8,36 +8,6 @@ An MCP server for Word document (.docx) creation, editing, and analysis. Built w
 - **Convert to Markdown**: Extract text content with tracked changes support
 - **Convert to PDF**: Convert .docx to PDF using LibreOffice
 - **Validation**: Optional LibreOffice validation when packing documents
-
-## Installation
-
-```bash
-uv sync
-```
-
-## Usage
-
-### Run the server
-
-```bash
-uv run python -m docx
-```
-
-### Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `NAME` | `docx` | Server name |
-| `TRANSPORT` | `stdio` | Transport protocol (`sse` or `stdio`) |
-| `HOST` | `0.0.0.0` | Server host |
-| `PORT` | `8000` | Server port |
-| `ALLOW_ORIGIN` | `*` | CORS allowed origins |
-
-### Docker
-
-```bash
-docker compose up
-```
 
 ## Tools
 
@@ -53,3 +23,11 @@ docker compose up
 - Python 3.12+
 - pandoc (for markdown conversion)
 - LibreOffice (for PDF conversion and validation)
+
+## Usage
+
+```bash
+uv run python -m docx
+```
+
+See [server guide](../../docs/server-guide.md) for common CLI options.

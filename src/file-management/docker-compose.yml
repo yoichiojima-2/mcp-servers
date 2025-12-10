@@ -1,0 +1,12 @@
+services:
+  file-management:
+    build:
+      context: ../..
+      dockerfile: src/file-management/Dockerfile
+    ports:
+      - "8010:8010"
+    volumes:
+      - ./workspace:/workspace
+    environment:
+      - TRANSPORT=sse
+      - PORT=8010

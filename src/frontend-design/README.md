@@ -1,4 +1,4 @@
-# Frontend Design MCP Server
+# frontend-design
 
 MCP server providing design principles, themes, and color palettes for composable use across other MCP servers.
 
@@ -22,26 +22,15 @@ MCP server providing design principles, themes, and color palettes for composabl
 
 ## Tools
 
-### `design_list_themes()`
-List all available themes with descriptions.
-
-### `design_get_theme(theme_name)`
-Get full theme details including colors, fonts, and Marp CSS.
-
-### `design_get_theme_colors(theme_name, format)`
-Get color palette in hex, JSON, or CSS variable format.
-
-### `design_list_palettes()`
-List all available color palettes.
-
-### `design_get_palette(palette_name, format)`
-Get specific palette in hex, JSON, or CSS format.
-
-### `design_suggest_palette(mood, industry)`
-Get palette suggestions based on mood or industry context.
-
-### `design_check_contrast(foreground, background)`
-Check WCAG contrast ratio between two colors.
+| Tool | Description |
+|------|-------------|
+| `design_list_themes` | List all available themes |
+| `design_get_theme` | Get full theme details (colors, fonts, Marp CSS) |
+| `design_get_theme_colors` | Get colors in hex, JSON, or CSS format |
+| `design_list_palettes` | List all color palettes |
+| `design_get_palette` | Get specific palette |
+| `design_suggest_palette` | Suggest palette based on mood/industry |
+| `design_check_contrast` | Check WCAG contrast ratio |
 
 ## Prompts
 
@@ -53,46 +42,29 @@ Check WCAG contrast ratio between two colors.
 - `design_for_presentations` - Presentation-specific guidance
 - `design_for_documents` - Document design guidance
 
-## Requirements
+## Usage
 
-- Python 3.12+
-- FastMCP
+### As MCP Server
 
-## Installation
+```bash
+uv run python -m frontend_design
+```
 
-This server is designed to be used as a workspace dependency:
+### As Workspace Dependency
 
 ```toml
 # In your pyproject.toml
 [project]
-dependencies = [
-    "frontend-design",
-]
+dependencies = ["frontend-design"]
 
 [tool.uv.sources]
 frontend-design = { workspace = true }
 ```
 
-## Usage
-
-Import themes in your code:
-
 ```python
-from frontend_design.themes import get_theme, get_theme_css, list_themes
-
-# Get available themes
+from frontend_design.themes import get_theme, list_themes
 themes = list_themes()
-
-# Get a specific theme
 theme = get_theme("noir")
-colors = theme["colors"]
-fonts = theme["fonts"]
-css = theme["marp_css"]
 ```
 
-## Testing
-
-```bash
-cd src/frontend-design
-uv run pytest -v
-```
+See [server guide](../../docs/server-guide.md) for common CLI options.

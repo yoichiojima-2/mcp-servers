@@ -1,6 +1,3 @@
-# dify は mcp prompt をサポートしていないため、ワークアラウンドとして
-# @mcp.prompt, @mcp.tool() の両方を提供する
-
 import textwrap
 
 from fastmcp.prompts.prompt import PromptMessage, TextContent
@@ -8,7 +5,7 @@ from fastmcp.prompts.prompt import PromptMessage, TextContent
 from . import mcp
 
 
-def lanqquery_prompt(input, tools, scratchpad) -> PromptMessage:
+def data_analysis_prompt(input, tools, scratchpad) -> PromptMessage:
     prompt = textwrap.dedent(
         f"""
         ## instruction
@@ -44,10 +41,10 @@ def lanqquery_prompt(input, tools, scratchpad) -> PromptMessage:
 
 
 @mcp.prompt
-def langqquery(input, tools, scratchpad) -> PromptMessage:
-    return lanqquery_prompt(input, tools, scratchpad)
+def data_analysis(input, tools, scratchpad) -> PromptMessage:
+    return data_analysis_prompt(input, tools, scratchpad)
 
 
 @mcp.tool()
-def get_langquery_prompt(input, scratchpad, tools) -> PromptMessage:
-    return lanqquery_prompt(input, tools, scratchpad)
+def get_data_analysis_prompt(input, scratchpad, tools) -> PromptMessage:
+    return data_analysis_prompt(input, tools, scratchpad)

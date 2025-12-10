@@ -1,14 +1,14 @@
 import pytest
 from fastmcp import Client
 
-from langquery.prompts import mcp
+from data_analysis.prompts import mcp
 
 
 @pytest.mark.asyncio
-async def test_langquery():
+async def test_data_analysis():
     async with Client(mcp) as client:
         res = await client.get_prompt(
-            "langqquery",
+            "data_analysis",
             {
                 "input": "test",
                 "scratchpad": "",
@@ -19,10 +19,10 @@ async def test_langquery():
 
 
 @pytest.mark.asyncio
-async def test_get_langquery_prompt():
+async def test_get_data_analysis_prompt():
     async with Client(mcp) as client:
         res = await client.call_tool(
-            "get_langquery_prompt",
+            "get_data_analysis_prompt",
             {
                 "input": "test",
                 "scratchpad": "",

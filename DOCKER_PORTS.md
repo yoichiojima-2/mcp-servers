@@ -6,18 +6,20 @@ This document tracks port assignments for all MCP servers to prevent conflicts w
 
 | Server          | Port | URL                           | Notes                                    |
 |-----------------|------|-------------------------------|------------------------------------------|
+| composite       | 8000 | http://localhost:8000/sse     | Lightweight proxy routing to backends    |
 | dify            | 8001 | http://localhost:8001/sse     | Dify AI platform integration             |
 | vectorstore     | 8002 | http://localhost:8002/sse     | Vector database operations               |
 | pptx            | 8003 | http://localhost:8003/sse     | PowerPoint operations                    |
 | xlsx            | 8004 | http://localhost:8004/sse     | Spreadsheet operations                   |
 | docx            | 8005 | http://localhost:8005/sse     | Word document operations                 |
-| langquery       | 8006 | http://localhost:8006/sse     | Language query operations                |
+| data-analysis   | 8006 | http://localhost:8006/sse     | DuckDB SQL data analysis                 |
 | browser         | 8007 | http://localhost:8007/sse     | Browser automation (Playwright)          |
 | pdf             | 8008 | http://localhost:8008/sse     | PDF manipulation and extraction          |
-| frontend-design | 8009 | http://localhost:8009/sse     | Frontend design generation               |
+| frontend-design | 8009 | http://localhost:8009/sse     | Design themes and palettes               |
 | file-management | 8010 | http://localhost:8010/sse     | File management operations               |
 | shell           | 8011 | http://localhost:8011/sse     | Shell command execution                  |
-| **composite**   | **8000** | **http://localhost:8000/sse** | **Lightweight proxy routing to backends** |
+| o3-search       | 8012 | http://localhost:8012/sse     | OpenAI o3 web search                     |
+| nano-banana     | 8013 | http://localhost:8013/sse     | AI image generation (Gemini)             |
 
 ## Server Configuration
 

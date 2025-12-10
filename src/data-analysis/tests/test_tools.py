@@ -4,7 +4,7 @@ import re
 import pytest
 from fastmcp import Client
 
-from langquery.tools import mcp
+from data_analysis.tools import mcp
 
 
 @pytest.mark.asyncio

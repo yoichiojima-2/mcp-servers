@@ -5,9 +5,8 @@ services:
       dockerfile: src/pptx/Dockerfile
     ports:
       - "8003:8003"
+    volumes:
+      - ./workspace:/workspace
     environment:
       - TRANSPORT=sse
       - PORT=8003
-    volumes:
-      - ./workspace:/workspace
-      - ./src:/app/src/pptx/src

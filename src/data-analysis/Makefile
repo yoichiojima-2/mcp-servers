@@ -13,7 +13,7 @@ help:
 	@echo "  make pre-commit  - run lint and clean before committing"
 
 install:
-	cd ../.. && uv sync --locked --package langquery
+	cd ../.. && uv sync --locked --package data-analysis
 
 build:
 	docker compose build
@@ -25,7 +25,7 @@ in:
 	docker compose run -it mcp bash
 
 serve:
-	uv run python -m langquery
+	uv run python -m data_analysis
 
 clean:
 	-rm .DS_Store

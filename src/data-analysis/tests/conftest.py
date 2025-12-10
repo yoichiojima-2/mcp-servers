@@ -1,4 +1,4 @@
-"""Test configuration and fixtures for langquery tests."""
+"""Test configuration and fixtures for data-analysis tests."""
 
 import tempfile
 from pathlib import Path
@@ -13,7 +13,7 @@ def reset_history_db():
     This fixture ensures each test has its own isolated database
     to prevent test interference and flaky tests.
     """
-    import langquery.db as db_module
+    import data_analysis.db as db_module
 
     # Store original database instance
     original_db = db_module._history_db

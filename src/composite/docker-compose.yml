@@ -20,7 +20,7 @@ services:
       - docx
       - pptx
       - vectorstore
-      - langquery
+      - data-analysis
     restart: unless-stopped
     networks:
       - mcp-network
@@ -117,11 +117,11 @@ services:
     networks:
       - mcp-network
 
-  langquery:
-    image: langquery:latest
+  data-analysis:
+    image: data-analysis:latest
     build:
       context: ../..
-      dockerfile: src/langquery/Dockerfile
+      dockerfile: src/data-analysis/Dockerfile
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0

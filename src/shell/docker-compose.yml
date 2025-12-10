@@ -1,13 +1,12 @@
 services:
-  langquery:
+  shell:
     build:
       context: ../..
-      dockerfile: src/langquery/Dockerfile
+      dockerfile: src/shell/Dockerfile
     ports:
-      - "8000:8000"
+      - "8011:8011"
     volumes:
       - ./workspace:/workspace
-      - ./src:/app/src/langquery/src
     environment:
       - TRANSPORT=sse
-      - PORT=8000
+      - PORT=8011

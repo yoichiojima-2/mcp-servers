@@ -1,29 +1,28 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [project]
 name = "pptx"
 version = "0.1.0"
-description = "an mcp server for PowerPoint presentation creation and manipulation"
+description = "MCP server for PowerPoint presentation creation and manipulation"
 readme = "README.md"
 requires-python = ">=3.12"
-# Server-specific dependencies only (global deps inherited from root)
 dependencies = [
-    "python-pptx>=1.0.0",
+    "core",
+    "frontend-design",
     "lxml>=5.0.0",
     "pillow>=10.0.0",
-    "frontend-design",  # Workspace dependency for themes
+    "python-pptx>=1.0.0",
 ]
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/pptx_server"]
-
 [tool.uv.sources]
+core = { workspace = true }
 frontend-design = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pptx_mcp"]
 
 [tool.pytest.ini_options]
 pythonpath = "src"
-testpaths = [
-    "tests",
-]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -1,23 +1,24 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [project]
 name = "browser"
 version = "0.1.0"
-description = "a mcp server that allows clients to manipulate browser using Playwright"
+description = "MCP server for browser automation using Playwright"
 readme = "README.md"
 requires-python = ">=3.12"
-# Server-specific dependencies only (global deps inherited from root)
 dependencies = [
+    "core",
     "playwright>=1.49.0",
 ]
+
+[tool.uv.sources]
+core = { workspace = true }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/browser"]
 
 [tool.pytest.ini_options]
 pythonpath = "src"
-testpaths = [
-    "tests",
-]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

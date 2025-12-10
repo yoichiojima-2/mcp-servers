@@ -24,13 +24,14 @@ dev = [
 # Workspace configuration
 [tool.uv.workspace]
 members = [
+    "src/core",
     "src/browser",
     "src/composite",
+    "src/data-analysis",
     "src/dify",
     "src/docx",
     "src/file-management",
     "src/frontend-design",
-    "src/langquery",
     "src/nano-banana",
     "src/o3-search",
     "src/pdf",

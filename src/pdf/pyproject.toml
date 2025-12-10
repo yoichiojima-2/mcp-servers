@@ -1,15 +1,11 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [project]
 name = "pdf"
 version = "0.1.0"
-description = "an mcp server for pdf extraction and manipulation"
+description = "MCP server for PDF extraction and manipulation"
 readme = "README.md"
 requires-python = ">=3.12"
-# Server-specific dependencies only (global deps inherited from root)
 dependencies = [
+    "core",
     "pdfplumber>=0.11.0",
     "pypdf>=5.0.0",
     "reportlab>=4.0.0",
@@ -21,11 +17,16 @@ ocr = [
     "pillow>=10.0.0",
 ]
 
+[tool.uv.sources]
+core = { workspace = true }
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/pdf"]
 
 [tool.pytest.ini_options]
 pythonpath = "src"
-testpaths = [
-    "tests",
-]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

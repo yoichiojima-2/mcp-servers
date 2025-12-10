@@ -1,17 +1,16 @@
-FROM python:3.12
+FROM python:3.12-slim
 
-RUN apt-get update && apt-get install -y --no-install-recommends make && rm -rf /var/lib/apt/lists/*
 RUN pip install --upgrade pip && pip install uv
 
-# Copy monorepo configuration from root
 COPY pyproject.toml uv.lock /app/
+COPY src/core /app/src/core
+COPY src/frontend-design /app/src/frontend-design
 COPY src/pptx /app/src/pptx
 
 WORKDIR /app
 
-# Install using workspace dependencies
 RUN uv sync --frozen --package pptx
 
 EXPOSE 8003
 
-CMD ["uv", "run", "python", "-m", "pptx_server"]
+CMD ["uv", "run", "python", "-m", "pptx_mcp"]

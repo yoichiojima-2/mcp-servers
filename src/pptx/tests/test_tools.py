@@ -5,7 +5,7 @@ import pytest
 from fastmcp import Client
 from pptx import Presentation
 
-from pptx_server import mcp
+from pptx_mcp import mcp
 
 
 @pytest.fixture
@@ -176,7 +176,7 @@ async def test_export_slide_as_image_invalid_slide(sample_pptx):
 
 def test_find_libreoffice():
     """Test LibreOffice detection function."""
-    from pptx_server.analysis import _find_libreoffice
+    from pptx_mcp.analysis import _find_libreoffice
 
     # This test just verifies the function runs without error
     # The result depends on whether LibreOffice is installed
@@ -189,7 +189,7 @@ def test_find_libreoffice():
 async def test_export_slide_as_image_no_libreoffice(sample_pptx, monkeypatch):
     """Test error message when LibreOffice is not available."""
     # Mock _find_libreoffice to return None
-    monkeypatch.setattr("pptx_server.analysis._find_libreoffice", lambda: None)
+    monkeypatch.setattr("pptx_mcp.analysis._find_libreoffice", lambda: None)
 
     async with Client(mcp) as client:
         res = await client.call_tool(
@@ -209,8 +209,8 @@ async def test_export_slide_subprocess_timeout(sample_pptx, monkeypatch):
     from unittest.mock import MagicMock
 
     mock_run = MagicMock(side_effect=subprocess.TimeoutExpired("cmd", 120))
-    monkeypatch.setattr("pptx_server.analysis.subprocess.run", mock_run)
-    monkeypatch.setattr("pptx_server.analysis._find_libreoffice", lambda: "/usr/bin/libreoffice")
+    monkeypatch.setattr("pptx_mcp.analysis.subprocess.run", mock_run)
+    monkeypatch.setattr("pptx_mcp.analysis._find_libreoffice", lambda: "/usr/bin/libreoffice")
 
     async with Client(mcp) as client:
         res = await client.call_tool(
@@ -232,8 +232,8 @@ async def test_export_slide_subprocess_failure(sample_pptx, monkeypatch):
     mock_result.stderr = "LibreOffice error: failed to convert"
     mock_result.stdout = ""
     mock_run = MagicMock(return_value=mock_result)
-    monkeypatch.setattr("pptx_server.analysis.subprocess.run", mock_run)
-    monkeypatch.setattr("pptx_server.analysis._find_libreoffice", lambda: "/usr/bin/libreoffice")
+    monkeypatch.setattr("pptx_mcp.analysis.subprocess.run", mock_run)
+    monkeypatch.setattr("pptx_mcp.analysis._find_libreoffice", lambda: "/usr/bin/libreoffice")
 
     async with Client(mcp) as client:
         res = await client.call_tool(
@@ -264,8 +264,8 @@ async def test_export_slide_as_image_success(sample_pptx, monkeypatch, tmp_path)
         return mock_result
 
     mock_run = MagicMock(side_effect=side_effect)
-    monkeypatch.setattr("pptx_server.analysis.subprocess.run", mock_run)
-    monkeypatch.setattr("pptx_server.analysis._find_libreoffice", lambda: "/usr/bin/libreoffice")
+    monkeypatch.setattr("pptx_mcp.analysis.subprocess.run", mock_run)
+    monkeypatch.setattr("pptx_mcp.analysis._find_libreoffice", lambda: "/usr/bin/libreoffice")
 
     async with Client(mcp) as client:
         res = await client.call_tool(
@@ -400,7 +400,7 @@ def test_marp_path_validation():
     """Test that forbidden paths are rejected."""
     from pathlib import Path
 
-    from pptx_server.marp import _validate_output_path
+    from pptx_mcp.marp import _validate_output_path
 
     # Should raise for system directories
     with pytest.raises(ValueError, match="system directory"):
@@ -414,7 +414,7 @@ def test_marp_extension_validation():
     """Test that non-.pptx extensions are rejected."""
     from pathlib import Path
 
-    from pptx_server.marp import _validate_output_path
+    from pptx_mcp.marp import _validate_output_path
 
     # Should raise for wrong extension
     with pytest.raises(ValueError, match=".pptx extension"):
@@ -429,7 +429,7 @@ def test_marp_extension_validation():
 
 def test_marp_markdown_size_validation():
     """Test that oversized markdown is rejected (limit: 2MB)."""
-    from pptx_server.marp import MAX_MARKDOWN_SIZE, convert_markdown_to_pptx
+    from pptx_mcp.marp import MAX_MARKDOWN_SIZE, convert_markdown_to_pptx
 
     # Verify the limit is 2MB
     assert MAX_MARKDOWN_SIZE == 2_000_000
@@ -443,7 +443,7 @@ def test_marp_markdown_size_validation():
 
 def test_marp_frontmatter_sanitization():
     """Test that dangerous frontmatter keys are removed."""
-    from pptx_server.marp import _sanitize_frontmatter
+    from pptx_mcp.marp import _sanitize_frontmatter
 
     # Test that backgroundImage with url() is removed
     malicious_md = """---
@@ -477,7 +477,7 @@ script: console.log('xss')
 
 def test_marp_frontmatter_allows_safe_keys():
     """Test that safe frontmatter keys are preserved."""
-    from pptx_server.marp import _sanitize_frontmatter
+    from pptx_mcp.marp import _sanitize_frontmatter
 
     safe_md = """---
 marp: true
@@ -505,7 +505,7 @@ headingDivider: 2
 
 def test_marp_frontmatter_blocks_url_in_style():
     """Test that url() in style is blocked."""
-    from pptx_server.marp import _sanitize_frontmatter
+    from pptx_mcp.marp import _sanitize_frontmatter
 
     style_injection = """---
 marp: true
@@ -522,7 +522,7 @@ style: |
 
 def test_marp_frontmatter_blocks_multiline_style():
     """Test that multi-line style blocks with dangerous content are blocked."""
-    from pptx_server.marp import _sanitize_frontmatter
+    from pptx_mcp.marp import _sanitize_frontmatter
 
     # Test multi-line style block with url()
     multiline_injection = """---
@@ -562,7 +562,7 @@ style: >
 
 def test_marp_frontmatter_blocks_import():
     """Test that @import in style is blocked."""
-    from pptx_server.marp import _sanitize_frontmatter
+    from pptx_mcp.marp import _sanitize_frontmatter
 
     import_injection = """---
 marp: true
@@ -580,7 +580,7 @@ style: |
 
 def test_marp_no_frontmatter_passthrough():
     """Test that markdown without frontmatter passes through unchanged."""
-    from pptx_server.marp import _sanitize_frontmatter
+    from pptx_mcp.marp import _sanitize_frontmatter
 
     no_frontmatter = """# Simple Markdown
 
@@ -597,7 +597,7 @@ def test_marp_command_construction():
     """Test that marp-cli command is constructed correctly (mocked)."""
     from unittest.mock import MagicMock, patch
 
-    from pptx_server.marp import convert_markdown_to_pptx
+    from pptx_mcp.marp import convert_markdown_to_pptx
 
     markdown = """---
 marp: true
@@ -609,7 +609,7 @@ marp: true
     mock_run.return_value.returncode = 0
 
     with (
-        patch("pptx_server.marp.subprocess.run", mock_run),
+        patch("pptx_mcp.marp.subprocess.run", mock_run),
         patch("pathlib.Path.exists", return_value=True),
     ):
         try:

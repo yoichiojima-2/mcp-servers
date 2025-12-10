@@ -1,12 +1,10 @@
-# Shell MCP Server
+# shell
 
 MCP server for executing shell commands.
 
 ## Security Warning
 
 This tool executes arbitrary shell commands with full shell capabilities including pipes, redirects, and variable expansion. **Only use with trusted input.**
-
-For untrusted environments, consider implementing additional sandboxing or command whitelisting.
 
 ## Features
 
@@ -16,36 +14,14 @@ For untrusted environments, consider implementing additional sandboxing or comma
 
 ## Tools
 
-### shell
+| Tool | Description |
+|------|-------------|
+| `shell` | Execute a shell command and return exit code, stdout, stderr |
 
-Execute a shell command and return the output.
-
-**Parameters:**
-- `command` (required): Shell command to execute
-
-**Returns:**
-- Exit code, stdout, and stderr
-
-## Installation
+## Usage
 
 ```bash
-cd src/shell
-uv sync
+uv run python -m shell
 ```
 
-## Running
-
-```bash
-# stdio mode (default)
-uv run fastmcp run shell
-
-# SSE mode
-TRANSPORT=sse PORT=8011 uv run fastmcp run shell
-```
-
-## Testing
-
-```bash
-cd src/shell
-uv run pytest -v
-```
+See [server guide](../../docs/server-guide.md) for common CLI options.

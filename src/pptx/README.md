@@ -1,13 +1,12 @@
-# PPTX MCP Server
+# pptx
 
-An MCP server for PowerPoint presentation creation and analysis, using Marp for professional-quality output.
+MCP server for PowerPoint presentation creation and analysis, using Marp for professional-quality output.
 
 ## Features
 
-### Marp-Based Presentation Creation (Recommended)
-- Create professionally-designed presentations from Markdown
-- 6 distinctive themes with bold aesthetic directions
-- Simple syntax: write Markdown, get beautiful PPTX
+### Marp-Based Creation (Recommended)
+- Create presentations from Markdown with professional themes
+- 6 distinctive themes: `noir`, `brutalist`, `organic`, `neon`, `minimal`, `retro`
 - Requires Node.js v18+ and a browser (Chrome/Edge/Firefox)
 
 ### Reading & Analysis
@@ -15,53 +14,29 @@ An MCP server for PowerPoint presentation creation and analysis, using Marp for 
 - Extract text from all slides
 - Get detailed shape information
 - Read speaker notes
-- **Export slides as images** (requires LibreOffice)
+- Export slides as images (requires LibreOffice)
 
-## Installation
+## Tools
 
-```bash
-cd src/pptx
-uv sync
-```
+| Tool | Description |
+|------|-------------|
+| `marp_create_presentation` | Create PPTX from Markdown with a theme |
+| `marp_create_presentation_from_file` | Create PPTX from a Markdown file |
+| `marp_check_requirements` | Check Node.js and browser availability |
+| `get_presentation_info` | Get presentation metadata and structure |
+| `extract_text` | Extract all text from a presentation |
+| `get_slide_shapes` | Get shape details for a slide |
+| `get_slide_notes` | Get speaker notes |
+| `export_slide_as_image` | Export slides as PNG (requires LibreOffice) |
 
-For Marp features (recommended):
-```bash
-# Install Node.js v18+ from https://nodejs.org/
-# Marp CLI is installed automatically via npx on first use
-```
+## Requirements
 
-## Usage
+- Python 3.12+
+- Node.js v18+ (for Marp)
+- Chrome, Edge, or Firefox (for PPTX export)
+- LibreOffice (optional, for slide image export)
 
-### Run as MCP Server (stdio)
-
-```bash
-uv run python -m pptx_server
-```
-
-### Run as HTTP Server
-
-```bash
-TRANSPORT=sse PORT=8002 uv run python -m pptx_server
-```
-
-### Claude Code Configuration
-
-Add to your Claude Code MCP settings:
-
-```json
-{
-  "mcpServers": {
-    "pptx": {
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/mcp-servers/src/pptx", "python", "-m", "pptx_server"]
-    }
-  }
-}
-```
-
-## Creating Presentations with Marp (Recommended)
-
-Write slides in Markdown and convert to professionally-designed PPTX:
+## Marp Markdown Syntax
 
 ```markdown
 ---
@@ -75,82 +50,31 @@ A compelling subtitle
 ---
 
 ## Key Points
-
-- First important point
-- Second important point
-- Third important point
+- First point
+- Second point
 
 ---
 
 <!-- _class: invert -->
 ## Thank You
-
-Contact: hello@example.com
 ```
 
-### Available Themes
+## Security
 
-Themes are provided by the **frontend-design** MCP server. Use `design_list_themes()` to see all options.
+Marp conversion includes security measures:
+- Frontmatter injection protection (blocks `backgroundImage`, `html`, `script`)
+- External resource blocking (`url()`, `@import`)
+- Path traversal prevention
+- 2MB markdown size limit, 60-second timeout
 
-Available themes: `noir`, `brutalist`, `organic`, `neon`, `minimal`, `retro`
+## Usage
 
-## Available Tools
+```bash
+uv run python -m pptx_mcp
+```
 
-### Marp Tools (Recommended for New Presentations)
+See [server guide](../../docs/server-guide.md) for common CLI options.
 
-| Tool | Description |
-|------|-------------|
-| `marp_create_presentation` | Create PPTX from Markdown with a theme |
-| `marp_create_presentation_from_file` | Create PPTX from a Markdown file |
-| `marp_check_requirements` | Check Node.js and browser availability |
+## Module Naming
 
-> **Note:** Theme listing and details are provided by the frontend-design MCP server (`design_list_themes`, `design_get_theme`).
-
-### Reading & Analysis
-
-| Tool | Description |
-|------|-------------|
-| `get_presentation_info` | Get presentation metadata and structure |
-| `extract_text` | Extract all text from a presentation |
-| `get_slide_shapes` | Get detailed information about shapes on a slide |
-| `get_slide_notes` | Get speaker notes from slides |
-| `export_slide_as_image` | Export slides as PNG images (requires LibreOffice) |
-| `get_slide_export_instructions` | Get manual instructions for exporting slides |
-
-## Dependencies
-
-- `python-pptx` - PowerPoint file manipulation
-- `fastmcp` - MCP server framework
-- `lxml` - XML processing
-- `pillow` - Image handling
-- `frontend-design` - Workspace package for theme definitions
-
-For Marp features:
-- Node.js v18+ with npx
-- Chrome, Edge, or Firefox (for PPTX export)
-
-For slide image export:
-- LibreOffice (for `export_slide_as_image` tool)
-
-## Security Considerations
-
-### Marp Conversion
-
-The Marp conversion includes several security measures:
-
-**Protected:**
-- **Frontmatter injection**: Dangerous keys like `backgroundImage`, `html`, `script` are stripped
-- **External resources**: `url()` and `@import` in style blocks are blocked
-- **Multi-line attacks**: Both single-line and multi-line YAML blocks are sanitized
-- **Path traversal**: System directories (`/etc`, `/usr`, etc.) are blocked
-- **File extension**: Only `.pptx` output is allowed
-- **Resource limits**: 2MB markdown size limit, 60-second timeout
-
-**User responsibility:**
-- **Inline HTML in markdown content**: HTML tags like `<style>`, `<script>` within the markdown body (not frontmatter) are NOT sanitized. Review presentations before sharing if markdown comes from untrusted sources.
-
-### Recommendations
-
-When processing markdown from untrusted sources:
-1. Review the generated presentation before distribution
-2. Consider running Marp with `--html false` if HTML is not needed (requires custom integration)
+The module is named `pptx_mcp` (not `pptx`) to avoid a circular import conflict with the `python-pptx` library. When Python imports `from pptx import Presentation`, it needs to find the library, not our module.

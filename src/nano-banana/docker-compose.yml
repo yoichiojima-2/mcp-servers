@@ -1,0 +1,13 @@
+services:
+  nano-banana:
+    build:
+      context: ../..
+      dockerfile: src/nano-banana/Dockerfile
+    ports:
+      - "8013:8013"
+    volumes:
+      - ./workspace:/workspace
+    environment:
+      - TRANSPORT=sse
+      - PORT=8013
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}

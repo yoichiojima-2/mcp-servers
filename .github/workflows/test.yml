@@ -32,11 +32,12 @@ jobs:
         server:
           - browser
           - composite
+          - core
           - dify
           - docx
           - file-management
           - frontend-design
-          - langquery
+          - data-analysis
           - nano-banana
           - o3-search
           - pdf

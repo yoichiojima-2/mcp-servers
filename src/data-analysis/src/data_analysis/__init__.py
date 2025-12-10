@@ -5,7 +5,7 @@ from fastmcp import FastMCP
 
 load_dotenv()
 
-mcp = FastMCP(os.getenv("NAME", "langquery"))
+mcp = FastMCP(os.getenv("NAME", "data-analysis"))
 
 from . import prompts, server, tools  # noqa: F401, E402
 

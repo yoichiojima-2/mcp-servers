@@ -1,0 +1,13 @@
+services:
+  o3-search:
+    build:
+      context: ../..
+      dockerfile: src/o3-search/Dockerfile
+    ports:
+      - "8012:8012"
+    volumes:
+      - ./workspace:/workspace
+    environment:
+      - TRANSPORT=sse
+      - PORT=8012
+      - OPENAI_API_KEY=${OPENAI_API_KEY}

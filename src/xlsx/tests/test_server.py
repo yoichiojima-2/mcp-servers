@@ -5,7 +5,15 @@ from unittest.mock import patch
 
 import pytest
 
-from xlsx.server import DEFAULT_PORT, _validate_port, parse_args
+from core import validate_port
+from xlsx.server import DEFAULT_PORT
+
+
+def parse_args():
+    """Import parse_args for testing - wraps core's parse_args."""
+    from core import parse_args as core_parse_args
+
+    return core_parse_args("xlsx", DEFAULT_PORT)
 
 
 class TestParseArgs:
@@ -78,26 +86,26 @@ class TestParseArgs:
 
 
 class TestValidatePort:
-    """Tests for _validate_port function."""
+    """Tests for validate_port function."""
 
     def test_valid_port(self):
         """Test valid port values."""
-        assert _validate_port("8080") == 8080
-        assert _validate_port("1") == 1
-        assert _validate_port("65535") == 65535
+        assert validate_port("8080") == 8080
+        assert validate_port("1") == 1
+        assert validate_port("65535") == 65535
 
     def test_port_out_of_range(self):
         """Test port outside valid range raises error."""
         import argparse
 
         with pytest.raises(argparse.ArgumentTypeError):
-            _validate_port("0")
+            validate_port("0")
         with pytest.raises(argparse.ArgumentTypeError):
-            _validate_port("65536")
+            validate_port("65536")
 
     def test_invalid_port_string(self):
         """Test non-numeric port raises error."""
         import argparse
 
         with pytest.raises(argparse.ArgumentTypeError):
-            _validate_port("abc")
+            validate_port("abc")

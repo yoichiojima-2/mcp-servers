@@ -1,4 +1,4 @@
-# File Management MCP Server
+# file-management
 
 MCP server for file read/write operations. Useful when shell input limits prevent writing large content (e.g., HTML exports from EDA tools).
 
@@ -13,75 +13,19 @@ MCP server for file read/write operations. Useful when shell input limits preven
 
 ## Tools
 
-### read_file
+| Tool | Description |
+|------|-------------|
+| `read_file` | Read text content from a file |
+| `read_binary` | Read binary content as base64 |
+| `write_file` | Write text content to a file |
+| `write_binary` | Write binary content (base64 encoded) |
+| `append_file` | Append text to a file |
+| `list_directory` | List files with optional glob pattern |
 
-Read text content from a file.
-
-**Parameters:**
-- `file_path` (required): Path to the file (supports `~` expansion)
-- `encoding` (optional): Character encoding (default: utf-8)
-
-### read_binary
-
-Read binary content from a file, returned as base64.
-
-**Parameters:**
-- `file_path` (required): Path to the file (supports `~` expansion)
-
-### write_file
-
-Write text content to a file.
-
-**Parameters:**
-- `file_path` (required): Path to the file (supports `~` expansion)
-- `content` (required): Text content to write
-- `encoding` (optional): Character encoding (default: utf-8)
-
-### write_binary
-
-Write binary content (base64 encoded) to a file.
-
-**Parameters:**
-- `file_path` (required): Path to the file (supports `~` expansion)
-- `content_base64` (required): Base64-encoded binary content
-
-### append_file
-
-Append text content to a file. Creates the file if it doesn't exist.
-
-**Parameters:**
-- `file_path` (required): Path to the file (supports `~` expansion)
-- `content` (required): Text content to append
-- `encoding` (optional): Character encoding (default: utf-8)
-
-### list_directory
-
-List files in a directory with optional glob pattern.
-
-**Parameters:**
-- `dir_path` (required): Path to the directory (supports `~` expansion)
-- `pattern` (optional): Glob pattern to filter files (default: *)
-
-## Installation
+## Usage
 
 ```bash
-cd src/file-management
-uv sync
+uv run python -m file_management
 ```
 
-## Running
-
-```bash
-# stdio mode (default)
-uv run fastmcp run file_management
-
-# SSE mode
-TRANSPORT=sse PORT=8010 uv run fastmcp run file_management
-```
-
-## Testing
-
-```bash
-cd src/file-management
-uv run pytest -v
-```
+See [server guide](../../docs/server-guide.md) for common CLI options.

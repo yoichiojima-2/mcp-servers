@@ -39,13 +39,13 @@ def _get_env_int(name: str, default: int, min_value: int = 1, max_value: Optiona
 
 # Configuration constants (configurable via environment variables)
 MAX_RESULT_SIZE = _get_env_int(
-    "LANGQUERY_MAX_RESULT_SIZE", 1024 * 1024, min_value=1024, max_value=10 * 1024 * 1024
+    "DATA_ANALYSIS_MAX_RESULT_SIZE", 1024 * 1024, min_value=1024, max_value=10 * 1024 * 1024
 )  # Default: 1MB, min 1KB, max 10MB
 MAX_HISTORY_SIZE = _get_env_int(
-    "LANGQUERY_MAX_HISTORY_SIZE", 100, min_value=1, max_value=10000
+    "DATA_ANALYSIS_MAX_HISTORY_SIZE", 100, min_value=1, max_value=10000
 )  # Default: 100 queries, min 1, max 10k
 CLEANUP_FREQUENCY = _get_env_int(
-    "LANGQUERY_CLEANUP_FREQUENCY", 10, min_value=1, max_value=1000
+    "DATA_ANALYSIS_CLEANUP_FREQUENCY", 10, min_value=1, max_value=1000
 )  # Default: every 10 queries, min 1 (prevents division by zero), max 1000
 
 
@@ -56,21 +56,21 @@ class HistoryDB:
         """Initialize the history database.
 
         Args:
-            db_path: Path to the database file. Defaults to $LANGQUERY_WORKSPACE/langquery_history.db
-                     or workspace/langquery_history.db if LANGQUERY_WORKSPACE is not set
+            db_path: Path to the database file. Defaults to $DATA_ANALYSIS_WORKSPACE/data_analysis_history.db
+                     or workspace/data_analysis_history.db if DATA_ANALYSIS_WORKSPACE is not set
 
         Raises:
             OSError: If workspace directory cannot be created
         """
         if db_path is None:
-            workspace_dir = os.getenv("LANGQUERY_WORKSPACE", "workspace")
+            workspace_dir = os.getenv("DATA_ANALYSIS_WORKSPACE", "workspace")
             workspace = Path(workspace_dir)
             try:
                 # Create workspace directory with secure permissions (owner-only access)
                 workspace.mkdir(parents=True, exist_ok=True, mode=0o700)
             except OSError as e:
                 raise OSError(f"Failed to create workspace directory at {workspace.absolute()}: {e}") from e
-            db_path = str(workspace / "langquery_history.db")
+            db_path = str(workspace / "data_analysis_history.db")
 
         self.db_path = db_path
         self._counter_lock = Lock()  # Lock for thread-safe counter increment

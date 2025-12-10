@@ -1,37 +1,68 @@
-# mcp composite server
+# composite
 
-a bundled mcp server that aggregates multiple mcp servers into a single endpoint using fastmcp's `mount()` feature.
+Bundled MCP server that aggregates multiple MCP servers into a single endpoint using FastMCP's `mount()` feature.
 
-## features
+## Features
 
-- **simple composition**: use fastmcp's built-in `mount()` to combine servers
-- **tool namespacing**: prefixes prevent naming conflicts (e.g., `lang_query`)
-- **no proxy overhead**: direct in-process communication
-- **single endpoint**: clients see one url with all tools available
+- **Simple Composition**: Use FastMCP's built-in `mount()` to combine servers
+- **Tool Namespacing**: Prefixes prevent naming conflicts (e.g., `data_query`)
+- **No Proxy Overhead**: Direct in-process communication
+- **Single Endpoint**: Clients see one URL with all tools available
 
-## installation
+## Mounted Servers
 
-```bash
-cd src/composite
-uv sync
+| Server | Prefix | Description |
+|--------|--------|-------------|
+| data-analysis | `data_` | DuckDB SQL data analysis |
+| xlsx | `xlsx_` | Excel spreadsheet operations |
+| pdf | `pdf_` | PDF document operations |
+| docx | `docx_` | Word document operations |
+| pptx | `pptx_` | PowerPoint operations |
+| vectorstore | `vec_` | Vector database operations |
+| browser | `browser_` | Browser automation |
+| frontend-design | `design_` | Design themes and palettes |
+| dify | `dify_` | Dify AI workflows |
+| o3-search | `o3_` | OpenAI o3 web search |
+
+## Configuration
+
+Servers are configured via `composite-config.yaml`:
+
+```yaml
+servers:
+  data-analysis:
+    enabled: true
+    prefix: data
+    module: data_analysis
+    description: DuckDB SQL data analysis
+
+  xlsx:
+    enabled: false  # disabled
+    prefix: xlsx
+    module: xlsx
 ```
 
-## usage
+| Field | Description |
+|-------|-------------|
+| `enabled` | Whether to mount the server (default: true) |
+| `prefix` | Tool name prefix (e.g., `data_` for data-analysis tools) |
+| `module` | Python module name to import |
+| `description` | Server description |
 
-### standalone
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `COMPOSITE_CONFIG` | `composite-config.yaml` | Path to config file |
+
+## Usage
 
 ```bash
-# stdio transport (default)
-cd src/composite
 uv run python -m composite
-
-# sse transport for web clients
-TRANSPORT=sse PORT=8000 uv run python -m composite
 ```
 
-### connect to dify
+### Connect to Dify
 
-in dify mcp configuration:
 ```json
 {
   "server_name": {
@@ -43,66 +74,4 @@ in dify mcp configuration:
 }
 ```
 
-## configuration
-
-### environment variables
-
-- `NAME`: server name (default: "composite")
-- `TRANSPORT`: "stdio" or "sse" (default: "stdio")
-- `HOST`: server host for sse (default: "0.0.0.0")
-- `PORT`: server port for sse (default: 8000)
-- `ALLOW_ORIGIN`: cors origin (default: "*")
-- `COMPOSITE_CONFIG`: path to config file (default: `composite-config.yaml`)
-
-### server configuration
-
-servers are configured via `composite-config.yaml`. enable/disable servers by setting `enabled: true/false`:
-
-```yaml
-servers:
-  langquery:
-    enabled: true
-    prefix: lang
-    module: langquery
-    description: data querying and shell commands
-
-  xlsx:
-    enabled: false  # disabled
-    prefix: xlsx
-    module: xlsx
-    description: excel spreadsheet operations
-```
-
-each server entry supports:
-- `enabled`: whether to mount the server (default: true)
-- `prefix`: tool name prefix (e.g., `lang_` for langquery tools)
-- `module`: python module name to import
-- `description`: server description
-
-## mounted servers
-
-currently mounts the following servers with prefixes:
-
-| server | prefix | description |
-|--------|--------|-------------|
-| langquery | `lang_` | data querying and shell commands |
-| xlsx | `xlsx_` | excel spreadsheet operations |
-| pdf | `pdf_` | pdf document operations |
-| docx | `docx_` | word document operations |
-| pptx | `pptx_` | powerpoint operations |
-| vectorstore | `vec_` | vector database operations |
-| browser | `browser_` | browser automation |
-| frontend-design | `design_` | design principles, themes, and color palettes |
-
-## testing
-
-```bash
-cd src/composite
-uv run pytest -v
-```
-
-## development
-
-key files:
-- `src/composite/server.py`: main server with dynamic mount logic
-- `composite-config.yaml`: server configuration
+See [server guide](../../docs/server-guide.md) for common CLI options.

@@ -2,10 +2,10 @@
 # enable/disable servers by setting enabled: true/false
 
 servers:
-  langquery:
+  data-analysis:
     enabled: true
-    prefix: lang
-    module: langquery
+    prefix: data
+    module: data_analysis
     description: data querying with DuckDB SQL
 
   xlsx:
@@ -29,7 +29,7 @@ servers:
   pptx:
     enabled: true
     prefix: pptx
-    module: pptx_server
+    module: pptx_mcp
     description: powerpoint operations
 
   vectorstore:
@@ -66,7 +66,7 @@ servers:
     enabled: true
     prefix: img
     module: nano_banana
-    description: AI image generation with Gemini Nano Banana
+    description: AI image generation with Google Gemini
 
   dify:
     enabled: false
