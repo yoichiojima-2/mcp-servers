@@ -39,11 +39,11 @@ def _find_libreoffice() -> str | None:
     return None
 
 
-def _convert_pptx_to_images(pptx_path: Path, output_dir: Path, libreoffice_path: str) -> list[Path]:
-    """Convert PPTX to images using LibreOffice."""
-    # LibreOffice exports to PDF first, then we convert PDF pages to images
-    # But actually LibreOffice can export directly to PNG
+def _convert_pptx_to_images(pptx_path: Path, output_dir: Path, libreoffice_path: str, total_slides: int) -> list[Path]:
+    """Convert PPTX to images using LibreOffice.
 
+    LibreOffice exports directly to PNG format (one file per slide).
+    """
     # Create a temporary directory for LibreOffice output
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
@@ -78,6 +78,13 @@ def _convert_pptx_to_images(pptx_path: Path, output_dir: Path, libreoffice_path:
 
             if not png_files:
                 raise RuntimeError("LibreOffice did not produce any PNG files")
+
+            # Check for LibreOffice behavior variance
+            if len(png_files) == 1 and total_slides > 1:
+                raise RuntimeError(
+                    f"LibreOffice produced only 1 image for {total_slides} slides. "
+                    "Try updating LibreOffice or use get_slide_export_instructions for manual export."
+                )
 
             # Copy files to output directory
             output_files = []
@@ -389,7 +396,7 @@ After installation, try running this tool again."""
 
     try:
         # Convert all slides to images
-        image_files = _convert_pptx_to_images(path, output_dir, libreoffice)
+        image_files = _convert_pptx_to_images(path, output_dir, libreoffice, total_slides)
 
         if slide_number is not None:
             # Return only the requested slide
@@ -400,9 +407,9 @@ After installation, try running this tool again."""
                 final_path = output_dir / final_name
                 target_file.rename(final_path)
 
-                # Clean up other slides
-                for img in image_files:
-                    if img.exists() and img != final_path:
+                # Clean up other slides (use index to avoid path comparison issues)
+                for i, img in enumerate(image_files):
+                    if i != slide_number - 1 and img.exists():
                         img.unlink()
 
                 return f"Exported slide {slide_number} to: {final_path}"

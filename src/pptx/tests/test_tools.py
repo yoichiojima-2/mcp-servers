@@ -203,6 +203,49 @@ async def test_export_slide_as_image_no_libreoffice(sample_pptx, monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_export_slide_subprocess_timeout(sample_pptx, monkeypatch):
+    """Test handling of subprocess timeout."""
+    import subprocess
+    from unittest.mock import MagicMock
+
+    mock_run = MagicMock(side_effect=subprocess.TimeoutExpired("cmd", 120))
+    monkeypatch.setattr("pptx_server.analysis.subprocess.run", mock_run)
+    monkeypatch.setattr("pptx_server.analysis._find_libreoffice", lambda: "/usr/bin/libreoffice")
+
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "export_slide_as_image",
+            {"file_path": str(sample_pptx)},
+        )
+        text = res.content[0].text
+        assert "Error" in text
+        assert "timed out" in text.lower()
+
+
+@pytest.mark.asyncio
+async def test_export_slide_subprocess_failure(sample_pptx, monkeypatch):
+    """Test handling of LibreOffice conversion failure."""
+    from unittest.mock import MagicMock
+
+    mock_result = MagicMock()
+    mock_result.returncode = 1
+    mock_result.stderr = "LibreOffice error: failed to convert"
+    mock_result.stdout = ""
+    mock_run = MagicMock(return_value=mock_result)
+    monkeypatch.setattr("pptx_server.analysis.subprocess.run", mock_run)
+    monkeypatch.setattr("pptx_server.analysis._find_libreoffice", lambda: "/usr/bin/libreoffice")
+
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "export_slide_as_image",
+            {"file_path": str(sample_pptx)},
+        )
+        text = res.content[0].text
+        assert "Error" in text
+        assert "conversion failed" in text.lower()
+
+
+@pytest.mark.asyncio
 async def test_extract_text_invalid_slide_numbers(sample_pptx):
     """Test error handling for invalid slide numbers."""
     async with Client(mcp) as client:
