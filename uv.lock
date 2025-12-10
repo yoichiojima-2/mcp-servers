@@ -399,11 +399,13 @@ version = "0.1.0"
 source = { editable = "src/composite" }
 dependencies = [
     { name = "browser" },
+    { name = "dify" },
     { name = "docx" },
     { name = "file-management" },
     { name = "frontend-design" },
     { name = "langquery" },
     { name = "nano-banana" },
+    { name = "o3-search" },
     { name = "pdf" },
     { name = "pptx" },
     { name = "pyyaml" },
@@ -416,11 +418,13 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "browser", editable = "src/browser" },
+    { name = "dify", editable = "src/dify" },
     { name = "docx", editable = "src/docx" },
     { name = "file-management", editable = "src/file-management" },
     { name = "frontend-design", editable = "src/frontend-design" },
     { name = "langquery", editable = "src/langquery" },
     { name = "nano-banana", editable = "src/nano-banana" },
+    { name = "o3-search", editable = "src/o3-search" },
     { name = "pdf", editable = "src/pdf" },
     { name = "pptx", editable = "src/pptx" },
     { name = "pyyaml", specifier = ">=6.0" },
