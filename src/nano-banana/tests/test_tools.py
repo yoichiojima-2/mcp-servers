@@ -35,6 +35,16 @@ class TestValidateOutputPath:
         with pytest.raises(ValueError, match="Cannot write to system directory"):
             _validate_output_path(output)
 
+    def test_path_traversal_attack(self):
+        """Test that path traversal attacks are blocked."""
+        from nano_banana.tools import _validate_output_path
+
+        # Attempt to traverse to /etc using ../ from a deep path
+        # Use enough ../ to escape to root and reach /etc
+        malicious_path = Path("/tmp/a/b/c/d/e/f/g/../../../../../../../../etc/test.png")
+        with pytest.raises(ValueError, match="Cannot write to system directory"):
+            _validate_output_path(malicious_path)
+
     def test_creates_parent_directory(self, tmp_path):
         from nano_banana.tools import _validate_output_path
 

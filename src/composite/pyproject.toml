@@ -10,6 +10,7 @@ dependencies = [
     "file-management",
     "frontend-design",
     "langquery",
+    "nano-banana",
     "pdf",
     "pptx",
     "pyyaml>=6.0",
@@ -25,6 +26,7 @@ docx = { workspace = true }
 file-management = { workspace = true }
 frontend-design = { workspace = true }
 langquery = { workspace = true }
+nano-banana = { workspace = true }
 pdf = { workspace = true }
 pptx = { workspace = true }
 shell = { workspace = true }

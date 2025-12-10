@@ -20,7 +20,20 @@ from . import mcp
 # Constants
 MAX_IMAGE_SIZE = 20_000_000  # 20MB limit for input images
 ALLOWED_EXTENSIONS = frozenset([".png", ".jpg", ".jpeg", ".webp", ".gif"])
-FORBIDDEN_PATHS = frozenset(["/bin", "/sbin", "/usr", "/etc", "/sys", "/proc", "/root"])
+# Forbidden system directories (include /private/* for macOS compatibility)
+FORBIDDEN_PATHS = frozenset(
+    [
+        "/bin",
+        "/sbin",
+        "/usr",
+        "/etc",
+        "/sys",
+        "/proc",
+        "/root",
+        "/private/bin",
+        "/private/etc",
+    ]
+)
 
 # Model configuration
 MODELS = {
@@ -63,14 +76,19 @@ def _get_client() -> genai.Client:
 
 
 def _validate_output_path(path: Path) -> None:
-    """Validate output path is safe to write to."""
-    path_str = str(path)
+    """Validate output path is safe to write to.
+
+    Args:
+        path: Path to validate (must already be resolved via expanduser().resolve())
+    """
+    # Path must be resolved before calling this function to prevent traversal attacks
+    resolved_path = str(path.resolve())
 
     if path.suffix.lower() not in ALLOWED_EXTENSIONS:
         raise ValueError(f"Output file must have image extension {ALLOWED_EXTENSIONS}, got: {path.suffix}")
 
     for forbidden in FORBIDDEN_PATHS:
-        if path_str.startswith(forbidden + "/"):
+        if resolved_path.startswith(forbidden + "/"):
             raise ValueError(f"Cannot write to system directory: {forbidden}")
 
     if not path.parent.exists():
