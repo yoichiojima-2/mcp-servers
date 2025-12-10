@@ -61,3 +61,9 @@ servers:
     prefix: sh
     module: shell
     description: shell command execution
+
+  nano-banana:
+    enabled: true
+    prefix: img
+    module: nano_banana
+    description: AI image generation with Gemini Nano Banana

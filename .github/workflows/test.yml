@@ -37,6 +37,7 @@ jobs:
           - file-management
           - frontend-design
           - langquery
+          - nano-banana
           - pdf
           - pptx
           - shell
@@ -73,3 +74,4 @@ jobs:
           DIFY_BASE_URL: ${{ (matrix.server == 'dify' || matrix.server == 'composite') && 'https://test.dify.ai/v1' || '' }}
           DIFY_CONSOLE_API_KEY: ${{ (matrix.server == 'dify' || matrix.server == 'composite') && 'test-console-key' || '' }}
           DIFY_CONSOLE_BASE_URL: ${{ (matrix.server == 'dify' || matrix.server == 'composite') && 'https://test.dify.ai' || '' }}
+          GEMINI_API_KEY: ${{ (matrix.server == 'nano-banana' || matrix.server == 'composite') && secrets.GEMINI_API_KEY || '' }}
