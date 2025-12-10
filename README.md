@@ -15,6 +15,7 @@ This monorepo contains multiple MCP servers built with [FastMCP](https://github.
 | [dify](src/dify) | AI agent building, workflow management, and knowledge base operations |
 | [docx](src/docx) | Word document (.docx) creation, editing, and analysis |
 | [langquery](src/langquery) | Natural language querying and processing with LangChain |
+| [nano-banana](src/nano-banana) | AI image generation using Google Gemini's Nano Banana models |
 | [pdf](src/pdf) | PDF document creation, manipulation, and extraction |
 | [pptx](src/pptx) | PowerPoint presentation (.pptx) creation and editing |
 | [vectorstore](src/vectorstore) | Vector database operations for semantic search |

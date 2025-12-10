@@ -31,6 +31,7 @@ members = [
     "src/file-management",
     "src/frontend-design",
     "src/langquery",
+    "src/nano-banana",
     "src/pdf",
     "src/pptx",
     "src/shell",
