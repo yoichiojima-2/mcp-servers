@@ -6,11 +6,106 @@ without modification.
 """
 
 import json
+import os
+import shutil
+import subprocess
+import tempfile
 from pathlib import Path
 
 from pptx import Presentation
 
 from . import mcp
+
+# Timeout for LibreOffice conversion (in seconds)
+LIBREOFFICE_TIMEOUT_SECONDS = 120
+
+
+def _find_libreoffice() -> str | None:
+    """Find and validate LibreOffice executable path."""
+    # Check common locations
+    candidates = [
+        "libreoffice",
+        "soffice",
+        "/Applications/LibreOffice.app/Contents/MacOS/soffice",
+        "/usr/bin/libreoffice",
+        "/usr/bin/soffice",
+    ]
+
+    for candidate in candidates:
+        resolved = shutil.which(candidate)
+        if resolved:
+            # Validate it's an executable file
+            path_obj = Path(resolved)
+            if path_obj.is_file() and os.access(path_obj, os.X_OK):
+                return resolved
+
+    # Check macOS application path directly
+    macos_path = Path("/Applications/LibreOffice.app/Contents/MacOS/soffice")
+    if macos_path.exists() and macos_path.is_file() and os.access(macos_path, os.X_OK):
+        return str(macos_path)
+
+    return None
+
+
+def _convert_pptx_to_images(pptx_path: Path, output_dir: Path, libreoffice_path: str, total_slides: int) -> list[Path]:
+    """Convert PPTX to images using LibreOffice.
+
+    LibreOffice exports directly to PNG format (one file per slide).
+    """
+    # Create a temporary directory for LibreOffice output
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_path = Path(temp_dir)
+
+        # Export to PNG using LibreOffice
+        # --outdir specifies output directory
+        # --convert-to png exports each slide as a separate PNG
+        cmd = [
+            libreoffice_path,
+            "--headless",
+            "--convert-to",
+            "png",
+            "--outdir",
+            str(temp_path),
+            str(pptx_path),
+        ]
+
+        try:
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=LIBREOFFICE_TIMEOUT_SECONDS,
+                shell=False,  # Explicit for security
+            )
+
+            if result.returncode != 0:
+                raise RuntimeError(f"LibreOffice conversion failed: {result.stderr or result.stdout}")
+
+            # LibreOffice creates files like: filename.png (single image for all slides)
+            # or filename-1.png, filename-2.png, etc.
+            png_files = sorted(temp_path.glob("*.png"))
+
+            if not png_files:
+                raise RuntimeError("LibreOffice did not produce any PNG files")
+
+            # Check for LibreOffice behavior variance
+            if len(png_files) == 1 and total_slides > 1:
+                raise RuntimeError(
+                    f"LibreOffice produced only 1 image for {total_slides} slides. "
+                    "Try updating LibreOffice or use get_slide_export_instructions for manual export."
+                )
+
+            # Copy files to output directory
+            output_files = []
+            for i, png_file in enumerate(png_files, 1):
+                output_file = output_dir / f"slide_{i}.png"
+                shutil.copy2(png_file, output_file)
+                output_files.append(output_file)
+
+            return output_files
+
+        except subprocess.TimeoutExpired:
+            raise RuntimeError(f"LibreOffice conversion timed out after {LIBREOFFICE_TIMEOUT_SECONDS} seconds")
 
 
 @mcp.tool()
@@ -251,4 +346,138 @@ Note: LibreOffice exports all slides. To get a specific slide only,
 you can use the pdf export first, then convert:
   libreoffice --headless --convert-to pdf "{path}"
   # Then use a PDF tool to extract and convert page {slide_number}
+
+Alternatively, use the export_slide_as_image tool for automatic conversion.
 """
+
+
+def _safe_rename(src: Path, dst: Path) -> None:
+    """Safely rename a file, overwriting destination if it exists.
+
+    Uses Path.replace() which is atomic on POSIX systems.
+    On Windows, this is not guaranteed to be atomic.
+
+    Raises:
+        OSError: If rename fails due to permissions or other I/O errors.
+    """
+    try:
+        src.replace(dst)
+    except OSError as e:
+        raise OSError(f"Failed to rename {src} to {dst}: {e}") from e
+
+
+@mcp.tool()
+def export_slide_as_image(
+    file_path: str,
+    slide_number: int | None = None,
+    output_path: str | None = None,
+) -> str:
+    """
+    Export a slide (or all slides) from a PowerPoint presentation as PNG image(s).
+
+    Requires LibreOffice to be installed on the system.
+
+    Note: Even when requesting a single slide, LibreOffice converts all slides
+    internally. Unwanted slides are automatically cleaned up after conversion.
+
+    Args:
+        file_path: Path to the PowerPoint file
+        slide_number: Optional specific slide number (1-indexed). If None, exports all slides.
+        output_path: Optional output directory path. If None, creates images next to the input file.
+
+    Returns:
+        Path(s) to the exported image file(s), or error message
+    """
+    # Validate input file
+    path = Path(file_path).expanduser().resolve()
+    if not path.exists():
+        return f"Error: File not found: {path}"
+
+    # Validate slide count
+    prs = Presentation(str(path))
+    total_slides = len(prs.slides)
+
+    if total_slides == 0:
+        return "Error: Presentation has no slides to export"
+
+    # Validate slide number if provided
+    if slide_number is not None:
+        if slide_number < 1 or slide_number > total_slides:
+            return f"Error: Slide {slide_number} does not exist. Presentation has {total_slides} slides."
+
+    # Determine and validate output directory (validate before LibreOffice check for early error)
+    if output_path:
+        output_dir = Path(output_path).expanduser().resolve()
+        # Validate output path is in a safe location (using is_relative_to for clarity)
+        safe_prefixes = [
+            Path.home(),
+            Path("/tmp").resolve(),
+            Path("/var/tmp").resolve(),
+        ]
+        # Add macOS temp directories if they exist
+        for macos_tmp in ["/var/folders", "/private/var/folders", "/private/tmp"]:
+            macos_path = Path(macos_tmp)
+            if macos_path.exists():
+                safe_prefixes.append(macos_path.resolve())
+        if not any(output_dir == prefix or output_dir.is_relative_to(prefix) for prefix in safe_prefixes):
+            return "Error: Output path must be within user home directory or /tmp"
+    else:
+        output_dir = path.parent
+
+    # Find LibreOffice
+    libreoffice = _find_libreoffice()
+    if not libreoffice:
+        return """Error: LibreOffice is not installed or not found in PATH.
+
+To install LibreOffice:
+  macOS: Download from https://www.libreoffice.org/download/download/
+  Ubuntu/Debian: sudo apt install libreoffice
+  Fedora: sudo dnf install libreoffice
+  Windows: Download from https://www.libreoffice.org/download/download/
+
+After installation, try running this tool again."""
+
+    # Create output directory after validation
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        # Convert all slides to images
+        image_files = _convert_pptx_to_images(path, output_dir, libreoffice, total_slides)
+
+        if slide_number is not None:
+            # Return only the requested slide
+            if slide_number <= len(image_files):
+                target_file = image_files[slide_number - 1]
+                # Rename to include original filename
+                final_name = f"{path.stem}_slide_{slide_number}.png"
+                final_path = output_dir / final_name
+                _safe_rename(target_file, final_path)
+
+                # Clean up other slides (use index to avoid path comparison issues after rename)
+                target_index = slide_number - 1
+                for i, img in enumerate(image_files):
+                    if i != target_index and img.exists():
+                        try:
+                            img.unlink()
+                        except OSError:
+                            pass  # Best effort cleanup, continue even if some files fail
+
+                return f"Exported slide {slide_number} to: {final_path}"
+            else:
+                return f"Error: Slide {slide_number} was not exported. Only {len(image_files)} images were created."
+        else:
+            # Rename all files to include original filename
+            renamed_files = []
+            for i, img in enumerate(image_files, 1):
+                final_name = f"{path.stem}_slide_{i}.png"
+                final_path = output_dir / final_name
+                if img.exists():
+                    _safe_rename(img, final_path)
+                    renamed_files.append(str(final_path))
+
+            return f"Exported {len(renamed_files)} slides to:\n" + "\n".join(renamed_files)
+
+    except (RuntimeError, subprocess.SubprocessError) as e:
+        return f"Error during conversion: {e}"
+    except Exception as e:
+        return f"Unexpected error: {type(e).__name__}: {e}"

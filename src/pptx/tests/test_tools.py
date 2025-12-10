@@ -143,6 +143,170 @@ async def test_get_slide_export_instructions(sample_pptx):
         assert "slide 1" in text.lower()
 
 
+# ======================================================
+# Export Slide as Image Tests
+# ======================================================
+
+
+@pytest.mark.asyncio
+async def test_export_slide_as_image_file_not_found():
+    """Test error handling for missing file."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "export_slide_as_image",
+            {"file_path": "/nonexistent/file.pptx"},
+        )
+        text = res.content[0].text
+        assert "Error" in text
+        assert "not found" in text
+
+
+@pytest.mark.asyncio
+async def test_export_slide_as_image_invalid_slide(sample_pptx):
+    """Test error handling for invalid slide number."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "export_slide_as_image",
+            {"file_path": str(sample_pptx), "slide_number": 999},
+        )
+        text = res.content[0].text
+        assert "Error" in text
+        assert "does not exist" in text
+
+
+def test_find_libreoffice():
+    """Test LibreOffice detection function."""
+    from pptx_server.analysis import _find_libreoffice
+
+    # This test just verifies the function runs without error
+    # The result depends on whether LibreOffice is installed
+    result = _find_libreoffice()
+    # Result is either a path string or None
+    assert result is None or isinstance(result, str)
+
+
+@pytest.mark.asyncio
+async def test_export_slide_as_image_no_libreoffice(sample_pptx, monkeypatch):
+    """Test error message when LibreOffice is not available."""
+    # Mock _find_libreoffice to return None
+    monkeypatch.setattr("pptx_server.analysis._find_libreoffice", lambda: None)
+
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "export_slide_as_image",
+            {"file_path": str(sample_pptx)},
+        )
+        text = res.content[0].text
+        assert "Error" in text
+        assert "LibreOffice is not installed" in text
+        assert "install" in text.lower()
+
+
+@pytest.mark.asyncio
+async def test_export_slide_subprocess_timeout(sample_pptx, monkeypatch):
+    """Test handling of subprocess timeout."""
+    import subprocess
+    from unittest.mock import MagicMock
+
+    mock_run = MagicMock(side_effect=subprocess.TimeoutExpired("cmd", 120))
+    monkeypatch.setattr("pptx_server.analysis.subprocess.run", mock_run)
+    monkeypatch.setattr("pptx_server.analysis._find_libreoffice", lambda: "/usr/bin/libreoffice")
+
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "export_slide_as_image",
+            {"file_path": str(sample_pptx)},
+        )
+        text = res.content[0].text
+        assert "Error" in text
+        assert "timed out" in text.lower()
+
+
+@pytest.mark.asyncio
+async def test_export_slide_subprocess_failure(sample_pptx, monkeypatch):
+    """Test handling of LibreOffice conversion failure."""
+    from unittest.mock import MagicMock
+
+    mock_result = MagicMock()
+    mock_result.returncode = 1
+    mock_result.stderr = "LibreOffice error: failed to convert"
+    mock_result.stdout = ""
+    mock_run = MagicMock(return_value=mock_result)
+    monkeypatch.setattr("pptx_server.analysis.subprocess.run", mock_run)
+    monkeypatch.setattr("pptx_server.analysis._find_libreoffice", lambda: "/usr/bin/libreoffice")
+
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "export_slide_as_image",
+            {"file_path": str(sample_pptx)},
+        )
+        text = res.content[0].text
+        assert "Error" in text
+        assert "conversion failed" in text.lower()
+
+
+@pytest.mark.asyncio
+async def test_export_slide_as_image_success(sample_pptx, monkeypatch, tmp_path):
+    """Test successful export with mocked LibreOffice."""
+    from unittest.mock import MagicMock
+
+    # Mock successful conversion
+    mock_result = MagicMock()
+    mock_result.returncode = 0
+
+    def side_effect(*args, **kwargs):
+        # Create fake output file in the temp directory used by the function
+        # The function uses tempfile.TemporaryDirectory internally,
+        # so we need to create the file in the temp dir passed to subprocess
+        cmd = args[0]
+        outdir = cmd[cmd.index("--outdir") + 1]
+        (Path(outdir) / "test.png").touch()
+        return mock_result
+
+    mock_run = MagicMock(side_effect=side_effect)
+    monkeypatch.setattr("pptx_server.analysis.subprocess.run", mock_run)
+    monkeypatch.setattr("pptx_server.analysis._find_libreoffice", lambda: "/usr/bin/libreoffice")
+
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "export_slide_as_image",
+            {"file_path": str(sample_pptx), "output_path": str(tmp_path)},
+        )
+        text = res.content[0].text
+        assert "Exported" in text
+        assert "Error" not in text
+
+
+@pytest.mark.asyncio
+async def test_export_slide_empty_presentation(temp_pptx, monkeypatch):
+    """Test error handling for empty presentation."""
+    # Create an empty presentation (no slides)
+    prs = Presentation()
+    prs.save(str(temp_pptx))
+
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "export_slide_as_image",
+            {"file_path": str(temp_pptx)},
+        )
+        text = res.content[0].text
+        assert "Error" in text
+        assert "no slides" in text.lower()
+
+
+@pytest.mark.asyncio
+async def test_export_slide_unsafe_output_path(sample_pptx):
+    """Test that unsafe output paths are rejected."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "export_slide_as_image",
+            {"file_path": str(sample_pptx), "output_path": "/etc/passwd"},
+        )
+        text = res.content[0].text
+        assert "Error" in text
+        assert "Output path must be within" in text
+
+
 @pytest.mark.asyncio
 async def test_extract_text_invalid_slide_numbers(sample_pptx):
     """Test error handling for invalid slide numbers."""

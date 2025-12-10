@@ -15,6 +15,7 @@ An MCP server for PowerPoint presentation creation and analysis, using Marp for 
 - Extract text from all slides
 - Get detailed shape information
 - Read speaker notes
+- **Export slides as images** (requires LibreOffice)
 
 ## Installation
 
@@ -113,7 +114,8 @@ Available themes: `noir`, `brutalist`, `organic`, `neon`, `minimal`, `retro`
 | `extract_text` | Extract all text from a presentation |
 | `get_slide_shapes` | Get detailed information about shapes on a slide |
 | `get_slide_notes` | Get speaker notes from slides |
-| `get_slide_export_instructions` | Get instructions for exporting a slide as image |
+| `export_slide_as_image` | Export slides as PNG images (requires LibreOffice) |
+| `get_slide_export_instructions` | Get manual instructions for exporting slides |
 
 ## Dependencies
 
@@ -126,6 +128,9 @@ Available themes: `noir`, `brutalist`, `organic`, `neon`, `minimal`, `retro`
 For Marp features:
 - Node.js v18+ with npx
 - Chrome, Edge, or Firefox (for PPTX export)
+
+For slide image export:
+- LibreOffice (for `export_slide_as_image` tool)
 
 ## Security Considerations
 
