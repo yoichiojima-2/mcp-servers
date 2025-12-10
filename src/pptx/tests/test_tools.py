@@ -295,6 +295,19 @@ async def test_export_slide_empty_presentation(temp_pptx, monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_export_slide_unsafe_output_path(sample_pptx):
+    """Test that unsafe output paths are rejected."""
+    async with Client(mcp) as client:
+        res = await client.call_tool(
+            "export_slide_as_image",
+            {"file_path": str(sample_pptx), "output_path": "/etc/passwd"},
+        )
+        text = res.content[0].text
+        assert "Error" in text
+        assert "Output path must be within" in text
+
+
+@pytest.mark.asyncio
 async def test_extract_text_invalid_slide_numbers(sample_pptx):
     """Test error handling for invalid slide numbers."""
     async with Client(mcp) as client:

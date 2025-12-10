@@ -75,6 +75,7 @@ def _convert_pptx_to_images(pptx_path: Path, output_dir: Path, libreoffice_path:
                 capture_output=True,
                 text=True,
                 timeout=LIBREOFFICE_TIMEOUT_SECONDS,
+                shell=False,  # Explicit for security
             )
 
             if result.returncode != 0:
@@ -351,12 +352,11 @@ Alternatively, use the export_slide_as_image tool for automatic conversion.
 
 
 def _safe_rename(src: Path, dst: Path) -> None:
-    """Safely rename a file, handling existing destination."""
-    try:
-        src.rename(dst)
-    except FileExistsError:
-        dst.unlink()
-        src.rename(dst)
+    """Safely rename a file, handling existing destination.
+
+    Uses Path.replace() which is atomic on POSIX systems.
+    """
+    src.replace(dst)
 
 
 @mcp.tool()
@@ -398,6 +398,24 @@ def export_slide_as_image(
         if slide_number < 1 or slide_number > total_slides:
             return f"Error: Slide {slide_number} does not exist. Presentation has {total_slides} slides."
 
+    # Determine and validate output directory (validate before LibreOffice check for early error)
+    if output_path:
+        output_dir = Path(output_path).expanduser().resolve()
+        # Validate output path is in a safe location
+        # Note: /private/var is macOS symlink target for /var
+        safe_prefixes = [
+            Path.home(),
+            Path("/tmp"),
+            Path("/var/tmp"),
+            Path("/var/folders"),
+            Path("/private/var/folders"),
+            Path("/private/tmp"),
+        ]
+        if not any(output_dir == prefix or prefix in output_dir.parents for prefix in safe_prefixes):
+            return "Error: Output path must be within user home directory or /tmp"
+    else:
+        output_dir = path.parent
+
     # Find LibreOffice
     libreoffice = _find_libreoffice()
     if not libreoffice:
@@ -411,12 +429,8 @@ To install LibreOffice:
 
 After installation, try running this tool again."""
 
-    # Determine output directory
-    if output_path:
-        output_dir = Path(output_path).expanduser().resolve()
-        output_dir.mkdir(parents=True, exist_ok=True)
-    else:
-        output_dir = path.parent
+    # Create output directory after validation
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     try:
         # Convert all slides to images
