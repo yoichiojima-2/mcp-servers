@@ -4,17 +4,66 @@ This document tracks port assignments for all MCP servers to prevent conflicts w
 
 ## Port Allocation Table
 
-| Server       | Port | URL                           | Notes                                    |
-|--------------|------|-------------------------------|------------------------------------------|
-| dify         | 8001 | http://localhost:8001/sse     | Dify AI platform integration             |
-| vectorstore  | 8002 | http://localhost:8002/sse     | Vector database operations               |
-| pptx         | 8003 | http://localhost:8003/sse     | PowerPoint operations                    |
-| xlsx         | 8004 | http://localhost:8004/sse     | Spreadsheet operations                   |
-| docx         | 8005 | http://localhost:8005/sse     | Word document operations                 |
-| langquery    | 8006 | http://localhost:8006/sse     | Language query operations                |
-| browser      | 8007 | http://localhost:8007/sse     | Browser automation (Playwright)          |
-| pdf          | 8008 | http://localhost:8008/sse     | PDF manipulation and extraction          |
-| **composite**| **8000** | **http://localhost:8000/sse** | **Lightweight proxy routing to backends** |
+| Server          | Port | URL                           | Notes                                    |
+|-----------------|------|-------------------------------|------------------------------------------|
+| dify            | 8001 | http://localhost:8001/sse     | Dify AI platform integration             |
+| vectorstore     | 8002 | http://localhost:8002/sse     | Vector database operations               |
+| pptx            | 8003 | http://localhost:8003/sse     | PowerPoint operations                    |
+| xlsx            | 8004 | http://localhost:8004/sse     | Spreadsheet operations                   |
+| docx            | 8005 | http://localhost:8005/sse     | Word document operations                 |
+| langquery       | 8006 | http://localhost:8006/sse     | Language query operations                |
+| browser         | 8007 | http://localhost:8007/sse     | Browser automation (Playwright)          |
+| pdf             | 8008 | http://localhost:8008/sse     | PDF manipulation and extraction          |
+| frontend-design | 8009 | http://localhost:8009/sse     | Frontend design generation               |
+| file-management | 8010 | http://localhost:8010/sse     | File management operations               |
+| shell           | 8011 | http://localhost:8011/sse     | Shell command execution                  |
+| **composite**   | **8000** | **http://localhost:8000/sse** | **Lightweight proxy routing to backends** |
+
+## Server Configuration
+
+All servers support both environment variables and command line arguments. CLI arguments take precedence over environment variables.
+
+### Command Line Arguments
+
+```bash
+uv run python -m <server> --help
+```
+
+| Argument         | Environment Variable | Default   | Description                       |
+|------------------|---------------------|-----------|-----------------------------------|
+| `--transport`    | `TRANSPORT`         | `stdio`   | Transport protocol (see below) |
+| `--host`         | `HOST`              | `0.0.0.0` | Host to bind to                   |
+| `--port`         | `PORT`              | Server-specific | Port to listen on            |
+| `--allow-origin` | `ALLOW_ORIGIN`      | `*`       | CORS allowed origin               |
+
+**Transport protocols:**
+- `stdio` - Standard input/output (default, for CLI usage)
+- `sse` - Server-Sent Events over HTTP (for web clients)
+- `streamable-http` - HTTP with streaming support (alternative to SSE)
+
+### Security Note
+
+The default `--allow-origin=*` permits requests from any origin, which is convenient for development but **not recommended for production**. For production deployments, specify your domain:
+
+```bash
+uv run python -m xlsx --transport sse --allow-origin "https://yourdomain.com"
+```
+
+### Examples
+
+```bash
+# Run with stdio (default)
+uv run python -m xlsx
+
+# Run with SSE on custom port
+uv run python -m xlsx --transport sse --port 9000
+
+# Run with environment variables
+TRANSPORT=sse PORT=9000 uv run python -m xlsx
+
+# CLI args override environment variables
+TRANSPORT=stdio uv run python -m xlsx --transport sse  # Uses SSE
+```
 
 ## Usage Notes
 
