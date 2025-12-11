@@ -1,6 +1,6 @@
 # Titanic EDA Examples
 
-Sample outputs demonstrating langquery + frontend-design integration for exploratory data analysis.
+Sample outputs demonstrating data-analysis + frontend-design integration for exploratory data analysis.
 
 ## Files
 
@@ -11,7 +11,7 @@ Sample outputs demonstrating langquery + frontend-design integration for explora
 
 These reports were generated using:
 
-1. **langquery** - SQL queries on the Titanic dataset via DuckDB
+1. **data-analysis** - SQL queries on the Titanic dataset via DuckDB
 2. **frontend-design** - HTML report generation with modern styling
 
 The workflow demonstrates how MCP servers can be combined to analyze data and produce polished visual outputs.

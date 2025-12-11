@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'examples/langquery/*.html'
+      - 'examples/data-analysis/*.html'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -28,17 +28,17 @@ jobs:
 
       - name: Prepare site content
         run: |
-          if [ ! -f examples/langquery/titanic_eda.html ]; then
+          if [ ! -f examples/data-analysis/titanic_eda.html ]; then
             echo "Error: titanic_eda.html not found"
             exit 1
           fi
-          if [ ! -f examples/langquery/titanic_eda_ja.html ]; then
+          if [ ! -f examples/data-analysis/titanic_eda_ja.html ]; then
             echo "Error: titanic_eda_ja.html not found"
             exit 1
           fi
           mkdir -p _site
-          cp examples/langquery/titanic_eda.html _site/index.html
-          cp examples/langquery/titanic_eda_ja.html _site/titanic_eda_ja.html
+          cp examples/data-analysis/titanic_eda.html _site/index.html
+          cp examples/data-analysis/titanic_eda_ja.html _site/titanic_eda_ja.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
