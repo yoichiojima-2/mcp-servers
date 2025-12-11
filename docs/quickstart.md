@@ -12,7 +12,7 @@ Get started with MCP Servers using the composite server - a single endpoint that
 ### 1. Install dependencies
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/yoichiojima-2/mcp-servers.git
 cd mcp-servers
 uv sync --dev
 ```
@@ -40,7 +40,7 @@ Some servers require API keys. Add them to your Claude Desktop config (see below
 
 | Server | Required Variable |
 |--------|-------------------|
-| nano-banana | `GEMINI_API_KEY` |
+| nano-banana | `GOOGLE_API_KEY` |
 | o3-search | `OPENAI_API_KEY` |
 | vectorstore | `OPENAI_API_KEY` |
 | dify | `DIFY_API_KEY` |
@@ -72,7 +72,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
       "args": ["run", "python", "-m", "composite"],
       "cwd": "/path/to/mcp-servers/src/composite",
       "env": {
-        "GEMINI_API_KEY": "your-key",
+        "GOOGLE_API_KEY": "your-key",
         "OPENAI_API_KEY": "your-key"
       }
     }
@@ -95,11 +95,16 @@ Each server's tools are namespaced with a prefix:
 
 | Server | Prefix | Example |
 |--------|--------|---------|
+| browser | `browser_` | `browser_navigate` |
 | data-analysis | `data_` | `data_query` |
-| xlsx | `xlsx_` | `xlsx_read` |
-| pdf | `pdf_` | `pdf_extract` |
-| pptx | `pptx_` | `pptx_create` |
+| dify | `dify_` | `dify_chat` |
+| docx | `docx_` | `docx_create` |
 | file-management | `file_` | `file_read` |
-| shell | `sh_` | `sh_execute` |
+| frontend-design | `design_` | `design_palette` |
 | nano-banana | `img_` | `img_generate` |
 | o3-search | `o3_` | `o3_search` |
+| pdf | `pdf_` | `pdf_extract` |
+| pptx | `pptx_` | `pptx_create` |
+| shell | `sh_` | `sh_execute` |
+| vectorstore | `vector_` | `vector_search` |
+| xlsx | `xlsx_` | `xlsx_read` |
