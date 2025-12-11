@@ -62,6 +62,8 @@ Environment variables can be used instead of CLI arguments:
 
 ## Workspace Directory
 
+> ⚠️ **Breaking Change**: The workspace location changed from `./workspace/` to `~/.mcp-servers/{server}/`. If you have scripts or applications that reference the old location, update them to use the `get_workspace_path()` tool or directly reference `~/.mcp-servers/{server}/`.
+
 MCP servers store runtime data (databases, caches, screenshots, etc.) in `~/.mcp-servers/`:
 
 ```
@@ -87,6 +89,26 @@ Each server provides a `get_workspace_path()` tool that returns the workspace di
 - Data persists indefinitely - no automatic cleanup
 - Backup `~/.mcp-servers/` if you want to preserve data
 - To clean up: `rm -rf ~/.mcp-servers/<server>/`
+
+### Docker Data Persistence
+
+When running servers in Docker, workspace data is stored in named volumes:
+
+```bash
+# List workspace volumes
+docker volume ls | grep workspace
+
+# Backup a volume
+docker run --rm -v browser-workspace:/data -v $(pwd):/backup alpine tar czf /backup/browser-backup.tar.gz -C /data .
+
+# Restore a volume
+docker run --rm -v browser-workspace:/data -v $(pwd):/backup alpine tar xzf /backup/browser-backup.tar.gz -C /data
+
+# Remove a volume (deletes all data)
+docker volume rm browser-workspace
+```
+
+Named volumes persist across container restarts and removals. Data is only deleted when the volume itself is removed.
 
 ## Testing
 

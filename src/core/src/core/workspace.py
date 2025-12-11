@@ -83,6 +83,6 @@ def get_workspace_file(server_name: str, filename: str) -> Path:
     try:
         filepath.relative_to(workspace.resolve())
     except ValueError:
-        raise ValueError(f"Path escapes workspace: {filename}")
+        raise ValueError("Path escapes workspace directory")
 
     return filepath

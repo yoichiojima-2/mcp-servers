@@ -388,6 +388,7 @@ async def screenshot(filename: str = "screenshot.png", full_page: bool = False) 
     """Take a screenshot of the current page."""
     page = await get_page_unsafe()
     filepath = get_workspace_file("browser", filename)
+    filepath.parent.mkdir(parents=True, exist_ok=True)
     await page.screenshot(path=str(filepath), full_page=full_page, timeout=30000)
     return f"Screenshot saved to {filepath}"
 

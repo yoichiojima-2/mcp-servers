@@ -484,6 +484,7 @@ async def screenshot_page(
         filename = f"{name}.png"
 
     filepath = get_workspace_file("preview", filename)
+    filepath.parent.mkdir(parents=True, exist_ok=True)
 
     try:
         async with async_playwright() as p:
@@ -537,6 +538,7 @@ async def export_pdf(
         filename = f"{name}.pdf"
 
     filepath = get_workspace_file("preview", filename)
+    filepath.parent.mkdir(parents=True, exist_ok=True)
 
     try:
         async with async_playwright() as p:
