@@ -82,7 +82,7 @@ services:
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
-      - PORT=8013
+      - PORT=8014
     networks:
       - mcp-network
 
@@ -118,7 +118,7 @@ services:
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
-      - PORT=8014
+      - PORT=8011
       - HTTP_PORT=3000
       - HTTP_HOST=0.0.0.0
     networks:
@@ -132,7 +132,7 @@ services:
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
-      - PORT=8012
+      - PORT=8013
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     networks:
       - mcp-network
@@ -207,7 +207,7 @@ services:
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
-      - PORT=8011
+      - PORT=8012
     networks:
       - mcp-network
 

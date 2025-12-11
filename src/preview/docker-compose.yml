@@ -2,10 +2,10 @@ services:
   preview:
     build: .
     ports:
-      - "8014:8014"  # MCP server port
+      - "8011:8011"  # MCP server port
       - "3000:3000"  # HTTP server port
     environment:
-      - PORT=8014
+      - PORT=8011
       - TRANSPORT=sse
       - HOST=0.0.0.0
       - HTTP_PORT=3000
