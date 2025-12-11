@@ -10,6 +10,8 @@ services:
       - HOST=0.0.0.0
       - HTTP_PORT=3000
       - HTTP_HOST=0.0.0.0
-      - WORKSPACE=/workspace
     volumes:
-      - ./workspace:/workspace
+      - preview-workspace:/root/.mcp-servers/preview
+
+volumes:
+  preview-workspace:

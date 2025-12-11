@@ -60,6 +60,34 @@ Environment variables can be used instead of CLI arguments:
 | `PORT` | Port to listen on |
 | `ALLOW_ORIGIN` | CORS allowed origins |
 
+## Workspace Directory
+
+MCP servers store runtime data (databases, caches, screenshots, etc.) in `~/.mcp-servers/`:
+
+```
+~/.mcp-servers/
+├── browser/           # Browser screenshots
+├── data-analysis/     # Query history database, datasets
+├── file-management/   # Files created by file-management server
+├── nano-banana/       # Generated images
+├── preview/           # Screenshots and PDFs
+├── shell/             # Files created by shell commands
+└── ...
+```
+
+Each server has its own subdirectory, created automatically on first use with secure permissions (owner-only access, 0700).
+
+### Discovering the Workspace Path
+
+Each server provides a `get_workspace_path()` tool that returns the workspace directory path. Agents can use this to know where to save files.
+
+### Security Notes
+
+- Workspace directories may contain sensitive data (query history, screenshots, etc.)
+- Data persists indefinitely - no automatic cleanup
+- Backup `~/.mcp-servers/` if you want to preserve data
+- To clean up: `rm -rf ~/.mcp-servers/<server>/`
+
 ## Testing
 
 ```bash
@@ -162,6 +190,36 @@ If you were using these servers, update your `claude_desktop_config.json`:
 If using Docker, update service names and paths accordingly:
 - `langquery` service → `data-analysis`
 - Environment variables: `LANGQUERY_*` → `DATA_ANALYSIS_*`
+
+### Workspace Location Change
+
+**Breaking change**: Workspace directories have moved from local `./workspace/` to centralized `~/.mcp-servers/{server}/`.
+
+Old environment variables (`WORKSPACE`, `DATA_ANALYSIS_WORKSPACE`, `BROWSER_WORKSPACE`, `PREVIEW_WORKSPACE`) are no longer supported.
+
+**Migration steps**:
+
+1. Move existing data to the new location:
+   ```bash
+   # data-analysis
+   mkdir -p ~/.mcp-servers/data-analysis
+   mv ./workspace/data_analysis_history.db ~/.mcp-servers/data-analysis/history.db
+
+   # browser
+   mkdir -p ~/.mcp-servers/browser
+   mv ./workspace/*.png ~/.mcp-servers/browser/
+
+   # preview
+   mkdir -p ~/.mcp-servers/preview
+   mv ./workspace/*.png ~/.mcp-servers/preview/
+   mv ./workspace/*.pdf ~/.mcp-servers/preview/
+   ```
+
+2. Remove old environment variables from your Claude Desktop config or docker-compose files:
+   - Remove `WORKSPACE`
+   - Remove `DATA_ANALYSIS_WORKSPACE`
+   - Remove `BROWSER_WORKSPACE`
+   - Remove `PREVIEW_WORKSPACE`
 
 ## Troubleshooting
 

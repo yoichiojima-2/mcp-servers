@@ -6,7 +6,10 @@ services:
     ports:
       - "8012:8012"
     volumes:
-      - ./workspace:/workspace
+      - shell-workspace:/root/.mcp-servers/shell
     environment:
       - TRANSPORT=sse
       - PORT=8012
+
+volumes:
+  shell-workspace:

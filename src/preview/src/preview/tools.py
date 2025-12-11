@@ -1,14 +1,25 @@
 """MCP tools for the preview server."""
 
 import json
-import os
 import webbrowser
 from pathlib import Path
+
+from core import get_workspace
 
 from . import mcp
 from .http_server import broadcast_reload, ensure_server_running, get_base_url
 from .page_store import get_store
 from .templates import render_dashboard, render_report
+
+
+@mcp.tool()
+def get_workspace_path() -> str:
+    """Get the workspace directory path for saving files.
+
+    Returns:
+        Path to ~/.mcp-servers/preview/ where screenshots, PDFs, and other files are saved.
+    """
+    return str(get_workspace("preview"))
 
 
 @mcp.tool()
@@ -472,9 +483,8 @@ async def screenshot_page(
     if not filename:
         filename = f"{name}.png"
 
-    workspace = os.getenv("WORKSPACE", "workspace")
-    os.makedirs(workspace, exist_ok=True)
-    filepath = os.path.join(workspace, filename)
+    workspace = get_workspace("preview")
+    filepath = workspace / filename
 
     try:
         async with async_playwright() as p:
@@ -482,7 +492,7 @@ async def screenshot_page(
             browser_page = await browser.new_page()
             browser_page.set_default_timeout(timeout)
             await browser_page.goto(url, wait_until="networkidle")
-            await browser_page.screenshot(path=filepath, full_page=full_page)
+            await browser_page.screenshot(path=str(filepath), full_page=full_page)
             await browser.close()
     except PlaywrightTimeout:
         return f"Error: Timeout after {timeout}ms while capturing screenshot"
@@ -527,9 +537,8 @@ async def export_pdf(
     if not filename:
         filename = f"{name}.pdf"
 
-    workspace = os.getenv("WORKSPACE", "workspace")
-    os.makedirs(workspace, exist_ok=True)
-    filepath = os.path.join(workspace, filename)
+    workspace = get_workspace("preview")
+    filepath = workspace / filename
 
     try:
         async with async_playwright() as p:
@@ -537,7 +546,7 @@ async def export_pdf(
             browser_page = await browser.new_page()
             browser_page.set_default_timeout(timeout)
             await browser_page.goto(url, wait_until="networkidle")
-            await browser_page.pdf(path=filepath)
+            await browser_page.pdf(path=str(filepath))
             await browser.close()
     except PlaywrightTimeout:
         return f"Error: Timeout after {timeout}ms while exporting PDF"

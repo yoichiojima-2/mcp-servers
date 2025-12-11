@@ -3,12 +3,24 @@ import time
 
 import duckdb
 
+from core import get_workspace
+
 from . import mcp
 from .db import get_history_db
 
 # ======================================================
 # core
 # ======================================================
+
+
+@mcp.tool()
+def get_workspace_path() -> str:
+    """Get the workspace directory path for saving files.
+
+    Returns:
+        Path to ~/.mcp-servers/data-analysis/ where query history and other files are saved.
+    """
+    return str(get_workspace("data-analysis"))
 
 
 @mcp.tool()

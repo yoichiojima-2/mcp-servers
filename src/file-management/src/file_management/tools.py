@@ -2,6 +2,8 @@ import base64
 import binascii
 from pathlib import Path
 
+from core import get_workspace
+
 from . import mcp
 
 FORBIDDEN_WRITE_PATHS = [
@@ -57,6 +59,18 @@ def _validate_write_path(path: Path) -> None:
             for forbidden in FORBIDDEN_WRITE_PATHS:
                 if _is_path_in_forbidden(link_target, forbidden):
                     raise ValueError(f"Cannot write through symlink to system directory: {forbidden}")
+
+
+@mcp.tool()
+def get_workspace_path() -> str:
+    """Get the workspace directory path for saving files.
+
+    Use this directory for any files you need to create or store.
+
+    Returns:
+        Path to ~/.mcp-servers/file-management/ where files should be saved.
+    """
+    return str(get_workspace("file-management"))
 
 
 @mcp.tool()

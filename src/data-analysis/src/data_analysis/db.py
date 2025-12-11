@@ -3,11 +3,12 @@
 import os
 import re
 import sys
-from pathlib import Path
 from threading import Lock
 from typing import Optional
 
 import duckdb
+
+from core import get_workspace_file
 
 
 def _get_env_int(name: str, default: int, min_value: int = 1, max_value: Optional[int] = None) -> int:
@@ -56,21 +57,13 @@ class HistoryDB:
         """Initialize the history database.
 
         Args:
-            db_path: Path to the database file. Defaults to $DATA_ANALYSIS_WORKSPACE/data_analysis_history.db
-                     or workspace/data_analysis_history.db if DATA_ANALYSIS_WORKSPACE is not set
+            db_path: Path to the database file. Defaults to ~/.mcp-servers/data-analysis/history.db
 
         Raises:
             OSError: If workspace directory cannot be created
         """
         if db_path is None:
-            workspace_dir = os.getenv("DATA_ANALYSIS_WORKSPACE", "workspace")
-            workspace = Path(workspace_dir)
-            try:
-                # Create workspace directory with secure permissions (owner-only access)
-                workspace.mkdir(parents=True, exist_ok=True, mode=0o700)
-            except OSError as e:
-                raise OSError(f"Failed to create workspace directory at {workspace.absolute()}: {e}") from e
-            db_path = str(workspace / "data_analysis_history.db")
+            db_path = str(get_workspace_file("data-analysis", "history.db"))
 
         self.db_path = db_path
         self._counter_lock = Lock()  # Lock for thread-safe counter increment

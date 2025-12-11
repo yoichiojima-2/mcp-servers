@@ -8,6 +8,15 @@ from data_analysis.tools import mcp
 
 
 @pytest.mark.asyncio
+async def test_get_workspace_path():
+    """Test get_workspace_path returns correct path."""
+    async with Client(mcp) as client:
+        res = await client.call_tool("get_workspace_path", {})
+        path = res.content[0].text
+        assert ".mcp-servers/data-analysis" in path
+
+
+@pytest.mark.asyncio
 async def test_add():
     async with Client(mcp) as client:
         res = await client.call_tool("add", {"a": 1, "b": 2})

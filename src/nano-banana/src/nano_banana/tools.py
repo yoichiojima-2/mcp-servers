@@ -15,6 +15,8 @@ from google import genai
 from google.genai import types
 from PIL import Image
 
+from core import get_workspace
+
 from . import mcp
 
 # Constants
@@ -320,6 +322,18 @@ def _image_to_base64_impl(image_path: str) -> str:
 # ======================================================
 # MCP Tools (thin wrappers around implementation)
 # ======================================================
+
+
+@mcp.tool()
+def get_workspace_path() -> str:
+    """Get the workspace directory path for saving generated images.
+
+    Use this directory for any images you generate or edit.
+
+    Returns:
+        Path to ~/.mcp-servers/nano-banana/ where images should be saved.
+    """
+    return str(get_workspace("nano-banana"))
 
 
 @mcp.tool()
