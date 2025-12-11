@@ -43,11 +43,13 @@ SELECT * FROM 'data.csv' LIMIT 10
 
 ## Query History
 
-All queries are automatically logged to `workspace/data_analysis_history.db` with:
+All queries are automatically logged to `~/.mcp-servers/data-analysis/history.db` with:
 - Query text and timestamp
 - Execution time and row count
 - Full query results (cached)
 - Error messages for failed queries
+
+Use the `get_workspace_path()` tool to get the workspace directory path.
 
 **Security Note**: Query history logs all SQL queries with their full results. Avoid querying sensitive data.
 
@@ -55,7 +57,6 @@ All queries are automatically logged to `workspace/data_analysis_history.db` wit
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `DATA_ANALYSIS_WORKSPACE` | `workspace` | Directory for history database |
 | `DATA_ANALYSIS_MAX_RESULT_SIZE` | 1MB | Maximum size for cached results |
 | `DATA_ANALYSIS_MAX_HISTORY_SIZE` | 100 | Maximum queries to keep in history |
 | `DATA_ANALYSIS_CLEANUP_FREQUENCY` | 10 | Run cleanup every N queries |

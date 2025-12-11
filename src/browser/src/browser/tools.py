@@ -9,6 +9,8 @@ from typing import Optional
 
 from playwright.async_api import Browser, Page, TimeoutError, async_playwright
 
+from core import get_workspace, get_workspace_file
+
 from . import mcp
 
 # Configure logging
@@ -371,15 +373,23 @@ async def hover(selector: str) -> str:
 
 
 @mcp.tool()
+def get_workspace_path() -> str:
+    """Get the workspace directory path for saving files.
+
+    Returns:
+        Path to ~/.mcp-servers/browser/ where screenshots and other files are saved.
+    """
+    return str(get_workspace("browser"))
+
+
+@mcp.tool()
 @handle_browser_errors
 async def screenshot(filename: str = "screenshot.png", full_page: bool = False) -> str:
     """Take a screenshot of the current page."""
     page = await get_page_unsafe()
-    workspace = os.getenv("WORKSPACE", "workspace")
-    # Create workspace directory if it doesn't exist
-    os.makedirs(workspace, exist_ok=True)
-    filepath = os.path.join(workspace, filename)
-    await page.screenshot(path=filepath, full_page=full_page, timeout=30000)
+    filepath = get_workspace_file("browser", filename)
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    await page.screenshot(path=str(filepath), full_page=full_page, timeout=30000)
     return f"Screenshot saved to {filepath}"
 
 

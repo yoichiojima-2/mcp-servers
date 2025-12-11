@@ -79,7 +79,8 @@ uv run python -m preview --transport sse --port 8011
 | `TRANSPORT` | stdio | Transport protocol |
 | `HTTP_PORT` | 3000 | HTTP server port for serving pages |
 | `HTTP_HOST` | localhost | HTTP server host |
-| `WORKSPACE` | workspace | Directory for screenshot/PDF output |
+
+Screenshots and PDFs are saved to `~/.mcp-servers/preview/`. Use the `get_workspace_path()` tool to get the path.
 
 ### Example Usage
 

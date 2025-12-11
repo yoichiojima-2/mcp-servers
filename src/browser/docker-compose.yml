@@ -6,9 +6,12 @@ services:
     ports:
       - "8001:8001"
     volumes:
-      - ./workspace:/workspace
+      - browser-workspace:/root/.mcp-servers/browser
       - ./src:/app/src/browser/src
     environment:
       - TRANSPORT=sse
       - PORT=8001
       - HEADLESS=${HEADLESS:-true}
+
+volumes:
+  browser-workspace:

@@ -1,8 +1,22 @@
 import subprocess
 
+from core import get_workspace
+
 from . import mcp
 
 DEFAULT_TIMEOUT = 300  # 5 minutes
+
+
+@mcp.tool()
+def get_workspace_path() -> str:
+    """Get the workspace directory path for saving files.
+
+    Use this directory for any files created by shell commands.
+
+    Returns:
+        Path to ~/.mcp-servers/shell/ where files should be saved.
+    """
+    return str(get_workspace("shell"))
 
 
 @mcp.tool()

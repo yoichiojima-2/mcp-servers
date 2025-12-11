@@ -6,8 +6,11 @@ services:
     ports:
       - "8007:8007"
     volumes:
-      - ./workspace:/workspace
+      - nano-banana-workspace:/root/.mcp-servers/nano-banana
     environment:
       - TRANSPORT=sse
       - PORT=8007
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+
+volumes:
+  nano-banana-workspace:

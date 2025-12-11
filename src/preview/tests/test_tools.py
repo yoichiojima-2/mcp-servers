@@ -7,6 +7,15 @@ from preview import mcp
 from preview.page_store import PageStore, get_store
 
 
+@pytest.mark.asyncio
+async def test_get_workspace_path():
+    """Test get_workspace_path returns correct path."""
+    async with Client(mcp) as client:
+        res = await client.call_tool("get_workspace_path", {})
+        path = res.content[0].text
+        assert ".mcp-servers/preview" in path
+
+
 @pytest.fixture(autouse=True)
 def clean_store():
     """Clean the page store before each test."""

@@ -34,8 +34,9 @@ MCP server for browser automation using Playwright with automatic error handling
 | `HEADLESS` | `false` | Run browser in headless mode |
 | `BROWSER_TIMEOUT` | `30000` | Default timeout for operations (ms) |
 | `NAVIGATION_TIMEOUT` | `60000` | Timeout for page navigation (ms) |
-| `WORKSPACE` | `workspace` | Directory for screenshots |
 | `NO_SANDBOX` | `false` | Disable browser sandbox (use with caution) |
+
+Screenshots are saved to `~/.mcp-servers/browser/`. Use the `get_workspace_path()` tool to get the path.
 
 ### Stability Tuning
 
