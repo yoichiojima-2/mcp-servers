@@ -16,6 +16,7 @@ dependencies = [
     "o3-search",
     "pdf",
     "pptx",
+    "preview",
     "pyyaml>=6.0",
     "shell",
     "starlette>=0.41.3",
@@ -35,6 +36,7 @@ nano-banana = { workspace = true }
 o3-search = { workspace = true }
 pdf = { workspace = true }
 pptx = { workspace = true }
+preview = { workspace = true }
 shell = { workspace = true }
 vectorstore = { workspace = true }
 xlsx = { workspace = true }

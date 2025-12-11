@@ -23,6 +23,7 @@ services:
       - o3-search
       - pdf
       - pptx
+      - preview
       - shell
       - vectorstore
       - xlsx
@@ -106,6 +107,20 @@ services:
       - TRANSPORT=sse
       - HOST=0.0.0.0
       - PORT=8010
+    networks:
+      - mcp-network
+
+  preview:
+    image: preview:latest
+    build:
+      context: ../..
+      dockerfile: src/preview/Dockerfile
+    environment:
+      - TRANSPORT=sse
+      - HOST=0.0.0.0
+      - PORT=8014
+      - HTTP_PORT=3000
+      - HTTP_HOST=0.0.0.0
     networks:
       - mcp-network
 

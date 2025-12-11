@@ -3,6 +3,7 @@
 import asyncio
 import os
 import threading
+from html import escape
 
 import uvicorn
 from starlette.applications import Starlette
@@ -59,7 +60,7 @@ async def serve_page(request: Request) -> HTMLResponse:
 
     if page is None:
         return HTMLResponse(
-            content=f"<h1>404 - Page Not Found</h1><p>Page '{name}' does not exist.</p>",
+            content=f"<h1>404 - Page Not Found</h1><p>Page '{escape(name)}' does not exist.</p>",
             status_code=404,
         )
 
