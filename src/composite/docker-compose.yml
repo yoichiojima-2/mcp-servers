@@ -14,13 +14,18 @@ services:
       - PORT=8000
     depends_on:
       - browser
-      - dify
-      - pdf
-      - xlsx
-      - docx
-      - pptx
-      - vectorstore
       - data-analysis
+      - dify
+      - docx
+      - file-management
+      - frontend-design
+      - nano-banana
+      - o3-search
+      - pdf
+      - pptx
+      - shell
+      - vectorstore
+      - xlsx
     restart: unless-stopped
     networks:
       - mcp-network
@@ -126,6 +131,68 @@ services:
       - TRANSPORT=sse
       - HOST=0.0.0.0
       - PORT=8002
+    networks:
+      - mcp-network
+
+  file-management:
+    image: file-management:latest
+    build:
+      context: ../..
+      dockerfile: src/file-management/Dockerfile
+    environment:
+      - TRANSPORT=sse
+      - HOST=0.0.0.0
+      - PORT=8005
+    networks:
+      - mcp-network
+
+  frontend-design:
+    image: frontend-design:latest
+    build:
+      context: ../..
+      dockerfile: src/frontend-design/Dockerfile
+    environment:
+      - TRANSPORT=sse
+      - HOST=0.0.0.0
+      - PORT=8006
+    networks:
+      - mcp-network
+
+  nano-banana:
+    image: nano-banana:latest
+    build:
+      context: ../..
+      dockerfile: src/nano-banana/Dockerfile
+    environment:
+      - TRANSPORT=sse
+      - HOST=0.0.0.0
+      - PORT=8007
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+    networks:
+      - mcp-network
+
+  o3-search:
+    image: o3-search:latest
+    build:
+      context: ../..
+      dockerfile: src/o3-search/Dockerfile
+    environment:
+      - TRANSPORT=sse
+      - HOST=0.0.0.0
+      - PORT=8008
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    networks:
+      - mcp-network
+
+  shell:
+    image: shell:latest
+    build:
+      context: ../..
+      dockerfile: src/shell/Dockerfile
+    environment:
+      - TRANSPORT=sse
+      - HOST=0.0.0.0
+      - PORT=8011
     networks:
       - mcp-network
 
