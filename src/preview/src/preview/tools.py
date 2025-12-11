@@ -101,6 +101,8 @@ def serve_file(
         content = file_path.read_text(encoding="utf-8")
     except UnicodeDecodeError:
         return f"Error: File encoding not supported (expected UTF-8): {path}"
+    except OSError as e:
+        return f"Error: Cannot read file '{path}': {e}"
 
     if not name:
         name = file_path.stem

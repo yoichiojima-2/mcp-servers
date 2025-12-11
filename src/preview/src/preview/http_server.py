@@ -178,6 +178,19 @@ def is_server_running() -> bool:
     return _server_started.is_set()
 
 
+class _SignalingServer(uvicorn.Server):
+    """Uvicorn server that signals when it's ready to accept connections."""
+
+    def __init__(self, config: uvicorn.Config, started_event: threading.Event) -> None:
+        super().__init__(config)
+        self._started_event = started_event
+
+    async def startup(self, sockets: list | None = None) -> None:
+        await super().startup(sockets)
+        # Signal only after server is actually listening
+        self._started_event.set()
+
+
 def _run_server(port: int) -> None:
     """Run the uvicorn server in a thread."""
     global _server_port
@@ -189,12 +202,9 @@ def _run_server(port: int) -> None:
         port=port,
         log_level="warning",
     )
-    server = uvicorn.Server(config)
+    server = _SignalingServer(config, _server_started)
 
-    # Signal that server is starting
-    _server_started.set()
-
-    # Run the server (blocking)
+    # Run the server (blocking) - will signal when ready
     asyncio.run(server.serve())
 
 

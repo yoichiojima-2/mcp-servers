@@ -1,5 +1,6 @@
 """In-memory page storage with WebSocket client tracking for live reload."""
 
+import asyncio
 import threading
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -123,24 +124,35 @@ class PageStore:
         with self._lock:
             return self._websocket_clients.copy()
 
+    async def _notify_client(self, client: WebSocket, page_name: str) -> bool:
+        """Notify a single client. Returns True if successful."""
+        try:
+            await client.send_text(page_name)
+            return True
+        except WebSocketDisconnect:
+            # Client disconnected normally
+            self.unregister_client(client)
+            return False
+        except Exception:
+            # Other connection errors (network issues, etc.)
+            self.unregister_client(client)
+            return False
+
     async def broadcast_reload(self, page_name: str) -> int:
-        """Broadcast reload message to all connected clients.
+        """Broadcast reload message to all connected clients concurrently.
 
         Returns the number of clients notified.
         """
         clients = self.get_clients()
-        notified = 0
-        for client in clients:
-            try:
-                await client.send_text(page_name)
-                notified += 1
-            except WebSocketDisconnect:
-                # Client disconnected normally
-                self.unregister_client(client)
-            except Exception:
-                # Other connection errors (network issues, etc.)
-                self.unregister_client(client)
-        return notified
+        if not clients:
+            return 0
+
+        # Notify all clients concurrently
+        tasks = [self._notify_client(client, page_name) for client in clients]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        # Count successful notifications (True results, not exceptions)
+        return sum(1 for r in results if r is True)
 
 
 # Global singleton instance
