@@ -36,6 +36,7 @@ members = [
     "src/o3-search",
     "src/pdf",
     "src/pptx",
+    "src/preview",
     "src/shell",
     "src/vectorstore",
     "src/xlsx",

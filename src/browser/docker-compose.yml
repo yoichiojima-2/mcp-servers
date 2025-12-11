@@ -11,3 +11,4 @@ services:
     environment:
       - TRANSPORT=sse
       - PORT=8001
+      - HEADLESS=${HEADLESS:-true}

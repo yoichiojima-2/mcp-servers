@@ -42,6 +42,7 @@ jobs:
           - o3-search
           - pdf
           - pptx
+          - preview
           - shell
           - vectorstore
           - xlsx

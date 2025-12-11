@@ -10,20 +10,21 @@ This monorepo contains multiple MCP servers built with [FastMCP](https://github.
 
 | Server | Port | Description |
 |--------|------|-------------|
-| [browser](src/browser) | 8007 | Browser automation using Playwright |
 | [composite](src/composite) | 8000 | Combines multiple MCP servers into one |
-| [data-analysis](src/data-analysis) | 8006 | SQL data analysis with DuckDB |
-| [dify](src/dify) | 8001 | Dify AI workflow integration |
-| [docx](src/docx) | 8005 | Word document operations |
-| [file-management](src/file-management) | 8010 | File read/write operations |
-| [frontend-design](src/frontend-design) | 8009 | Design themes and color palettes |
-| [nano-banana](src/nano-banana) | 8013 | AI image generation with Google Gemini |
-| [o3-search](src/o3-search) | 8012 | Deep research with OpenAI o3 |
-| [pdf](src/pdf) | 8008 | PDF extraction and manipulation |
-| [pptx](src/pptx) | 8003 | PowerPoint operations |
-| [shell](src/shell) | 8011 | Shell command execution |
-| [vectorstore](src/vectorstore) | 8002 | ChromaDB vector operations |
-| [xlsx](src/xlsx) | 8004 | Excel spreadsheet operations |
+| [browser](src/browser) | 8001 | Browser automation using Playwright |
+| [data-analysis](src/data-analysis) | 8002 | SQL data analysis with DuckDB |
+| [dify](src/dify) | 8003 | Dify AI workflow integration |
+| [docx](src/docx) | 8004 | Word document operations |
+| [file-management](src/file-management) | 8005 | File read/write operations |
+| [frontend-design](src/frontend-design) | 8006 | Design themes and color palettes |
+| [nano-banana](src/nano-banana) | 8007 | AI image generation with Google Gemini |
+| [o3-search](src/o3-search) | 8008 | Deep research with OpenAI o3 |
+| [pdf](src/pdf) | 8009 | PDF extraction and manipulation |
+| [pptx](src/pptx) | 8010 | PowerPoint operations |
+| [preview](src/preview) | 8011 | HTML preview with live reload |
+| [shell](src/shell) | 8012 | Shell command execution |
+| [vectorstore](src/vectorstore) | 8013 | ChromaDB vector operations |
+| [xlsx](src/xlsx) | 8014 | Excel spreadsheet operations |
 
 ## Quick Start
 

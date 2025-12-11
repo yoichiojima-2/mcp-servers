@@ -23,6 +23,7 @@ services:
       - o3-search
       - pdf
       - pptx
+      - preview
       - shell
       - vectorstore
       - xlsx
@@ -40,6 +41,7 @@ services:
       - TRANSPORT=sse
       - HOST=0.0.0.0
       - PORT=8001
+      - HEADLESS=${HEADLESS:-true}
       - BROWSER_TIMEOUT=${BROWSER_TIMEOUT:-30000}
       - NAVIGATION_TIMEOUT=${NAVIGATION_TIMEOUT:-60000}
     networks:
@@ -81,7 +83,7 @@ services:
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
-      - PORT=8013
+      - PORT=8014
     networks:
       - mcp-network
 
@@ -109,6 +111,20 @@ services:
     networks:
       - mcp-network
 
+  preview:
+    image: preview:latest
+    build:
+      context: ../..
+      dockerfile: src/preview/Dockerfile
+    environment:
+      - TRANSPORT=sse
+      - HOST=0.0.0.0
+      - PORT=8011
+      - HTTP_PORT=3000
+      - HTTP_HOST=0.0.0.0
+    networks:
+      - mcp-network
+
   vectorstore:
     image: vectorstore:latest
     build:
@@ -117,7 +133,7 @@ services:
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
-      - PORT=8012
+      - PORT=8013
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     networks:
       - mcp-network
@@ -192,7 +208,7 @@ services:
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
-      - PORT=8011
+      - PORT=8012
     networks:
       - mcp-network
 

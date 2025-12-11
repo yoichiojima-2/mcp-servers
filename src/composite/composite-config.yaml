@@ -79,3 +79,9 @@ servers:
     prefix: o3
     module: o3_search
     description: O3 AI-powered web search
+
+  preview:
+    enabled: true
+    prefix: preview
+    module: preview
+    description: HTML preview server with live reload
