@@ -4,7 +4,7 @@ import json
 import webbrowser
 from pathlib import Path
 
-from core import get_workspace
+from core import get_workspace, get_workspace_file
 
 from . import mcp
 from .http_server import broadcast_reload, ensure_server_running, get_base_url
@@ -483,8 +483,7 @@ async def screenshot_page(
     if not filename:
         filename = f"{name}.png"
 
-    workspace = get_workspace("preview")
-    filepath = workspace / filename
+    filepath = get_workspace_file("preview", filename)
 
     try:
         async with async_playwright() as p:
@@ -537,8 +536,7 @@ async def export_pdf(
     if not filename:
         filename = f"{name}.pdf"
 
-    workspace = get_workspace("preview")
-    filepath = workspace / filename
+    filepath = get_workspace_file("preview", filename)
 
     try:
         async with async_playwright() as p:

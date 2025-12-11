@@ -11,6 +11,7 @@ Directory structure:
     └── ...
 """
 
+import os
 from pathlib import Path
 
 
@@ -40,12 +41,16 @@ def get_workspace(server_name: str) -> Path:
     workspace = MCP_SERVERS_BASE / server_name
 
     # Create with secure permissions (owner-only access)
+    # Set umask to ensure no race condition where directory is briefly accessible
+    old_umask = os.umask(0o077)
     try:
         workspace.mkdir(parents=True, exist_ok=True, mode=0o700)
-        # Ensure permissions even if directory already existed
+        # Ensure permissions even if directory already existed with different mode
         workspace.chmod(0o700)
     except OSError as e:
         raise OSError(f"Failed to create workspace directory at {workspace}: {e}") from e
+    finally:
+        os.umask(old_umask)
 
     return workspace
 
