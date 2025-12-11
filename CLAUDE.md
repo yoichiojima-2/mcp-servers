@@ -96,6 +96,10 @@ uv run ruff format
 
 Run these commands from the repository root to check the entire codebase.
 
+### Skills Reference
+
+For Claude Code skills examples, see [anthropic/skills](https://github.com/anthropics/skills)
+
 ### Documentation Standards
 
 Each MCP server must have a README.md with:
