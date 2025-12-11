@@ -106,5 +106,5 @@ Each server's tools are namespaced with a prefix:
 | pdf | `pdf_` | `pdf_extract` |
 | pptx | `pptx_` | `pptx_create` |
 | shell | `sh_` | `sh_execute` |
-| vectorstore | `vector_` | `vector_search` |
+| vectorstore | `vec_` | `vec_search` |
 | xlsx | `xlsx_` | `xlsx_read` |
