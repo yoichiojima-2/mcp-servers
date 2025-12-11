@@ -13,7 +13,7 @@ dependencies = [
     "file-management",
     "frontend-design",
     "nano-banana",
-    "o3-search",
+    "o3",
     "pdf",
     "pptx",
     "preview",
@@ -33,7 +33,7 @@ docx = { workspace = true }
 file-management = { workspace = true }
 frontend-design = { workspace = true }
 nano-banana = { workspace = true }
-o3-search = { workspace = true }
+o3 = { workspace = true }
 pdf = { workspace = true }
 pptx = { workspace = true }
 preview = { workspace = true }

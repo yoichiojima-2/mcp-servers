@@ -20,7 +20,7 @@ services:
       - file-management
       - frontend-design
       - nano-banana
-      - o3-search
+      - o3
       - pdf
       - pptx
       - preview
@@ -187,11 +187,11 @@ services:
     networks:
       - mcp-network
 
-  o3-search:
-    image: o3-search:latest
+  o3:
+    image: o3:latest
     build:
       context: ../..
-      dockerfile: src/o3-search/Dockerfile
+      dockerfile: src/o3/Dockerfile
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0

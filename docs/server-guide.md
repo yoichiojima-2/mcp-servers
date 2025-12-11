@@ -110,7 +110,7 @@ Replace `<server-name>` and `<module_name>` with the appropriate values from the
 | file-management | `file_management` | 8005 | File read/write operations |
 | frontend-design | `frontend_design` | 8006 | Design themes and palettes |
 | nano-banana | `nano_banana` | 8007 | AI image generation (Gemini) |
-| o3-search | `o3_search` | 8008 | OpenAI o3 web search |
+| o3 | `o3_search` | 8008 | OpenAI o3 web search |
 | pdf | `pdf` | 8009 | PDF extraction and manipulation |
 | pptx | `pptx_mcp` | 8010 | PowerPoint operations |
 | preview | `preview` | 8011 | HTML preview with live reload |

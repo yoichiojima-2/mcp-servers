@@ -22,7 +22,7 @@ Bundled MCP server that aggregates multiple MCP servers into a single endpoint u
 | browser | `browser_` | Browser automation |
 | frontend-design | `design_` | Design themes and palettes |
 | dify | `dify_` | Dify AI workflows |
-| o3-search | `o3_` | OpenAI o3 web search |
+| o3 | `o3_` | OpenAI o3 web search |
 
 ## Configuration
 

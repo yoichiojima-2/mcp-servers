@@ -1,8 +1,8 @@
 services:
-  o3-search:
+  o3:
     build:
       context: ../..
-      dockerfile: src/o3-search/Dockerfile
+      dockerfile: src/o3/Dockerfile
     ports:
       - "8008:8008"
     volumes:

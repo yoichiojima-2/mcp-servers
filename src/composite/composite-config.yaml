@@ -74,7 +74,7 @@ servers:
     module: dify
     description: Dify workflow integration
 
-  o3-search:
+  o3:
     enabled: true
     prefix: o3
     module: o3_search

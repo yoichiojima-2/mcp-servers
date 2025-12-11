@@ -41,7 +41,7 @@ Some servers require API keys. Add them to your Claude Desktop config (see below
 | Server | Required Variable |
 |--------|-------------------|
 | nano-banana | `GOOGLE_API_KEY` |
-| o3-search | `OPENAI_API_KEY` |
+| o3 | `OPENAI_API_KEY` |
 | vectorstore | `OPENAI_API_KEY` |
 | dify | `DIFY_API_KEY` |
 
@@ -102,7 +102,7 @@ Each server's tools are namespaced with a prefix:
 | file-management | `file_` | `file_read` |
 | frontend-design | `design_` | `design_palette` |
 | nano-banana | `img_` | `img_generate` |
-| o3-search | `o3_` | `o3_search` |
+| o3 | `o3_` | `o3_o3` |
 | pdf | `pdf_` | `pdf_extract` |
 | pptx | `pptx_` | `pptx_create` |
 | shell | `sh_` | `sh_execute` |

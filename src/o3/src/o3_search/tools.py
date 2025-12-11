@@ -18,7 +18,7 @@ def get_client() -> OpenAI:
     return OpenAI(api_key=api_key.strip())
 
 
-@mcp.tool(name="o3-search")
+@mcp.tool(name="o3")
 def o3_search(query: str) -> str:
     """
     An AI agent with advanced web search capabilities.

@@ -4,11 +4,11 @@ RUN pip install --upgrade pip && pip install uv
 
 COPY pyproject.toml uv.lock /app/
 COPY src/core /app/src/core
-COPY src/o3-search /app/src/o3-search
+COPY src/o3 /app/src/o3
 
 WORKDIR /app
 
-RUN uv sync --frozen --package o3-search
+RUN uv sync --frozen --package o3
 
 EXPOSE 8012
 

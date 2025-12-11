@@ -5,7 +5,7 @@ from fastmcp import FastMCP
 
 load_dotenv()
 
-mcp = FastMCP(os.getenv("NAME", "o3-search"))
+mcp = FastMCP(os.getenv("NAME", "o3"))
 
 from . import server, tools  # noqa: F401, E402
 

@@ -1,4 +1,4 @@
-# o3-search
+# o3
 
 MCP server for deep research using OpenAI o3 with web search capabilities.
 
@@ -14,7 +14,7 @@ MCP server for deep research using OpenAI o3 with web search capabilities.
 
 | Tool | Description |
 |------|-------------|
-| `o3-search` | AI agent with web search for research and problem-solving |
+| `o3` | AI agent with web search for research and problem-solving |
 
 ## Configuration
 

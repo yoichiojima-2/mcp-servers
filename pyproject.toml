@@ -33,7 +33,7 @@ members = [
     "src/file-management",
     "src/frontend-design",
     "src/nano-banana",
-    "src/o3-search",
+    "src/o3",
     "src/pdf",
     "src/pptx",
     "src/preview",

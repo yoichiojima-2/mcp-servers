@@ -39,7 +39,7 @@ jobs:
           - frontend-design
           - data-analysis
           - nano-banana
-          - o3-search
+          - o3
           - pdf
           - pptx
           - preview
@@ -78,4 +78,4 @@ jobs:
           DIFY_CONSOLE_API_KEY: ${{ (matrix.server == 'dify' || matrix.server == 'composite') && 'test-console-key' || '' }}
           DIFY_CONSOLE_BASE_URL: ${{ (matrix.server == 'dify' || matrix.server == 'composite') && 'https://test.dify.ai' || '' }}
           GEMINI_API_KEY: ${{ (matrix.server == 'nano-banana' || matrix.server == 'composite') && secrets.GEMINI_API_KEY || '' }}
-          OPENAI_API_KEY: ${{ matrix.server == 'o3-search' && secrets.OPENAI_API_KEY || '' }}
+          OPENAI_API_KEY: ${{ matrix.server == 'o3' && secrets.OPENAI_API_KEY || '' }}

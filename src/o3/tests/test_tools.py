@@ -19,7 +19,7 @@ async def test_o3_search_mock():
         mock_get_client.return_value = mock_client
 
         async with Client(mcp) as client:
-            result = await client.call_tool("o3-search", {"query": "test query"})
+            result = await client.call_tool("o3", {"query": "test query"})
             assert result.content
             assert "Mocked response" in result.content[0].text
 
@@ -36,7 +36,7 @@ async def test_o3_search_api_error():
 
         async with Client(mcp) as client:
             with pytest.raises(ToolError) as exc_info:
-                await client.call_tool("o3-search", {"query": "test query"})
+                await client.call_tool("o3", {"query": "test query"})
             assert "OpenAI API error" in str(exc_info.value)
 
 
@@ -57,7 +57,7 @@ def test_get_client_missing_api_key():
 async def test_o3_search_integration():
     """Test o3_search tool with real API call."""
     async with Client(mcp) as client:
-        result = await client.call_tool("o3-search", {"query": "What is 2 + 2?"})
+        result = await client.call_tool("o3", {"query": "What is 2 + 2?"})
         assert result.content
         assert len(result.content) > 0
         assert result.content[0].text

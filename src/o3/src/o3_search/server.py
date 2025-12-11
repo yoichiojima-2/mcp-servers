@@ -7,5 +7,5 @@ DEFAULT_PORT = 8008
 
 def serve() -> None:
     """Start MCP server."""
-    args = parse_args("o3-search", DEFAULT_PORT)
+    args = parse_args("o3", DEFAULT_PORT)
     run_server(mcp, args)

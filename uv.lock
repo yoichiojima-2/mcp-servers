@@ -18,7 +18,7 @@ members = [
     "frontend-design",
     "mcp-servers",
     "nano-banana",
-    "o3-search",
+    "o3",
     "pdf",
     "pptx",
     "preview",
@@ -412,7 +412,7 @@ dependencies = [
     { name = "file-management" },
     { name = "frontend-design" },
     { name = "nano-banana" },
-    { name = "o3-search" },
+    { name = "o3" },
     { name = "pdf" },
     { name = "pptx" },
     { name = "preview" },
@@ -433,7 +433,7 @@ requires-dist = [
     { name = "file-management", editable = "src/file-management" },
     { name = "frontend-design", editable = "src/frontend-design" },
     { name = "nano-banana", editable = "src/nano-banana" },
-    { name = "o3-search", editable = "src/o3-search" },
+    { name = "o3", editable = "src/o3" },
     { name = "pdf", editable = "src/pdf" },
     { name = "pptx", editable = "src/pptx" },
     { name = "preview", editable = "src/preview" },
@@ -1723,9 +1723,9 @@ wheels = [
 ]
 
 [[package]]
-name = "o3-search"
+name = "o3"
 version = "0.1.0"
-source = { editable = "src/o3-search" }
+source = { editable = "src/o3" }
 dependencies = [
     { name = "core" },
     { name = "openai" },

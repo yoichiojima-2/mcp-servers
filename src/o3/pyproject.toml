@@ -1,5 +1,5 @@
 [project]
-name = "o3-search"
+name = "o3"
 version = "0.1.0"
 description = "MCP server wrapping OpenAI o3 for deep research and planning"
 readme = "README.md"
