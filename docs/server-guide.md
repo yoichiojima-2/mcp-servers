@@ -102,20 +102,20 @@ Replace `<server-name>` and `<module_name>` with the appropriate values from the
 
 | Server | Module | Port | Description |
 |--------|--------|------|-------------|
-| browser | `browser` | 8007 | Playwright browser automation |
 | composite | `composite` | 8000 | Aggregates multiple MCP servers |
-| data-analysis | `data_analysis` | 8006 | DuckDB SQL data analysis |
 | dify | `dify` | 8001 | Dify AI workflow integration |
-| docx | `docx` | 8005 | Word document operations |
-| file-management | `file_management` | 8010 | File read/write operations |
-| frontend-design | `frontend_design` | 8009 | Design themes and palettes |
-| nano-banana | `nano_banana` | 8013 | AI image generation (Gemini) |
-| o3-search | `o3_search` | 8012 | OpenAI o3 web search |
-| pdf | `pdf` | 8008 | PDF extraction and manipulation |
-| pptx | `pptx_mcp` | 8003 | PowerPoint operations |
-| shell | `shell` | 8011 | Shell command execution |
 | vectorstore | `vectorstore` | 8002 | ChromaDB vector operations |
+| pptx | `pptx_mcp` | 8003 | PowerPoint operations |
 | xlsx | `xlsx` | 8004 | Excel spreadsheet operations |
+| docx | `docx` | 8005 | Word document operations |
+| data-analysis | `data_analysis` | 8006 | DuckDB SQL data analysis |
+| browser | `browser` | 8007 | Playwright browser automation |
+| pdf | `pdf` | 8008 | PDF extraction and manipulation |
+| frontend-design | `frontend_design` | 8009 | Design themes and palettes |
+| file-management | `file_management` | 8010 | File read/write operations |
+| shell | `shell` | 8011 | Shell command execution |
+| o3-search | `o3_search` | 8012 | OpenAI o3 web search |
+| nano-banana | `nano_banana` | 8013 | AI image generation (Gemini) |
 
 ## Migration Notes
 
@@ -166,7 +166,7 @@ If using Docker, update service names and paths accordingly:
 
 ### Port Conflicts
 
-If you encounter port conflicts, check `DOCKER_PORTS.md` for the full port assignment list. Each server has a unique default port. You can override with:
+Each server has a unique default port (see Server Reference table above). You can override with:
 
 ```bash
 # CLI
