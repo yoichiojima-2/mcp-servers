@@ -20,8 +20,12 @@ def serve_html(
 ) -> str:
     """Serve HTML content at a URL.
 
+    Warning:
+        Content is served without sanitization. Only serve trusted HTML content
+        to avoid XSS vulnerabilities.
+
     Args:
-        content: HTML content to serve
+        content: HTML content to serve (not sanitized - must be trusted)
         name: Page name for URL (default: auto-generated)
         title: Page title (default: extracted from content or name)
         open_browser: Open the page in default browser
@@ -306,9 +310,13 @@ def get_page_url(name: str) -> str:
 async def update_page(name: str, content: str) -> str:
     """Update a page's content and trigger live reload.
 
+    Warning:
+        Content is served without sanitization. Only serve trusted content
+        to avoid XSS vulnerabilities.
+
     Args:
         name: Page name to update
-        content: New content
+        content: New content (not sanitized - must be trusted)
 
     Returns:
         Confirmation message

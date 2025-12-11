@@ -10,7 +10,7 @@ from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, PlainTextResponse
 from starlette.routing import Route, WebSocketRoute
-from starlette.websockets import WebSocket
+from starlette.websockets import WebSocket, WebSocketDisconnect
 
 from .page_store import get_store
 
@@ -129,8 +129,11 @@ async def livereload_websocket(websocket: WebSocket) -> None:
         while True:
             # Keep connection alive, wait for messages (ping/pong)
             await websocket.receive_text()
+    except WebSocketDisconnect:
+        # Expected when client disconnects normally
+        pass
     except Exception:
-        # Expected when client disconnects
+        # Other connection errors (network issues, etc.)
         pass
     finally:
         store.unregister_client(websocket)

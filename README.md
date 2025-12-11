@@ -21,10 +21,10 @@ This monorepo contains multiple MCP servers built with [FastMCP](https://github.
 | [o3-search](src/o3-search) | 8008 | Deep research with OpenAI o3 |
 | [pdf](src/pdf) | 8009 | PDF extraction and manipulation |
 | [pptx](src/pptx) | 8010 | PowerPoint operations |
-| [shell](src/shell) | 8011 | Shell command execution |
-| [vectorstore](src/vectorstore) | 8012 | ChromaDB vector operations |
-| [xlsx](src/xlsx) | 8013 | Excel spreadsheet operations |
-| [preview](src/preview) | 8014 | HTML preview with live reload |
+| [preview](src/preview) | 8011 | HTML preview with live reload |
+| [shell](src/shell) | 8012 | Shell command execution |
+| [vectorstore](src/vectorstore) | 8013 | ChromaDB vector operations |
+| [xlsx](src/xlsx) | 8014 | Excel spreadsheet operations |
 
 ## Quick Start
 
