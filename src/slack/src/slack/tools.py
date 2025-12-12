@@ -56,6 +56,29 @@ def _get_slack_client() -> Client:
     return Client(transport)
 
 
+async def _call_slack_tool(tool_name: str, params: dict, token_type: str = "SLACK_BOT_TOKEN") -> str:
+    """Call a Slack tool with proper error handling.
+
+    Args:
+        tool_name: Name of the tool to call on the npm server
+        params: Parameters to pass to the tool
+        token_type: Which token is required (for error messages)
+
+    Returns:
+        The result text from the Slack API
+    """
+    try:
+        async with _get_slack_client() as client:
+            result = await client.call_tool(tool_name, params)
+            if not result.content:
+                return f"No response from Slack API. Check {token_type} is set correctly."
+            return result.content[0].text
+    except RuntimeError:
+        raise  # Re-raise npx/PATH errors as-is
+    except Exception as e:
+        return f"Slack API error: {e}. Verify {token_type} and permissions."
+
+
 @mcp.tool()
 def get_workspace_path() -> str:
     """Get the workspace directory path for saving Slack-related files."""
@@ -70,14 +93,10 @@ async def slack_list_channels(limit: int = 100, cursor: str | None = None) -> st
         limit: Maximum number of channels to return (default 100)
         cursor: Pagination cursor for next page of results
     """
-    async with _get_slack_client() as client:
-        params = {"limit": limit}
-        if cursor:
-            params["cursor"] = cursor
-        result = await client.call_tool("slack_list_channels", params)
-        if not result.content:
-            return "No response from Slack API. Check SLACK_BOT_TOKEN is set correctly."
-        return result.content[0].text
+    params = {"limit": limit}
+    if cursor:
+        params["cursor"] = cursor
+    return await _call_slack_tool("slack_list_channels", params)
 
 
 @mcp.tool()
@@ -88,11 +107,7 @@ async def slack_post_message(channel: str, text: str) -> str:
         channel: Channel ID or name to post to
         text: Message text to send
     """
-    async with _get_slack_client() as client:
-        result = await client.call_tool("slack_post_message", {"channel": channel, "text": text})
-        if not result.content:
-            return "No response from Slack API. Check SLACK_BOT_TOKEN is set correctly."
-        return result.content[0].text
+    return await _call_slack_tool("slack_post_message", {"channel": channel, "text": text})
 
 
 @mcp.tool()
@@ -104,13 +119,7 @@ async def slack_reply_to_thread(channel: str, thread_ts: str, text: str) -> str:
         thread_ts: Timestamp of the parent message
         text: Reply text to send
     """
-    async with _get_slack_client() as client:
-        result = await client.call_tool(
-            "slack_reply_to_thread", {"channel": channel, "thread_ts": thread_ts, "text": text}
-        )
-        if not result.content:
-            return "No response from Slack API. Check SLACK_BOT_TOKEN is set correctly."
-        return result.content[0].text
+    return await _call_slack_tool("slack_reply_to_thread", {"channel": channel, "thread_ts": thread_ts, "text": text})
 
 
 @mcp.tool()
@@ -122,13 +131,9 @@ async def slack_add_reaction(channel: str, timestamp: str, reaction: str) -> str
         timestamp: Timestamp of the message to react to
         reaction: Emoji name without colons (e.g., 'thumbsup')
     """
-    async with _get_slack_client() as client:
-        result = await client.call_tool(
-            "slack_add_reaction", {"channel": channel, "timestamp": timestamp, "reaction": reaction}
-        )
-        if not result.content:
-            return "No response from Slack API. Check SLACK_BOT_TOKEN is set correctly."
-        return result.content[0].text
+    return await _call_slack_tool(
+        "slack_add_reaction", {"channel": channel, "timestamp": timestamp, "reaction": reaction}
+    )
 
 
 @mcp.tool()
@@ -139,11 +144,7 @@ async def slack_get_channel_history(channel: str, limit: int = 10) -> str:
         channel: Channel ID to get history from
         limit: Number of messages to retrieve (default 10)
     """
-    async with _get_slack_client() as client:
-        result = await client.call_tool("slack_get_channel_history", {"channel": channel, "limit": limit})
-        if not result.content:
-            return "No response from Slack API. Check SLACK_BOT_TOKEN is set correctly."
-        return result.content[0].text
+    return await _call_slack_tool("slack_get_channel_history", {"channel": channel, "limit": limit})
 
 
 @mcp.tool()
@@ -154,11 +155,7 @@ async def slack_get_thread_replies(channel: str, thread_ts: str) -> str:
         channel: Channel ID where the thread exists
         thread_ts: Timestamp of the parent message
     """
-    async with _get_slack_client() as client:
-        result = await client.call_tool("slack_get_thread_replies", {"channel": channel, "thread_ts": thread_ts})
-        if not result.content:
-            return "No response from Slack API. Check SLACK_BOT_TOKEN is set correctly."
-        return result.content[0].text
+    return await _call_slack_tool("slack_get_thread_replies", {"channel": channel, "thread_ts": thread_ts})
 
 
 @mcp.tool()
@@ -169,14 +166,10 @@ async def slack_get_users(limit: int = 100, cursor: str | None = None) -> str:
         limit: Maximum number of users to return (default 100)
         cursor: Pagination cursor for next page
     """
-    async with _get_slack_client() as client:
-        params = {"limit": limit}
-        if cursor:
-            params["cursor"] = cursor
-        result = await client.call_tool("slack_get_users", params)
-        if not result.content:
-            return "No response from Slack API. Check SLACK_BOT_TOKEN is set correctly."
-        return result.content[0].text
+    params = {"limit": limit}
+    if cursor:
+        params["cursor"] = cursor
+    return await _call_slack_tool("slack_get_users", params)
 
 
 @mcp.tool()
@@ -186,11 +179,7 @@ async def slack_get_user_profiles(user_ids: list[str]) -> str:
     Args:
         user_ids: List of user IDs to get profiles for
     """
-    async with _get_slack_client() as client:
-        result = await client.call_tool("slack_get_user_profiles", {"user_ids": user_ids})
-        if not result.content:
-            return "No response from Slack API. Check SLACK_BOT_TOKEN is set correctly."
-        return result.content[0].text
+    return await _call_slack_tool("slack_get_user_profiles", {"user_ids": user_ids})
 
 
 @mcp.tool()
@@ -202,11 +191,7 @@ async def slack_search_messages(query: str, count: int = 20, cursor: str | None 
         count: Number of results to return (default 20)
         cursor: Pagination cursor
     """
-    async with _get_slack_client() as client:
-        params = {"query": query, "count": count}
-        if cursor:
-            params["cursor"] = cursor
-        result = await client.call_tool("slack_search_messages", params)
-        if not result.content:
-            return "No response from Slack API. Check SLACK_USER_TOKEN is set correctly for search."
-        return result.content[0].text
+    params = {"query": query, "count": count}
+    if cursor:
+        params["cursor"] = cursor
+    return await _call_slack_tool("slack_search_messages", params, token_type="SLACK_USER_TOKEN")

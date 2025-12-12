@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -y curl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Pre-cache the npm package to avoid download on first request
-RUN npx -y @ubie-oss/slack-mcp-server --version || true
+# This will fail the build if the package cannot be downloaded
+RUN npx -y @ubie-oss/slack-mcp-server --version
 
 RUN pip install --upgrade pip && pip install uv
 
