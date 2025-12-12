@@ -17,6 +17,72 @@ from .auth import clear_credentials, get_credentials, is_authenticated
 # Simple email validation pattern
 EMAIL_PATTERN = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
 
+# Maximum allowed results to prevent API quota exhaustion
+MAX_RESULTS_LIMIT = 100
+
+
+def _sanitize_email_field(value: str) -> str:
+    """Remove newlines and control characters to prevent email header injection.
+
+    Args:
+        value: The field value to sanitize
+
+    Returns:
+        Sanitized string with newlines and carriage returns replaced by spaces
+    """
+    return value.replace("\n", " ").replace("\r", " ")
+
+
+def _validate_max_results(max_results: int, field_name: str = "max_results") -> None:
+    """Validate max_results is within acceptable bounds.
+
+    Args:
+        max_results: The value to validate
+        field_name: Name of the field for error messages
+
+    Raises:
+        ToolError: If max_results is out of bounds
+    """
+    if max_results < 1 or max_results > MAX_RESULTS_LIMIT:
+        raise ToolError(f"{field_name} must be between 1 and {MAX_RESULTS_LIMIT}")
+
+
+def _parse_iso_datetime(time_str: str) -> datetime:
+    """Parse ISO 8601 datetime string.
+
+    Args:
+        time_str: ISO 8601 datetime string
+
+    Returns:
+        Parsed datetime object
+
+    Raises:
+        ToolError: If the time format is invalid
+    """
+    try:
+        # Handle 'Z' suffix for UTC
+        return datetime.fromisoformat(time_str.replace("Z", "+00:00"))
+    except ValueError as e:
+        raise ToolError(
+            f"Invalid time format: {time_str}. Use ISO 8601 format (e.g., 2024-01-15T09:00:00-05:00)"
+        ) from e
+
+
+def _validate_event_times(start_time: str, end_time: str) -> None:
+    """Validate that start_time is before end_time.
+
+    Args:
+        start_time: Start time in ISO 8601 format
+        end_time: End time in ISO 8601 format
+
+    Raises:
+        ToolError: If times are invalid or start >= end
+    """
+    start = _parse_iso_datetime(start_time)
+    end = _parse_iso_datetime(end_time)
+    if start >= end:
+        raise ToolError("start_time must be before end_time")
+
 
 def _get_service(api: str, version: str) -> Any:
     """Get an authenticated Google API service.
@@ -100,11 +166,12 @@ def gmail_search(
     Args:
         query: Gmail search query (same syntax as Gmail search box)
                Examples: "from:user@example.com", "subject:meeting", "is:unread"
-        max_results: Maximum number of messages to return (default: 10)
+        max_results: Maximum number of messages to return (default: 10, max: 100)
 
     Returns:
         List of message summaries with id, threadId, snippet, and headers.
     """
+    _validate_max_results(max_results)
     service = _get_service("gmail", "v1")
 
     try:
@@ -265,12 +332,15 @@ def gmail_send(
     if bcc:
         _validate_email_addresses(bcc, "bcc")
 
+    # Sanitize subject to prevent header injection
+    safe_subject = _sanitize_email_field(subject)
+
     service = _get_service("gmail", "v1")
 
     try:
         message = MIMEMultipart()
         message["to"] = to
-        message["subject"] = subject
+        message["subject"] = safe_subject
 
         if cc:
             message["cc"] = cc
@@ -315,11 +385,12 @@ def drive_search(
                - "application/vnd.google-apps.spreadsheet" (Google Sheets)
                - "application/vnd.google-apps.presentation" (Google Slides)
                - "application/pdf"
-        max_results: Maximum number of files to return (default: 10)
+        max_results: Maximum number of files to return (default: 10, max: 100)
 
     Returns:
         List of files with id, name, mimeType, and metadata.
     """
+    _validate_max_results(max_results)
     service = _get_service("drive", "v3")
 
     try:
@@ -750,13 +821,14 @@ def calendar_list_events(
 
     Args:
         calendar_id: Calendar ID (default: "primary" for user's main calendar)
-        max_results: Maximum number of events to return (default: 10)
+        max_results: Maximum number of events to return (default: 10, max: 100)
         time_min: Filter events starting after this time (ISO 8601 format)
         time_max: Filter events starting before this time (ISO 8601 format)
 
     Returns:
         List of calendar events with id, summary, start, end, and attendees.
     """
+    _validate_max_results(max_results)
     service = _get_service("calendar", "v3")
 
     try:
@@ -821,6 +893,9 @@ def calendar_create_event(
     Returns:
         Created event's ID and link.
     """
+    # Validate event times
+    _validate_event_times(start_time, end_time)
+
     service = _get_service("calendar", "v3")
 
     try:
