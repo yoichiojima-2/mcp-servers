@@ -16,6 +16,6 @@ WORKDIR /app
 
 RUN uv sync --frozen --package slack
 
-EXPOSE 8015
+EXPOSE 8013
 
 CMD ["uv", "run", "python", "-m", "slack"]

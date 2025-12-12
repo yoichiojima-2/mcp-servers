@@ -4,12 +4,12 @@ services:
       context: ../..
       dockerfile: src/slack/Dockerfile
     ports:
-      - "8015:8015"
+      - "8013:8013"
     volumes:
       - ${HOME}/.mcp-servers/slack:/root/.mcp-servers/slack
     environment:
       - TRANSPORT=sse
-      - PORT=8015
+      - PORT=8013
       - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
       - SLACK_USER_TOKEN=${SLACK_USER_TOKEN}
       - SLACK_SAFE_SEARCH=${SLACK_SAFE_SEARCH:-false}
