@@ -23,12 +23,22 @@ NPX_PATH = shutil.which("npx")
 
 
 def _get_slack_client() -> Client:
-    """Create a client to the npm Slack MCP server."""
+    """Create a client to the npm Slack MCP server.
+
+    Note: Each tool call creates a new npx process. This is intentional to keep
+    the implementation simple and stateless. For high-frequency operations,
+    consider running the npm server persistently and connecting via HTTP transport.
+    """
     if not NPX_PATH:
         raise RuntimeError("npx not found. Please install Node.js to use Slack integration.")
 
-    env = os.environ.copy()
-    # Pass through Slack tokens
+    # Only pass required environment variables (principle of least privilege)
+    env = {
+        "PATH": os.environ.get("PATH", ""),
+        "HOME": os.environ.get("HOME", ""),
+        "NODE_PATH": os.environ.get("NODE_PATH", ""),
+    }
+    # Add Slack-specific tokens
     for key in ["SLACK_BOT_TOKEN", "SLACK_USER_TOKEN", "SLACK_SAFE_SEARCH"]:
         if key in os.environ:
             env[key] = os.environ[key]
@@ -60,7 +70,9 @@ async def slack_list_channels(limit: int = 100, cursor: str | None = None) -> st
         if cursor:
             params["cursor"] = cursor
         result = await client.call_tool("slack_list_channels", params)
-        return result.content[0].text if result.content else ""
+        if not result.content:
+            return "No response from Slack API. Check SLACK_BOT_TOKEN is set correctly."
+        return result.content[0].text
 
 
 @mcp.tool()
@@ -73,7 +85,9 @@ async def slack_post_message(channel: str, text: str) -> str:
     """
     async with _get_slack_client() as client:
         result = await client.call_tool("slack_post_message", {"channel": channel, "text": text})
-        return result.content[0].text if result.content else ""
+        if not result.content:
+            return "No response from Slack API. Check SLACK_BOT_TOKEN is set correctly."
+        return result.content[0].text
 
 
 @mcp.tool()
@@ -89,7 +103,9 @@ async def slack_reply_to_thread(channel: str, thread_ts: str, text: str) -> str:
         result = await client.call_tool(
             "slack_reply_to_thread", {"channel": channel, "thread_ts": thread_ts, "text": text}
         )
-        return result.content[0].text if result.content else ""
+        if not result.content:
+            return "No response from Slack API. Check SLACK_BOT_TOKEN is set correctly."
+        return result.content[0].text
 
 
 @mcp.tool()
@@ -105,7 +121,9 @@ async def slack_add_reaction(channel: str, timestamp: str, reaction: str) -> str
         result = await client.call_tool(
             "slack_add_reaction", {"channel": channel, "timestamp": timestamp, "reaction": reaction}
         )
-        return result.content[0].text if result.content else ""
+        if not result.content:
+            return "No response from Slack API. Check SLACK_BOT_TOKEN is set correctly."
+        return result.content[0].text
 
 
 @mcp.tool()
@@ -118,7 +136,9 @@ async def slack_get_channel_history(channel: str, limit: int = 10) -> str:
     """
     async with _get_slack_client() as client:
         result = await client.call_tool("slack_get_channel_history", {"channel": channel, "limit": limit})
-        return result.content[0].text if result.content else ""
+        if not result.content:
+            return "No response from Slack API. Check SLACK_BOT_TOKEN is set correctly."
+        return result.content[0].text
 
 
 @mcp.tool()
@@ -131,7 +151,9 @@ async def slack_get_thread_replies(channel: str, thread_ts: str) -> str:
     """
     async with _get_slack_client() as client:
         result = await client.call_tool("slack_get_thread_replies", {"channel": channel, "thread_ts": thread_ts})
-        return result.content[0].text if result.content else ""
+        if not result.content:
+            return "No response from Slack API. Check SLACK_BOT_TOKEN is set correctly."
+        return result.content[0].text
 
 
 @mcp.tool()
@@ -147,7 +169,9 @@ async def slack_get_users(limit: int = 100, cursor: str | None = None) -> str:
         if cursor:
             params["cursor"] = cursor
         result = await client.call_tool("slack_get_users", params)
-        return result.content[0].text if result.content else ""
+        if not result.content:
+            return "No response from Slack API. Check SLACK_BOT_TOKEN is set correctly."
+        return result.content[0].text
 
 
 @mcp.tool()
@@ -159,7 +183,9 @@ async def slack_get_user_profiles(user_ids: list[str]) -> str:
     """
     async with _get_slack_client() as client:
         result = await client.call_tool("slack_get_user_profiles", {"user_ids": user_ids})
-        return result.content[0].text if result.content else ""
+        if not result.content:
+            return "No response from Slack API. Check SLACK_BOT_TOKEN is set correctly."
+        return result.content[0].text
 
 
 @mcp.tool()
@@ -176,4 +202,6 @@ async def slack_search_messages(query: str, count: int = 20, cursor: str | None 
         if cursor:
             params["cursor"] = cursor
         result = await client.call_tool("slack_search_messages", params)
-        return result.content[0].text if result.content else ""
+        if not result.content:
+            return "No response from Slack API. Check SLACK_USER_TOKEN is set correctly for search."
+        return result.content[0].text
