@@ -305,3 +305,97 @@ async def test_tool_error_without_credentials():
                 await client.call_tool("gmail_search", {"query": "test"})
             # Should contain error about authentication
             assert "authentication" in str(exc_info.value).lower()
+
+
+@pytest.mark.asyncio
+async def test_gmail_send_invalid_email(mock_credentials, mock_gmail_service):
+    """Test Gmail send rejects invalid email addresses."""
+    async with Client(mcp) as client:
+        with pytest.raises(ToolError) as exc_info:
+            await client.call_tool(
+                "gmail_send",
+                {
+                    "to": "invalid-email",
+                    "subject": "Test",
+                    "body": "Test body",
+                },
+            )
+        assert "Invalid email" in str(exc_info.value)
+
+
+@pytest.mark.asyncio
+async def test_gmail_send_invalid_cc(mock_credentials, mock_gmail_service):
+    """Test Gmail send rejects invalid CC email addresses."""
+    async with Client(mcp) as client:
+        with pytest.raises(ToolError) as exc_info:
+            await client.call_tool(
+                "gmail_send",
+                {
+                    "to": "valid@example.com",
+                    "subject": "Test",
+                    "body": "Test body",
+                    "cc": "not-an-email",
+                },
+            )
+        assert "Invalid email" in str(exc_info.value)
+
+
+@pytest.mark.asyncio
+async def test_gmail_send_multiple_recipients(mock_credentials, mock_gmail_service):
+    """Test Gmail send with multiple comma-separated recipients."""
+    mock_gmail_service.users().messages().send().execute.return_value = {
+        "id": "sent1",
+        "threadId": "thread1",
+    }
+
+    async with Client(mcp) as client:
+        result = await client.call_tool(
+            "gmail_send",
+            {
+                "to": "user1@example.com, user2@example.com",
+                "subject": "Test Subject",
+                "body": "Test body",
+            },
+        )
+        assert result.content
+        data = json.loads(result.content[0].text)
+        assert data["status"] == "sent"
+
+
+@pytest.mark.asyncio
+async def test_gmail_send_header_injection_prevention(mock_credentials, mock_gmail_service):
+    """Test Gmail send sanitizes subject to prevent header injection."""
+    mock_gmail_service.users().messages().send().execute.return_value = {
+        "id": "sent1",
+        "threadId": "thread1",
+    }
+
+    async with Client(mcp) as client:
+        # Subject with newlines that could be used for header injection
+        result = await client.call_tool(
+            "gmail_send",
+            {
+                "to": "recipient@example.com",
+                "subject": "Test\r\nBcc: attacker@evil.com\r\nSubject: Malicious",
+                "body": "Test body",
+            },
+        )
+        # The call should succeed (sanitized), not fail
+        assert result.content
+        data = json.loads(result.content[0].text)
+        assert data["status"] == "sent"
+
+
+@pytest.mark.asyncio
+async def test_max_results_validation(mock_credentials, mock_gmail_service):
+    """Test max_results validation rejects out of range values."""
+    async with Client(mcp) as client:
+        # Test too high
+        with pytest.raises(ToolError) as exc_info:
+            await client.call_tool("gmail_search", {"query": "test", "max_results": 101})
+        assert "max_results" in str(exc_info.value).lower()
+
+        # Test too low
+        with pytest.raises(ToolError) as exc_info:
+            await client.call_tool("gmail_search", {"query": "test", "max_results": 0})
+        assert "max_results" in str(exc_info.value).lower()

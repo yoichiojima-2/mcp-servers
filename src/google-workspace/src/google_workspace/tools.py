@@ -987,15 +987,14 @@ def calendar_update_event(
         # Check both dateTime (timed events) and date (all-day events)
         existing_start = event.get("start", {})
         existing_end = event.get("end", {})
-        final_start = start_time or existing_start.get("dateTime") or existing_start.get("date")
-        final_end = end_time or existing_end.get("dateTime") or existing_end.get("date")
 
         # Validate the resulting time range when only one time is updated
-        # Only validate if both are datetime strings (not date-only strings for all-day events)
-        if (start_time or end_time) and final_start and final_end:
-            # All-day events use date format (YYYY-MM-DD), timed events use RFC3339 with 'T'
-            is_all_day = "T" not in final_start or "T" not in final_end
-            if not is_all_day:
+        # Only validate if both existing and new times are datetime-based (not all-day events)
+        is_datetime_event = "dateTime" in existing_start and "dateTime" in existing_end
+        if (start_time or end_time) and is_datetime_event:
+            final_start = start_time or existing_start.get("dateTime")
+            final_end = end_time or existing_end.get("dateTime")
+            if final_start and final_end:
                 _validate_event_times(final_start, final_end)
 
         # Update fields

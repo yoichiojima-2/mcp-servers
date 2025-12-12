@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from core import get_workspace
+from google.auth.exceptions import RefreshError
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -97,7 +98,7 @@ def get_credentials() -> Credentials | None:
         if creds and creds.expired and creds.refresh_token:
             try:
                 creds.refresh(Request())
-            except Exception:
+            except RefreshError:
                 # Refresh failed, need to re-authenticate
                 creds = None
 
@@ -109,8 +110,8 @@ def get_credentials() -> Credentials | None:
             flow = InstalledAppFlow.from_client_config(client_config, SCOPES)
             try:
                 creds = flow.run_local_server(port=0)
-            except Exception:
-                # OAuth flow failed (user denied, network error, etc.)
+            except (OSError, ValueError):
+                # OAuth flow failed (user denied, network error, browser issues, etc.)
                 return None
 
         # Save the credentials for future use with secure permissions

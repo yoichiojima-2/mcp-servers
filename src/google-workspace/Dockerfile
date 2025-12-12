@@ -10,6 +10,6 @@ WORKDIR /app
 
 RUN uv sync --frozen --package google-workspace
 
-EXPOSE 8015
+EXPOSE 8016
 
 CMD ["uv", "run", "python", "-m", "google_workspace"]

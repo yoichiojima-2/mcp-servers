@@ -4,7 +4,7 @@ from core import parse_args, run_server
 
 from . import mcp
 
-DEFAULT_PORT = 8015
+DEFAULT_PORT = 8016
 
 
 def serve() -> None:
