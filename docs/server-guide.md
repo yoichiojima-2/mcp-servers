@@ -165,6 +165,7 @@ Replace `<server-name>` and `<module_name>` with the appropriate values from the
 | pptx | `pptx_mcp` | 8010 | PowerPoint operations |
 | preview | `preview` | 8011 | HTML preview with live reload |
 | shell | `shell` | 8012 | Shell command execution |
+| slack | `slack` | 8015 | Slack workspace integration |
 | vectorstore | `vectorstore` | 8013 | ChromaDB vector operations |
 | xlsx | `xlsx` | 8014 | Excel spreadsheet operations |
 

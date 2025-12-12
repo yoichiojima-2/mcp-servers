@@ -23,6 +23,7 @@ members = [
     "pptx",
     "preview",
     "shell",
+    "slack",
     "vectorstore",
     "xlsx",
 ]
@@ -418,6 +419,7 @@ dependencies = [
     { name = "preview" },
     { name = "pyyaml" },
     { name = "shell" },
+    { name = "slack" },
     { name = "starlette" },
     { name = "vectorstore" },
     { name = "xlsx" },
@@ -439,6 +441,7 @@ requires-dist = [
     { name = "preview", editable = "src/preview" },
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "shell", editable = "src/shell" },
+    { name = "slack", editable = "src/slack" },
     { name = "starlette", specifier = ">=0.41.3" },
     { name = "vectorstore", editable = "src/vectorstore" },
     { name = "xlsx", editable = "src/xlsx" },
@@ -3152,6 +3155,17 @@ sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050, upload-time = "2024-12-04T17:35:26.475Z" },
 ]
+
+[[package]]
+name = "slack"
+version = "0.1.0"
+source = { editable = "src/slack" }
+dependencies = [
+    { name = "core" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "core", editable = "src/core" }]
 
 [[package]]
 name = "sniffio"
