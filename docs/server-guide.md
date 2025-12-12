@@ -214,6 +214,18 @@ If using Docker, update service names and paths accordingly:
 - `langquery` service → `data-analysis`
 - Environment variables: `LANGQUERY_*` → `DATA_ANALYSIS_*`
 
+### Port Renumbering (Slack Integration)
+
+**Breaking change**: Port assignments have been updated to follow alphabetical ordering after adding the `slack` server:
+
+| Server | Old Port | New Port |
+|--------|----------|----------|
+| slack | (new) | 8013 |
+| vectorstore | 8013 | 8014 |
+| xlsx | 8014 | 8015 |
+
+If you have existing configurations referencing ports 8013 or 8014, update them to use the new port numbers.
+
 ### Workspace Location Change
 
 **Breaking change**: Workspace directories have moved from local `./workspace/` to centralized `~/.mcp-servers/{server}/`.
