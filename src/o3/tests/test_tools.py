@@ -52,7 +52,10 @@ def test_get_client_missing_api_key():
     get_client.cache_clear()
 
 
-@pytest.mark.skipif(not os.getenv("OPENAI_API_KEY"), reason="Requires OPENAI_API_KEY")
+@pytest.mark.skipif(
+    not os.getenv("OPENAI_API_KEY") or os.getenv("CI"),
+    reason="Requires OPENAI_API_KEY and skipped in CI to avoid quota limits",
+)
 @pytest.mark.asyncio
 async def test_o3_search_integration():
     """Test o3_search tool with real API call."""
