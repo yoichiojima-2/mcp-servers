@@ -12,6 +12,7 @@ dependencies = [
     "docx",
     "file-management",
     "frontend-design",
+    "google-workspace",
     "nano-banana",
     "o3",
     "pdf",
@@ -33,6 +34,7 @@ dify = { workspace = true }
 docx = { workspace = true }
 file-management = { workspace = true }
 frontend-design = { workspace = true }
+google-workspace = { workspace = true }
 nano-banana = { workspace = true }
 o3 = { workspace = true }
 pdf = { workspace = true }

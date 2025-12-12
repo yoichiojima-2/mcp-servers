@@ -86,6 +86,12 @@ servers:
     module: preview
     description: HTML preview server with live reload
 
+  google-workspace:
+    enabled: false
+    prefix: gws
+    module: google_workspace
+    description: Google Workspace (Gmail, Drive, Sheets, Docs, Slides, Calendar)
+
   slack:
     enabled: false
     prefix: slack

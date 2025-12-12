@@ -38,6 +38,7 @@ jobs:
           - file-management
           - frontend-design
           - data-analysis
+          - google-workspace
           - nano-banana
           - o3
           - pdf

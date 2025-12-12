@@ -1,0 +1,27 @@
+[project]
+name = "google-workspace"
+version = "0.1.0"
+description = "MCP server for Google Workspace (Gmail, Drive, Sheets, Docs, Slides, Calendar)"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "core",
+    "google-api-python-client>=2.168.0",
+    "google-auth-httplib2>=0.2.0",
+    "google-auth-oauthlib>=1.2.2",
+]
+
+[tool.uv.sources]
+core = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/google_workspace"]
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+testpaths = ["tests"]
+asyncio_default_fixture_loop_scope = "function"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
