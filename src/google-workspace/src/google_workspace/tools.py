@@ -242,8 +242,10 @@ def gmail_read(
                 # Handle invalid base64 data
                 return "[Unable to decode message body]"
 
-        def extract_body(part: dict[str, Any]) -> str:
+        def extract_body(part: dict[str, Any], depth: int = 0) -> str:
             """Recursively extract body from message parts."""
+            if depth > 10:  # Prevent excessive recursion
+                return ""
             if part.get("mimeType") == "text/plain":
                 data = part.get("body", {}).get("data", "")
                 if data:
@@ -254,25 +256,33 @@ def gmail_read(
                     return decode_body_data(data)
             elif "parts" in part:
                 for subpart in part["parts"]:
-                    result = extract_body(subpart)
+                    result = extract_body(subpart, depth + 1)
                     if result:
                         return result
             return ""
 
         body = extract_body(payload)
 
-        # Extract attachment info
-        attachments = []
-        if "parts" in payload:
-            for part in payload["parts"]:
-                if part.get("filename"):
-                    attachments.append(
-                        {
-                            "filename": part["filename"],
-                            "mimeType": part.get("mimeType", ""),
-                            "size": part.get("body", {}).get("size", 0),
-                        }
-                    )
+        # Extract attachment info recursively
+        attachments: list[dict[str, Any]] = []
+
+        def extract_attachments(part: dict[str, Any], depth: int = 0) -> None:
+            """Recursively extract attachments from message parts."""
+            if depth > 10:  # Prevent excessive recursion
+                return
+            if part.get("filename"):
+                attachments.append(
+                    {
+                        "filename": part["filename"],
+                        "mimeType": part.get("mimeType", ""),
+                        "size": part.get("body", {}).get("size", 0),
+                    }
+                )
+            if "parts" in part:
+                for subpart in part["parts"]:
+                    extract_attachments(subpart, depth + 1)
+
+        extract_attachments(payload)
 
         return {
             "id": msg["id"],
@@ -952,21 +962,29 @@ def calendar_update_event(
     Returns:
         Updated event's ID and link.
     """
-    # Validate times if both are provided
+    # Validate time format if provided
+    if start_time:
+        _parse_iso_datetime(start_time)
+    if end_time:
+        _parse_iso_datetime(end_time)
+
+    # If both times are provided, validate the range
     if start_time and end_time:
         _validate_event_times(start_time, end_time)
-    elif start_time:
-        # Validate format only
-        _parse_iso_datetime(start_time)
-    elif end_time:
-        # Validate format only
-        _parse_iso_datetime(end_time)
 
     service = _get_service("calendar", "v3")
 
     try:
         # Get existing event
         event = service.events().get(calendarId=calendar_id, eventId=event_id).execute()
+
+        # Determine final start and end times for validation
+        final_start = start_time or event.get("start", {}).get("dateTime")
+        final_end = end_time or event.get("end", {}).get("dateTime")
+
+        # Validate the resulting time range when only one time is updated
+        if (start_time or end_time) and final_start and final_end:
+            _validate_event_times(final_start, final_end)
 
         # Update fields
         if summary:
