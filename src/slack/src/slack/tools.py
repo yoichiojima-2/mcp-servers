@@ -30,14 +30,19 @@ def _get_slack_client() -> Client:
     consider running the npm server persistently and connecting via HTTP transport.
     """
     if not NPX_PATH:
-        raise RuntimeError("npx not found. Please install Node.js to use Slack integration.")
+        raise RuntimeError("npx not found. Please install Node.js from https://nodejs.org/ to use Slack integration.")
+
+    # Validate PATH exists (required for npx to work)
+    path_env = os.environ.get("PATH")
+    if not path_env:
+        raise RuntimeError("PATH environment variable is not set. Cannot run npx.")
 
     # Only pass required environment variables (principle of least privilege)
-    env = {
-        "PATH": os.environ.get("PATH", ""),
-        "HOME": os.environ.get("HOME", ""),
-        "NODE_PATH": os.environ.get("NODE_PATH", ""),
-    }
+    env = {"PATH": path_env}
+    if home := os.environ.get("HOME"):
+        env["HOME"] = home
+    if node_path := os.environ.get("NODE_PATH"):
+        env["NODE_PATH"] = node_path
     # Add Slack-specific tokens
     for key in ["SLACK_BOT_TOKEN", "SLACK_USER_TOKEN", "SLACK_SAFE_SEARCH"]:
         if key in os.environ:

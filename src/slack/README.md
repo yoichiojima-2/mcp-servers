@@ -74,3 +74,21 @@ slack:
   module: slack
   description: Slack workspace integration
 ```
+
+## Security Notes
+
+- **Never commit tokens to git** - Use `.env` files (already in `.gitignore`)
+- **Docker deployments**: Environment variables in docker-compose are visible via `docker inspect`. In production, use Docker secrets or external secret management
+- **Token rotation**: Rotate tokens regularly, especially user tokens which have broader access
+- **Scope minimization**: Only request the OAuth scopes you actually need
+
+## Performance Notes
+
+Each tool call spawns a new `npx` process, which has ~1-2 second overhead due to Node.js startup. For high-frequency operations, consider running the npm server as a persistent service and connecting via HTTP transport.
+
+## Troubleshooting
+
+- **"npx not found"**: Install Node.js 20.x from https://nodejs.org/
+- **"No response from Slack API"**: Verify `SLACK_BOT_TOKEN` is set and valid
+- **Search not working**: Search requires `SLACK_USER_TOKEN` with `search:read` scope
+- **Permission errors**: Ensure your Slack app has been installed to the workspace and has the required scopes
