@@ -19,6 +19,7 @@ services:
       - docx
       - file-management
       - frontend-design
+      - google-workspace
       - nano-banana
       - o3
       - pdf
@@ -172,6 +173,20 @@ services:
       - TRANSPORT=sse
       - HOST=0.0.0.0
       - PORT=8006
+    networks:
+      - mcp-network
+
+  google-workspace:
+    image: google-workspace:latest
+    build:
+      context: ../..
+      dockerfile: src/google-workspace/Dockerfile
+    environment:
+      - TRANSPORT=sse
+      - HOST=0.0.0.0
+      - PORT=8015
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
     networks:
       - mcp-network
 

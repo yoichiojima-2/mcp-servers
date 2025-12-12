@@ -62,14 +62,20 @@ def _get_client_config() -> dict[str, Any] | None:
     if secret_path:
         path = Path(secret_path)
         if path.exists():
-            with open(path) as f:
-                return json.load(f)
+            try:
+                with open(path) as f:
+                    return json.load(f)
+            except json.JSONDecodeError:
+                return None
 
     # Try workspace directory
     workspace_secret = WORKSPACE / "client_secret.json"
     if workspace_secret.exists():
-        with open(workspace_secret) as f:
-            return json.load(f)
+        try:
+            with open(workspace_secret) as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            return None
 
     return None
 
@@ -130,5 +136,6 @@ def is_authenticated() -> bool:
     try:
         creds = Credentials.from_authorized_user_file(str(TOKEN_PATH), SCOPES)
         return creds.valid or (creds.expired and creds.refresh_token is not None)
-    except Exception:
+    except (ValueError, json.JSONDecodeError, KeyError):
+        # Handle malformed token files
         return False

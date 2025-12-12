@@ -947,6 +947,16 @@ def calendar_update_event(
     Returns:
         Updated event's ID and link.
     """
+    # Validate times if both are provided
+    if start_time and end_time:
+        _validate_event_times(start_time, end_time)
+    elif start_time:
+        # Validate format only
+        _parse_iso_datetime(start_time)
+    elif end_time:
+        # Validate format only
+        _parse_iso_datetime(end_time)
+
     service = _get_service("calendar", "v3")
 
     try:
