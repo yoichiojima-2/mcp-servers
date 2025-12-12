@@ -1,0 +1,8 @@
+# OAuth credentials - never commit these
+client_secret.json
+token.json
+*.credentials
+
+# Environment files with secrets
+.env
+.env.local
