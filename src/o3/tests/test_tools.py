@@ -56,9 +56,16 @@ def test_get_client_missing_api_key():
 @pytest.mark.asyncio
 async def test_o3_search_integration():
     """Test o3_search tool with real API call."""
+    from fastmcp.exceptions import ToolError
+
     async with Client(mcp) as client:
-        result = await client.call_tool("o3", {"query": "What is 2 + 2?"})
-        assert result.content
-        assert len(result.content) > 0
-        assert result.content[0].text
-        assert len(result.content[0].text) > 0
+        try:
+            result = await client.call_tool("o3", {"query": "What is 2 + 2?"})
+            assert result.content
+            assert len(result.content) > 0
+            assert result.content[0].text
+            assert len(result.content[0].text) > 0
+        except ToolError as e:
+            if "429" in str(e) or "quota" in str(e).lower():
+                pytest.skip("OpenAI API quota exceeded - skipping integration test")
+            raise
