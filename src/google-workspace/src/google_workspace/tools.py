@@ -236,8 +236,11 @@ def gmail_read(
                 # Try latin-1 as fallback for non-UTF-8 content
                 try:
                     return base64.urlsafe_b64decode(data).decode("latin-1")
-                except Exception:
+                except (UnicodeDecodeError, ValueError):
                     return "[Unable to decode message body]"
+            except (ValueError, base64.binascii.Error):
+                # Handle invalid base64 data
+                return "[Unable to decode message body]"
 
         def extract_body(part: dict[str, Any]) -> str:
             """Recursively extract body from message parts."""
@@ -339,13 +342,13 @@ def gmail_send(
 
     try:
         message = MIMEMultipart()
-        message["to"] = to
+        message["to"] = _sanitize_email_field(to)
         message["subject"] = safe_subject
 
         if cc:
-            message["cc"] = cc
+            message["cc"] = _sanitize_email_field(cc)
         if bcc:
-            message["bcc"] = bcc
+            message["bcc"] = _sanitize_email_field(bcc)
 
         content_type = "html" if html else "plain"
         message.attach(MIMEText(body, content_type))
