@@ -4,10 +4,10 @@ services:
       context: ../..
       dockerfile: src/xlsx/Dockerfile
     ports:
-      - "8015:8015"
+      - "8012:8012"
     volumes:
       - ./workspace:/workspace
       - ./src:/app/src/xlsx/src
     environment:
       - TRANSPORT=sse
-      - PORT=8015
+      - PORT=8012

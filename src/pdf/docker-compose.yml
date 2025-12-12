@@ -4,10 +4,10 @@ services:
       context: ../..
       dockerfile: src/pdf/Dockerfile
     ports:
-      - "8009:8009"
+      - "8008:8008"
     volumes:
       - ./workspace:/workspace
       - ./src:/app/src/pdf/src
     environment:
       - TRANSPORT=sse
-      - PORT=8009
+      - PORT=8008

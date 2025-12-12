@@ -4,9 +4,9 @@ services:
       context: ../..
       dockerfile: src/pptx/Dockerfile
     ports:
-      - "8010:8010"
+      - "8009:8009"
     volumes:
       - ./workspace:/workspace
     environment:
       - TRANSPORT=sse
-      - PORT=8010
+      - PORT=8009

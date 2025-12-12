@@ -17,15 +17,12 @@ services:
       - data-analysis
       - dify
       - docx
-      - file-management
       - frontend-design
       - nano-banana
       - o3
       - pdf
       - pptx
       - preview
-      - shell
-      - slack
       - vectorstore
       - xlsx
     restart: unless-stopped
@@ -72,7 +69,7 @@ services:
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
-      - PORT=8009
+      - PORT=8008
     networks:
       - mcp-network
 
@@ -84,7 +81,7 @@ services:
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
-      - PORT=8015
+      - PORT=8012
     networks:
       - mcp-network
 
@@ -108,7 +105,7 @@ services:
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
-      - PORT=8010
+      - PORT=8009
     networks:
       - mcp-network
 
@@ -120,7 +117,7 @@ services:
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
-      - PORT=8011
+      - PORT=8010
       - HTTP_PORT=3000
       - HTTP_HOST=0.0.0.0
     networks:
@@ -134,7 +131,7 @@ services:
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
-      - PORT=8014
+      - PORT=8011
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     networks:
       - mcp-network
@@ -151,18 +148,6 @@ services:
     networks:
       - mcp-network
 
-  file-management:
-    image: file-management:latest
-    build:
-      context: ../..
-      dockerfile: src/file-management/Dockerfile
-    environment:
-      - TRANSPORT=sse
-      - HOST=0.0.0.0
-      - PORT=8005
-    networks:
-      - mcp-network
-
   frontend-design:
     image: frontend-design:latest
     build:
@@ -171,7 +156,7 @@ services:
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
-      - PORT=8006
+      - PORT=8005
     networks:
       - mcp-network
 
@@ -183,7 +168,7 @@ services:
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
-      - PORT=8007
+      - PORT=8006
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
     networks:
       - mcp-network
@@ -196,35 +181,8 @@ services:
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
-      - PORT=8008
+      - PORT=8007
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-    networks:
-      - mcp-network
-
-  shell:
-    image: shell:latest
-    build:
-      context: ../..
-      dockerfile: src/shell/Dockerfile
-    environment:
-      - TRANSPORT=sse
-      - HOST=0.0.0.0
-      - PORT=8012
-    networks:
-      - mcp-network
-
-  slack:
-    image: slack:latest
-    build:
-      context: ../..
-      dockerfile: src/slack/Dockerfile
-    environment:
-      - TRANSPORT=sse
-      - HOST=0.0.0.0
-      - PORT=8013
-      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
-      - SLACK_USER_TOKEN=${SLACK_USER_TOKEN}
-      - SLACK_SAFE_SEARCH=${SLACK_SAFE_SEARCH:-false}
     networks:
       - mcp-network
 

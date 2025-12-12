@@ -4,10 +4,10 @@ services:
       context: ../..
       dockerfile: src/o3/Dockerfile
     ports:
-      - "8008:8008"
+      - "8007:8007"
     volumes:
       - ./workspace:/workspace
     environment:
       - TRANSPORT=sse
-      - PORT=8008
+      - PORT=8007
       - OPENAI_API_KEY=${OPENAI_API_KEY}

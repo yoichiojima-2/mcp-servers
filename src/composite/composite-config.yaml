@@ -50,18 +50,6 @@ servers:
     module: frontend_design
     description: design principles, themes, and color palettes
 
-  file-management:
-    enabled: true
-    prefix: file
-    module: file_management
-    description: file read/write operations
-
-  shell:
-    enabled: true
-    prefix: sh
-    module: shell
-    description: shell command execution
-
   nano-banana:
     enabled: true
     prefix: img
@@ -86,8 +74,3 @@ servers:
     module: preview
     description: HTML preview server with live reload
 
-  slack:
-    enabled: false
-    prefix: slack
-    module: slack
-    description: Slack workspace integration
