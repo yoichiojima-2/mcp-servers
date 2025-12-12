@@ -1,5 +1,7 @@
 todo.md
 .env
+__pycache__/
+*.pyc
 node_modules/
 .playwright-mcp/
 *.png
