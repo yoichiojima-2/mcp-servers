@@ -979,12 +979,19 @@ def calendar_update_event(
         event = service.events().get(calendarId=calendar_id, eventId=event_id).execute()
 
         # Determine final start and end times for validation
-        final_start = start_time or event.get("start", {}).get("dateTime")
-        final_end = end_time or event.get("end", {}).get("dateTime")
+        # Check both dateTime (timed events) and date (all-day events)
+        existing_start = event.get("start", {})
+        existing_end = event.get("end", {})
+        final_start = start_time or existing_start.get("dateTime") or existing_start.get("date")
+        final_end = end_time or existing_end.get("dateTime") or existing_end.get("date")
 
         # Validate the resulting time range when only one time is updated
+        # Only validate if both are datetime strings (not date-only strings for all-day events)
         if (start_time or end_time) and final_start and final_end:
-            _validate_event_times(final_start, final_end)
+            # Skip validation for all-day events (date format: YYYY-MM-DD without time component)
+            is_all_day = len(final_start) == 10 or len(final_end) == 10
+            if not is_all_day:
+                _validate_event_times(final_start, final_end)
 
         # Update fields
         if summary:
