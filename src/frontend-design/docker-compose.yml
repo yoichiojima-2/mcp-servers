@@ -4,9 +4,9 @@ services:
       context: ../..
       dockerfile: src/frontend-design/Dockerfile
     ports:
-      - "8006:8006"
+      - "8005:8005"
     volumes:
       - ./workspace:/workspace
     environment:
       - TRANSPORT=sse
-      - PORT=8006
+      - PORT=8005

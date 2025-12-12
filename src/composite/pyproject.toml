@@ -10,7 +10,6 @@ dependencies = [
     "data-analysis",
     "dify",
     "docx",
-    "file-management",
     "frontend-design",
     "nano-banana",
     "o3",
@@ -18,8 +17,6 @@ dependencies = [
     "pptx",
     "preview",
     "pyyaml>=6.0",
-    "shell",
-    "slack",
     "starlette>=0.41.3",
     "vectorstore",
     "xlsx",
@@ -31,15 +28,12 @@ core = { workspace = true }
 data-analysis = { workspace = true }
 dify = { workspace = true }
 docx = { workspace = true }
-file-management = { workspace = true }
 frontend-design = { workspace = true }
 nano-banana = { workspace = true }
 o3 = { workspace = true }
 pdf = { workspace = true }
 pptx = { workspace = true }
 preview = { workspace = true }
-shell = { workspace = true }
-slack = { workspace = true }
 vectorstore = { workspace = true }
 xlsx = { workspace = true }
 
