@@ -402,7 +402,9 @@ def drive_search(
         if query:
             q_parts.append(query)
         if mime_type:
-            q_parts.append(f"mimeType='{mime_type}'")
+            # Escape single quotes to prevent query injection
+            safe_mime_type = mime_type.replace("'", "\\'")
+            q_parts.append(f"mimeType='{safe_mime_type}'")
 
         q = " and ".join(q_parts) if q_parts else None
 
