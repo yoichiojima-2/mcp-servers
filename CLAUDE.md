@@ -23,6 +23,32 @@ This repository follows [GitHub Flow](https://guides.github.com/introduction/flo
 - `refactor/` - Code refactoring
 - `test/` - Test updates
 
+### PR Review CI Workflow
+
+After creating a PR, a CI review workflow will automatically run (takes approximately 3 minutes). **You must wait for the review to complete and address any issues it identifies.**
+
+**Process:**
+1. After running `gh pr create`, wait for the CI review to complete
+2. Check the review status with: `gh run list --limit 5`
+3. Once complete, view the review results: `gh run view <run-id>`
+4. If issues are found, fix them and push updates to the PR branch
+5. Repeat until the review passes
+
+**Commands to monitor and address CI review:**
+```bash
+# List recent workflow runs
+gh run list --limit 5
+
+# View details of a specific run (get run-id from the list above)
+gh run view <run-id>
+
+# View failed job logs
+gh run view <run-id> --log-failed
+
+# After fixing issues, commit and push
+git add . && git commit -m "fix: address review feedback" && git push
+```
+
 ### Use Git Worktrees for Changes
 
 Always create a new worktree for each branch to keep work isolated:
