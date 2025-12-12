@@ -95,19 +95,29 @@ def get_credentials() -> Credentials | None:
     # If no valid credentials, try to refresh or authenticate
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
+            try:
+                creds.refresh(Request())
+            except Exception:
+                # Refresh failed, need to re-authenticate
+                creds = None
+
+        if not creds or not creds.valid:
             client_config = _get_client_config()
             if not client_config:
                 return None
 
             flow = InstalledAppFlow.from_client_config(client_config, SCOPES)
-            creds = flow.run_local_server(port=0)
+            try:
+                creds = flow.run_local_server(port=0)
+            except Exception:
+                # OAuth flow failed (user denied, network error, etc.)
+                return None
 
         # Save the credentials for future use with secure permissions
-        with open(TOKEN_PATH, "w") as token:
+        # Use os.open to create file with proper permissions from the start
+        fd = os.open(TOKEN_PATH, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, "w") as token:
             token.write(creds.to_json())
-        TOKEN_PATH.chmod(0o600)  # Owner read/write only
 
     return creds
 

@@ -170,6 +170,11 @@ def gmail_search(
 
     Returns:
         List of message summaries with id, threadId, snippet, and headers.
+
+    Note:
+        This function makes N+1 API calls (1 list + N individual message fetches)
+        because Gmail API doesn't support batch metadata retrieval in a single call.
+        For large result sets, consider using a smaller max_results value.
     """
     _validate_max_results(max_results)
     service = _get_service("gmail", "v1")
@@ -988,8 +993,8 @@ def calendar_update_event(
         # Validate the resulting time range when only one time is updated
         # Only validate if both are datetime strings (not date-only strings for all-day events)
         if (start_time or end_time) and final_start and final_end:
-            # Skip validation for all-day events (date format: YYYY-MM-DD without time component)
-            is_all_day = len(final_start) == 10 or len(final_end) == 10
+            # All-day events use date format (YYYY-MM-DD), timed events use RFC3339 with 'T'
+            is_all_day = "T" not in final_start or "T" not in final_end
             if not is_all_day:
                 _validate_event_times(final_start, final_end)
 
