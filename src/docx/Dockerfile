@@ -12,6 +12,6 @@ WORKDIR /app
 # Install using workspace dependencies
 RUN uv sync --frozen --package docx
 
-EXPOSE 8005
+EXPOSE 8004
 
 CMD ["uv", "run", "python", "-m", "docx"]

@@ -10,6 +10,6 @@ WORKDIR /app
 
 RUN uv sync --frozen --package data-analysis
 
-EXPOSE 8006
+EXPOSE 8002
 
 CMD ["uv", "run", "python", "-m", "data_analysis"]

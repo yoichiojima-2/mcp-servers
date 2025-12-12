@@ -12,6 +12,6 @@ WORKDIR /app
 # Install using workspace dependencies
 RUN uv sync --frozen --package vectorstore
 
-EXPOSE 8002
+EXPOSE 8011
 
 CMD ["uv", "run", "python", "-m", "vectorstore"]

@@ -13,12 +13,12 @@ WORKDIR /app
 RUN uv sync --frozen --package dify
 
 # Expose port for SSE/HTTP transport
-EXPOSE 8006
+EXPOSE 8003
 
 # Set environment variables
 ENV TRANSPORT=sse \
     HOST=0.0.0.0 \
-    PORT=8006
+    PORT=8003
 
 # Run the server
 CMD ["uv", "run", "python", "-m", "dify"]
