@@ -11,6 +11,6 @@ WORKDIR /app
 # Install using workspace dependencies
 RUN uv sync --frozen --package browser
 
-EXPOSE 8007
+EXPOSE 8001
 
 CMD ["uv", "run", "python", "-m", "browser"]

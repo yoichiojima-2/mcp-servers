@@ -70,10 +70,8 @@ MCP servers store runtime data (databases, caches, screenshots, etc.) in `~/.mcp
 ~/.mcp-servers/
 ├── browser/           # Browser screenshots
 ├── data-analysis/     # Query history database, datasets
-├── file-management/   # Files created by file-management server
 ├── nano-banana/       # Generated images
 ├── preview/           # Screenshots and PDFs
-├── shell/             # Files created by shell commands
 └── ...
 ```
 
@@ -157,17 +155,14 @@ Replace `<server-name>` and `<module_name>` with the appropriate values from the
 | data-analysis | `data_analysis` | 8002 | DuckDB SQL data analysis |
 | dify | `dify` | 8003 | Dify AI workflow integration |
 | docx | `docx` | 8004 | Word document operations |
-| file-management | `file_management` | 8005 | File read/write operations |
-| frontend-design | `frontend_design` | 8006 | Design themes and palettes |
-| nano-banana | `nano_banana` | 8007 | AI image generation (Gemini) |
-| o3 | `o3_search` | 8008 | OpenAI o3 web search |
-| pdf | `pdf` | 8009 | PDF extraction and manipulation |
-| pptx | `pptx_mcp` | 8010 | PowerPoint operations |
-| preview | `preview` | 8011 | HTML preview with live reload |
-| shell | `shell` | 8012 | Shell command execution |
-| slack | `slack` | 8013 | Slack workspace integration |
-| vectorstore | `vectorstore` | 8014 | ChromaDB vector operations |
-| xlsx | `xlsx` | 8015 | Excel spreadsheet operations |
+| frontend-design | `frontend_design` | 8005 | Design themes and palettes |
+| nano-banana | `nano_banana` | 8006 | AI image generation (Gemini) |
+| o3 | `o3_search` | 8007 | OpenAI o3 web search |
+| pdf | `pdf` | 8008 | PDF extraction and manipulation |
+| pptx | `pptx_mcp` | 8009 | PowerPoint operations |
+| preview | `preview` | 8010 | HTML preview with live reload |
+| vectorstore | `vectorstore` | 8011 | ChromaDB vector operations |
+| xlsx | `xlsx` | 8012 | Excel spreadsheet operations |
 
 ## Migration Notes
 
@@ -213,18 +208,6 @@ If you were using these servers, update your `claude_desktop_config.json`:
 If using Docker, update service names and paths accordingly:
 - `langquery` service → `data-analysis`
 - Environment variables: `LANGQUERY_*` → `DATA_ANALYSIS_*`
-
-### Port Renumbering (Slack Integration)
-
-**Breaking change**: Port assignments have been updated to follow alphabetical ordering after adding the `slack` server:
-
-| Server | Old Port | New Port |
-|--------|----------|----------|
-| slack | (new) | 8013 |
-| vectorstore | 8013 | 8014 |
-| xlsx | 8014 | 8015 |
-
-If you have existing configurations referencing ports 8013 or 8014, update them to use the new port numbers.
 
 ### Workspace Location Change
 

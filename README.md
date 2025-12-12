@@ -15,16 +15,14 @@ This monorepo contains multiple MCP servers built with [FastMCP](https://github.
 | [data-analysis](src/data-analysis) | 8002 | SQL data analysis with DuckDB |
 | [dify](src/dify) | 8003 | Dify AI workflow integration |
 | [docx](src/docx) | 8004 | Word document operations |
-| [file-management](src/file-management) | 8005 | File read/write operations |
-| [frontend-design](src/frontend-design) | 8006 | Design themes and color palettes |
-| [nano-banana](src/nano-banana) | 8007 | AI image generation with Google Gemini |
-| [o3](src/o3) | 8008 | Deep research with OpenAI o3 |
-| [pdf](src/pdf) | 8009 | PDF extraction and manipulation |
-| [pptx](src/pptx) | 8010 | PowerPoint operations |
-| [preview](src/preview) | 8011 | HTML preview with live reload |
-| [shell](src/shell) | 8012 | Shell command execution |
-| [vectorstore](src/vectorstore) | 8013 | ChromaDB vector operations |
-| [xlsx](src/xlsx) | 8014 | Excel spreadsheet operations |
+| [frontend-design](src/frontend-design) | 8005 | Design themes and color palettes |
+| [nano-banana](src/nano-banana) | 8006 | AI image generation with Google Gemini |
+| [o3](src/o3) | 8007 | Deep research with OpenAI o3 |
+| [pdf](src/pdf) | 8008 | PDF extraction and manipulation |
+| [pptx](src/pptx) | 8009 | PowerPoint operations |
+| [preview](src/preview) | 8010 | HTML preview with live reload |
+| [vectorstore](src/vectorstore) | 8011 | ChromaDB vector operations |
+| [xlsx](src/xlsx) | 8012 | Excel spreadsheet operations |
 
 ## Quick Start
 

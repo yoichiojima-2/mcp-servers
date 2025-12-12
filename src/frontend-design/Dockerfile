@@ -10,6 +10,6 @@ WORKDIR /app
 
 RUN uv sync --frozen --package frontend-design
 
-EXPOSE 8009
+EXPOSE 8005
 
 CMD ["uv", "run", "python", "-m", "frontend_design"]

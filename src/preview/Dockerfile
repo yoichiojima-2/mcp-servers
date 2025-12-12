@@ -11,7 +11,7 @@ WORKDIR /app
 # Install using workspace dependencies
 RUN uv sync --frozen --package preview
 
-# Expose ports (MCP: 8011, HTTP: 3000)
-EXPOSE 8011 3000
+# Expose ports (MCP: 8010, HTTP: 3000)
+EXPOSE 8010 3000
 
 CMD ["uv", "run", "python", "-m", "preview"]

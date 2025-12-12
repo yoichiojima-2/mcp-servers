@@ -11,6 +11,6 @@ WORKDIR /app
 
 RUN uv sync --frozen --package pptx
 
-EXPOSE 8003
+EXPOSE 8009
 
 CMD ["uv", "run", "python", "-m", "pptx_mcp"]

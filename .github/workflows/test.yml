@@ -35,7 +35,6 @@ jobs:
           - core
           - dify
           - docx
-          - file-management
           - frontend-design
           - data-analysis
           - nano-banana
@@ -43,8 +42,6 @@ jobs:
           - pdf
           - pptx
           - preview
-          - shell
-          - slack
           - vectorstore
           - xlsx
 
