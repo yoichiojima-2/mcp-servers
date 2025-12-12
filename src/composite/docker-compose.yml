@@ -184,7 +184,7 @@ services:
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
-      - PORT=8015
+      - PORT=8016
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
     networks:

@@ -4,12 +4,12 @@ services:
       context: ../..
       dockerfile: src/google-workspace/Dockerfile
     ports:
-      - "8015:8015"
+      - "8016:8016"
     volumes:
       - google-workspace-data:/root/.mcp-servers/google-workspace
     environment:
       - TRANSPORT=sse
-      - PORT=8015
+      - PORT=8016
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
 
