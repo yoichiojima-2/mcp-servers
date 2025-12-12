@@ -45,8 +45,11 @@ Both should complete successfully before merging.
 # List recent workflow runs
 gh run list --limit 5
 
-# List only Claude Code Review runs for current branch
+# List Claude Code Review runs for the PR (run from PR branch directory)
 gh run list --workflow="Claude Code Review" --branch=$(git branch --show-current) --limit 5
+
+# Alternative: filter by PR number
+gh pr checks <pr-number>
 
 # View details of a specific run (get run-id from the list above)
 gh run view <run-id>
