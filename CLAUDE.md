@@ -35,21 +35,24 @@ Both should complete successfully before merging.
 
 **Process:**
 1. After running `gh pr create`, wait for the CI workflows to complete
-2. Check the review status with: `gh run list --limit 5`
+2. Check the review status with: `gh pr checks` or `gh run list --limit 5`
 3. Once complete, view the review results: `gh run view <run-id>`
 4. If issues are found, fix them and push updates to the PR branch
 5. Repeat until the review passes
 
 **Commands to monitor and address CI review:**
 ```bash
+# Check all workflow runs for the current PR (preferred)
+gh pr checks
+
+# Or specify a PR number
+gh pr checks <pr-number>
+
 # List recent workflow runs
 gh run list --limit 5
 
 # List Claude Code Review runs for the PR (run from PR branch directory)
-gh run list --workflow="Claude Code Review" --branch=$(git branch --show-current) --limit 5
-
-# Alternative: filter by PR number
-gh pr checks <pr-number>
+gh run list --workflow=claude-code-review.yml --branch=$(git branch --show-current) --limit 5
 
 # View details of a specific run (get run-id from the list above)
 gh run view <run-id>
