@@ -916,6 +916,13 @@ def calendar_create_event(
     # Validate event times
     _validate_event_times(start_time, end_time)
 
+    # Validate attendee emails
+    if attendees:
+        for email in attendees:
+            email = email.strip()
+            if not EMAIL_PATTERN.match(email):
+                raise ToolError(f"Invalid email address in attendees: {email}")
+
     service = _get_service("calendar", "v3")
 
     try:
@@ -930,7 +937,7 @@ def calendar_create_event(
         if location:
             event["location"] = location
         if attendees:
-            event["attendees"] = [{"email": email} for email in attendees]
+            event["attendees"] = [{"email": email.strip()} for email in attendees]
 
         created_event = service.events().insert(calendarId=calendar_id, body=event).execute()
 

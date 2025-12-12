@@ -399,3 +399,93 @@ async def test_max_results_validation(mock_credentials, mock_gmail_service):
         with pytest.raises(ToolError) as exc_info:
             await client.call_tool("gmail_search", {"query": "test", "max_results": 0})
         assert "max_results" in str(exc_info.value).lower()
+
+
+@pytest.mark.asyncio
+async def test_calendar_create_event_invalid_time_range(mock_credentials):
+    """Test calendar create event rejects invalid time range."""
+    with patch("google_workspace.tools.build") as mock_build:
+        service = MagicMock()
+        mock_build.return_value = service
+
+        async with Client(mcp) as client:
+            # Start time after end time
+            with pytest.raises(ToolError) as exc_info:
+                await client.call_tool(
+                    "calendar_create_event",
+                    {
+                        "summary": "Test Event",
+                        "start_time": "2024-01-15T10:00:00-05:00",
+                        "end_time": "2024-01-15T09:00:00-05:00",
+                    },
+                )
+            assert "start_time must be before end_time" in str(exc_info.value)
+
+
+@pytest.mark.asyncio
+async def test_calendar_create_event_invalid_time_format(mock_credentials):
+    """Test calendar create event rejects invalid time format."""
+    with patch("google_workspace.tools.build") as mock_build:
+        service = MagicMock()
+        mock_build.return_value = service
+
+        async with Client(mcp) as client:
+            # Invalid ISO format
+            with pytest.raises(ToolError) as exc_info:
+                await client.call_tool(
+                    "calendar_create_event",
+                    {
+                        "summary": "Test Event",
+                        "start_time": "not-a-date",
+                        "end_time": "2024-01-15T10:00:00-05:00",
+                    },
+                )
+            assert "Invalid time format" in str(exc_info.value)
+
+
+@pytest.mark.asyncio
+async def test_calendar_create_event_invalid_attendee(mock_credentials):
+    """Test calendar create event rejects invalid attendee email."""
+    with patch("google_workspace.tools.build") as mock_build:
+        service = MagicMock()
+        mock_build.return_value = service
+
+        async with Client(mcp) as client:
+            with pytest.raises(ToolError) as exc_info:
+                await client.call_tool(
+                    "calendar_create_event",
+                    {
+                        "summary": "Test Event",
+                        "start_time": "2024-01-15T09:00:00-05:00",
+                        "end_time": "2024-01-15T10:00:00-05:00",
+                        "attendees": ["valid@example.com", "invalid-email"],
+                    },
+                )
+            assert "Invalid email address in attendees" in str(exc_info.value)
+
+
+@pytest.mark.asyncio
+async def test_calendar_create_event_success(mock_credentials):
+    """Test calendar create event succeeds with valid inputs."""
+    with patch("google_workspace.tools.build") as mock_build:
+        service = MagicMock()
+        mock_build.return_value = service
+        service.events().insert().execute.return_value = {
+            "id": "event123",
+            "htmlLink": "https://calendar.google.com/event?eid=event123",
+        }
+
+        async with Client(mcp) as client:
+            result = await client.call_tool(
+                "calendar_create_event",
+                {
+                    "summary": "Test Meeting",
+                    "start_time": "2024-01-15T09:00:00-05:00",
+                    "end_time": "2024-01-15T10:00:00-05:00",
+                    "attendees": ["user@example.com"],
+                },
+            )
+            assert result.content
+            data = json.loads(result.content[0].text)
+            assert data["status"] == "created"
+            assert data["eventId"] == "event123"
