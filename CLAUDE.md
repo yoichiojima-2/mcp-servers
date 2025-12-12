@@ -23,12 +23,18 @@ This repository follows [GitHub Flow](https://guides.github.com/introduction/flo
 - `refactor/` - Code refactoring
 - `test/` - Test updates
 
-### PR Review CI Workflow
+### Claude Code Review Workflow
 
-After creating a PR, a CI review workflow will automatically run (takes approximately 3 minutes). **You must wait for the review to complete and address any issues it identifies.**
+After creating a PR, CI workflows will automatically run (typically completes within a few minutes). **You must wait for the review to complete and address any issues it identifies.**
+
+**Note**: Multiple workflows run on PRs:
+- **Run Tests**: Validates code with pytest across all MCP servers
+- **Claude Code Review**: Provides automated code review feedback
+
+Both should complete successfully before merging.
 
 **Process:**
-1. After running `gh pr create`, wait for the CI review to complete
+1. After running `gh pr create`, wait for the CI workflows to complete
 2. Check the review status with: `gh run list --limit 5`
 3. Once complete, view the review results: `gh run view <run-id>`
 4. If issues are found, fix them and push updates to the PR branch
@@ -38,6 +44,9 @@ After creating a PR, a CI review workflow will automatically run (takes approxim
 ```bash
 # List recent workflow runs
 gh run list --limit 5
+
+# List only Claude Code Review runs for current branch
+gh run list --workflow="Claude Code Review" --branch=$(git branch --show-current) --limit 5
 
 # View details of a specific run (get run-id from the list above)
 gh run view <run-id>
