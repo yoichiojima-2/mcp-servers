@@ -105,7 +105,7 @@ async def test_gmail_search(mock_credentials, mock_gmail_service):
     async with Client(mcp) as client:
         result = await client.call_tool("gmail_search", {"query": "test"})
         assert result.content
-        data = eval(result.content[0].text)
+        data = json.loads(result.content[0].text)
         assert len(data) == 1
         assert data[0]["id"] == "msg1"
         assert data[0]["subject"] == "Test Subject"
@@ -134,7 +134,7 @@ async def test_gmail_read(mock_credentials, mock_gmail_service):
     async with Client(mcp) as client:
         result = await client.call_tool("gmail_read", {"message_id": "msg1"})
         assert result.content
-        data = eval(result.content[0].text)
+        data = json.loads(result.content[0].text)
         assert data["id"] == "msg1"
         assert data["subject"] == "Test Subject"
         assert "Test email body" in data["body"]
@@ -155,7 +155,7 @@ async def test_gmail_send(mock_credentials, mock_gmail_service):
             },
         )
         assert result.content
-        data = eval(result.content[0].text)
+        data = json.loads(result.content[0].text)
         assert data["status"] == "sent"
         assert data["id"] == "sent1"
 
@@ -176,7 +176,7 @@ async def test_drive_search(mock_credentials, mock_drive_service):
     async with Client(mcp) as client:
         result = await client.call_tool("drive_search", {"query": "name contains 'Test'"})
         assert result.content
-        data = eval(result.content[0].text)
+        data = json.loads(result.content[0].text)
         assert len(data) == 1
         assert data[0]["name"] == "Test Document"
 
@@ -196,7 +196,7 @@ async def test_sheets_read(mock_credentials, mock_sheets_service):
             {"spreadsheet_id": "test-id", "range": "Sheet1!A1:B2"},
         )
         assert result.content
-        data = eval(result.content[0].text)
+        data = json.loads(result.content[0].text)
         assert data["title"] == "Test Sheet"
         assert data["rowCount"] == 2
 
@@ -212,7 +212,7 @@ async def test_sheets_create(mock_credentials, mock_sheets_service):
     async with Client(mcp) as client:
         result = await client.call_tool("sheets_create", {"title": "New Sheet"})
         assert result.content
-        data = eval(result.content[0].text)
+        data = json.loads(result.content[0].text)
         assert data["status"] == "created"
         assert data["spreadsheetId"] == "new-sheet-id"
 
