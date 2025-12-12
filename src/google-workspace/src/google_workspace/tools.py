@@ -1,6 +1,8 @@
 """Google Workspace MCP tools for Gmail, Drive, Sheets, Docs, Slides, and Calendar."""
 
 import base64
+import re
+from datetime import datetime, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Any
@@ -11,6 +13,9 @@ from googleapiclient.errors import HttpError
 
 from . import mcp
 from .auth import clear_credentials, get_credentials, is_authenticated
+
+# Simple email validation pattern
+EMAIL_PATTERN = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
 
 
 def _get_service(api: str, version: str) -> Any:
@@ -156,16 +161,27 @@ def gmail_read(
         body = ""
         payload = msg.get("payload", {})
 
+        def decode_body_data(data: str) -> str:
+            """Decode base64 body data with error handling."""
+            try:
+                return base64.urlsafe_b64decode(data).decode("utf-8")
+            except UnicodeDecodeError:
+                # Try latin-1 as fallback for non-UTF-8 content
+                try:
+                    return base64.urlsafe_b64decode(data).decode("latin-1")
+                except Exception:
+                    return "[Unable to decode message body]"
+
         def extract_body(part: dict[str, Any]) -> str:
             """Recursively extract body from message parts."""
             if part.get("mimeType") == "text/plain":
                 data = part.get("body", {}).get("data", "")
                 if data:
-                    return base64.urlsafe_b64decode(data).decode("utf-8")
+                    return decode_body_data(data)
             elif part.get("mimeType") == "text/html":
                 data = part.get("body", {}).get("data", "")
                 if data:
-                    return base64.urlsafe_b64decode(data).decode("utf-8")
+                    return decode_body_data(data)
             elif "parts" in part:
                 for subpart in part["parts"]:
                     result = extract_body(subpart)
@@ -204,6 +220,22 @@ def gmail_read(
         raise ToolError(f"Gmail API error: {e}") from e
 
 
+def _validate_email_addresses(emails: str, field_name: str) -> None:
+    """Validate comma-separated email addresses.
+
+    Args:
+        emails: Comma-separated email addresses
+        field_name: Name of the field for error message
+
+    Raises:
+        ToolError: If any email address is invalid
+    """
+    for email in emails.split(","):
+        email = email.strip()
+        if email and not EMAIL_PATTERN.match(email):
+            raise ToolError(f"Invalid email address in {field_name}: {email}")
+
+
 @mcp.tool()
 def gmail_send(
     to: str,
@@ -226,6 +258,13 @@ def gmail_send(
     Returns:
         Message ID and thread ID of the sent email.
     """
+    # Validate email addresses
+    _validate_email_addresses(to, "to")
+    if cc:
+        _validate_email_addresses(cc, "cc")
+    if bcc:
+        _validate_email_addresses(bcc, "bcc")
+
     service = _get_service("gmail", "v1")
 
     try:
@@ -723,8 +762,6 @@ def calendar_list_events(
     try:
         # Default to upcoming events if no time range specified
         if not time_min:
-            from datetime import datetime, timezone
-
             time_min = datetime.now(timezone.utc).isoformat()
 
         events_result = (
