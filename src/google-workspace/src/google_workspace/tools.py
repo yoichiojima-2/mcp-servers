@@ -162,7 +162,7 @@ def gmail_read(
                 data = part.get("body", {}).get("data", "")
                 if data:
                     return base64.urlsafe_b64decode(data).decode("utf-8")
-            elif part.get("mimeType") == "text/html" and not body:
+            elif part.get("mimeType") == "text/html":
                 data = part.get("body", {}).get("data", "")
                 if data:
                     return base64.urlsafe_b64decode(data).decode("utf-8")

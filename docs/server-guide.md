@@ -159,6 +159,7 @@ Replace `<server-name>` and `<module_name>` with the appropriate values from the
 | docx | `docx` | 8004 | Word document operations |
 | file-management | `file_management` | 8005 | File read/write operations |
 | frontend-design | `frontend_design` | 8006 | Design themes and palettes |
+| google-workspace | `google_workspace` | 8015 | Google Workspace (Gmail, Drive, Sheets, Docs, Slides, Calendar) |
 | nano-banana | `nano_banana` | 8007 | AI image generation (Gemini) |
 | o3 | `o3_search` | 8008 | OpenAI o3 web search |
 | pdf | `pdf` | 8009 | PDF extraction and manipulation |

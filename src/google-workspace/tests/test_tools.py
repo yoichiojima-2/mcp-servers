@@ -77,7 +77,7 @@ async def test_google_auth_logout():
         async with Client(mcp) as client:
             result = await client.call_tool("google_auth_logout", {})
             assert result.content
-            data = eval(result.content[0].text)
+            data = json.loads(result.content[0].text)
             assert data["status"] == "success"
 
 
@@ -238,7 +238,7 @@ async def test_calendar_list_events(mock_credentials):
         async with Client(mcp) as client:
             result = await client.call_tool("calendar_list_events", {"max_results": 10})
             assert result.content
-            data = eval(result.content[0].text)
+            data = json.loads(result.content[0].text)
             assert len(data) == 1
             assert data[0]["summary"] == "Test Meeting"
 
@@ -264,7 +264,7 @@ async def test_docs_read(mock_credentials):
         async with Client(mcp) as client:
             result = await client.call_tool("docs_read", {"document_id": "doc1"})
             assert result.content
-            data = eval(result.content[0].text)
+            data = json.loads(result.content[0].text)
             assert data["title"] == "Test Document"
             assert "Hello" in data["content"]
 
@@ -291,7 +291,7 @@ async def test_slides_read(mock_credentials):
         async with Client(mcp) as client:
             result = await client.call_tool("slides_read", {"presentation_id": "pres1"})
             assert result.content
-            data = eval(result.content[0].text)
+            data = json.loads(result.content[0].text)
             assert data["title"] == "Test Presentation"
             assert data["slideCount"] == 1
 
