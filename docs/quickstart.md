@@ -45,7 +45,7 @@ Some servers require API keys. Add them to your Claude Desktop config (see below
 | vectorstore | `OPENAI_API_KEY` |
 | dify | `DIFY_API_KEY` |
 
-**No API keys needed:** data-analysis, xlsx, pdf, docx, pptx, file-management, shell, frontend-design, browser
+**No API keys needed:** data-analysis, xlsx, pdf, docx, pptx, frontend-design, browser, preview
 
 ### 4. Run the server
 
@@ -99,12 +99,11 @@ Each server's tools are namespaced with a prefix:
 | data-analysis | `data_` | `data_query` |
 | dify | `dify_` | `dify_chat` |
 | docx | `docx_` | `docx_create` |
-| file-management | `file_` | `file_read` |
 | frontend-design | `design_` | `design_palette` |
 | nano-banana | `img_` | `img_generate` |
 | o3 | `o3_` | `o3_o3` |
 | pdf | `pdf_` | `pdf_extract` |
 | pptx | `pptx_` | `pptx_create` |
-| shell | `sh_` | `sh_execute` |
+| preview | `preview_` | `preview_show` |
 | vectorstore | `vec_` | `vec_search` |
 | xlsx | `xlsx_` | `xlsx_read` |
