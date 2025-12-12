@@ -175,12 +175,12 @@ When adding a new MCP server to the workspace:
 
 ### Port Assignment
 
-Default ports are assigned alphabetically, with composite reserved at 8000:
+Default ports are assigned sequentially, with composite reserved at 8000:
 
 - **composite**: 8000 (reserved for the aggregator server)
-- **Other servers**: 8001-8013, assigned alphabetically by server name
+- **Other servers**: 8001+, assigned in the order they were added
 
-When adding a new server, assign the next available port after the last alphabetically-sorted server. See `docs/server-guide.md` for the current port assignments.
+When adding a new server, assign the next available port number to avoid conflicts. Do not renumber existing servers. See `docs/server-guide.md` for the current port assignments.
 
 ### Consistency Rules
 

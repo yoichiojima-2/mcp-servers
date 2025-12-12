@@ -181,6 +181,8 @@ services:
     build:
       context: ../..
       dockerfile: src/google-workspace/Dockerfile
+    volumes:
+      - google-workspace-data:/root/.mcp-servers/google-workspace
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
@@ -246,3 +248,6 @@ services:
 networks:
   mcp-network:
     driver: bridge
+
+volumes:
+  google-workspace-data:
