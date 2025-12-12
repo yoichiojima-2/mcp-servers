@@ -25,6 +25,7 @@ services:
       - pptx
       - preview
       - shell
+      - slack
       - vectorstore
       - xlsx
     restart: unless-stopped
@@ -83,7 +84,7 @@ services:
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
-      - PORT=8014
+      - PORT=8015
     networks:
       - mcp-network
 
@@ -133,7 +134,7 @@ services:
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
-      - PORT=8013
+      - PORT=8014
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     networks:
       - mcp-network
@@ -209,6 +210,21 @@ services:
       - TRANSPORT=sse
       - HOST=0.0.0.0
       - PORT=8012
+    networks:
+      - mcp-network
+
+  slack:
+    image: slack:latest
+    build:
+      context: ../..
+      dockerfile: src/slack/Dockerfile
+    environment:
+      - TRANSPORT=sse
+      - HOST=0.0.0.0
+      - PORT=8013
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - SLACK_USER_TOKEN=${SLACK_USER_TOKEN}
+      - SLACK_SAFE_SEARCH=${SLACK_SAFE_SEARCH:-false}
     networks:
       - mcp-network
 

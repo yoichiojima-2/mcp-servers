@@ -85,3 +85,9 @@ servers:
     prefix: preview
     module: preview
     description: HTML preview server with live reload
+
+  slack:
+    enabled: false
+    prefix: slack
+    module: slack
+    description: Slack workspace integration

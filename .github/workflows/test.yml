@@ -44,6 +44,7 @@ jobs:
           - pptx
           - preview
           - shell
+          - slack
           - vectorstore
           - xlsx
 

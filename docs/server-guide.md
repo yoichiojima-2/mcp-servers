@@ -165,8 +165,9 @@ Replace `<server-name>` and `<module_name>` with the appropriate values from the
 | pptx | `pptx_mcp` | 8010 | PowerPoint operations |
 | preview | `preview` | 8011 | HTML preview with live reload |
 | shell | `shell` | 8012 | Shell command execution |
-| vectorstore | `vectorstore` | 8013 | ChromaDB vector operations |
-| xlsx | `xlsx` | 8014 | Excel spreadsheet operations |
+| slack | `slack` | 8013 | Slack workspace integration |
+| vectorstore | `vectorstore` | 8014 | ChromaDB vector operations |
+| xlsx | `xlsx` | 8015 | Excel spreadsheet operations |
 
 ## Migration Notes
 
@@ -212,6 +213,18 @@ If you were using these servers, update your `claude_desktop_config.json`:
 If using Docker, update service names and paths accordingly:
 - `langquery` service → `data-analysis`
 - Environment variables: `LANGQUERY_*` → `DATA_ANALYSIS_*`
+
+### Port Renumbering (Slack Integration)
+
+**Breaking change**: Port assignments have been updated to follow alphabetical ordering after adding the `slack` server:
+
+| Server | Old Port | New Port |
+|--------|----------|----------|
+| slack | (new) | 8013 |
+| vectorstore | 8013 | 8014 |
+| xlsx | 8014 | 8015 |
+
+If you have existing configurations referencing ports 8013 or 8014, update them to use the new port numbers.
 
 ### Workspace Location Change
 
