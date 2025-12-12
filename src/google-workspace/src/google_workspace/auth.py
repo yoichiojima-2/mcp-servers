@@ -98,9 +98,10 @@ def get_credentials() -> Credentials | None:
             flow = InstalledAppFlow.from_client_config(client_config, SCOPES)
             creds = flow.run_local_server(port=0)
 
-        # Save the credentials for future use
+        # Save the credentials for future use with secure permissions
         with open(TOKEN_PATH, "w") as token:
             token.write(creds.to_json())
+        TOKEN_PATH.chmod(0o600)  # Owner read/write only
 
     return creds
 

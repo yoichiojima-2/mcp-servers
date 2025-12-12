@@ -134,11 +134,32 @@ cd src/google-workspace
 uv run pytest -v
 ```
 
+## Docker Usage
+
+The OAuth flow requires a browser for first-time authentication. For Docker deployments:
+
+1. **Authenticate locally first**:
+   ```bash
+   # Run the server locally to complete OAuth flow
+   cd src/google-workspace
+   uv run python -m google_workspace
+   # A browser will open - complete the Google sign-in
+   ```
+
+2. **Mount the token directory in Docker**:
+   ```yaml
+   # docker-compose.yml
+   volumes:
+     - ~/.mcp-servers/google-workspace:/root/.mcp-servers/google-workspace
+   ```
+
+Alternatively, the token.json file can be copied to the container after local authentication.
+
 ## Security Notes
 
 - **Never commit credentials**: Keep `client_secret.json` and `token.json` out of version control
 - **Minimal scopes**: The server requests only necessary OAuth scopes
-- **Token storage**: Refresh tokens are stored in `~/.mcp-servers/google-workspace/` with owner-only permissions (0700)
+- **Token storage**: Refresh tokens are stored in `~/.mcp-servers/google-workspace/` with owner-only permissions (0600)
 - **Logout option**: Use `google_auth_logout` to clear stored credentials
 
 ## Environment Variables
