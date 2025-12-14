@@ -226,10 +226,10 @@ Old environment variables (`WORKSPACE`, `DATA_ANALYSIS_WORKSPACE`, `BROWSER_WORK
    mv ./workspace/* ~/.mcp-servers/workspace/
 
    # If migrating from per-server workspaces:
-   [ -d ~/.mcp-servers/browser ] && cp -r ~/.mcp-servers/browser/* ~/.mcp-servers/workspace/
-   [ -d ~/.mcp-servers/data-analysis ] && cp -r ~/.mcp-servers/data-analysis/* ~/.mcp-servers/workspace/
-   [ -d ~/.mcp-servers/preview ] && cp -r ~/.mcp-servers/preview/* ~/.mcp-servers/workspace/
-   [ -d ~/.mcp-servers/nano-banana ] && cp -r ~/.mcp-servers/nano-banana/* ~/.mcp-servers/workspace/
+   [ -d ~/.mcp-servers/browser ] && mv ~/.mcp-servers/browser/* ~/.mcp-servers/workspace/ 2>/dev/null || true
+   [ -d ~/.mcp-servers/data-analysis ] && mv ~/.mcp-servers/data-analysis/* ~/.mcp-servers/workspace/ 2>/dev/null || true
+   [ -d ~/.mcp-servers/preview ] && mv ~/.mcp-servers/preview/* ~/.mcp-servers/workspace/ 2>/dev/null || true
+   [ -d ~/.mcp-servers/nano-banana ] && mv ~/.mcp-servers/nano-banana/* ~/.mcp-servers/workspace/ 2>/dev/null || true
    ```
 
    **Important**: The `data-analysis` server stores query history in `data_analysis_history.db`. If you have existing query history you want to preserve:

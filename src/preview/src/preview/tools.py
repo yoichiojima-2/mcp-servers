@@ -481,7 +481,7 @@ async def screenshot_page(
     url = f"{base_url}/pages/{name}"
 
     if not filename:
-        filename = f"{name}.png"
+        filename = f"preview_{name}.png"
 
     filepath = get_workspace_file(SHARED_WORKSPACE, filename)
     filepath.parent.mkdir(parents=True, exist_ok=True)
@@ -535,7 +535,7 @@ async def export_pdf(
     url = f"{base_url}/pages/{name}"
 
     if not filename:
-        filename = f"{name}.pdf"
+        filename = f"preview_{name}.pdf"
 
     filepath = get_workspace_file(SHARED_WORKSPACE, filename)
     filepath.parent.mkdir(parents=True, exist_ok=True)

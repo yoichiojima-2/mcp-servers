@@ -133,3 +133,29 @@ class TestMCPServersBase:
     def test_base_is_in_home(self):
         """Test MCP_SERVERS_BASE is in home directory."""
         assert MCP_SERVERS_BASE == Path.home() / ".mcp-servers"
+
+
+class TestSharedWorkspace:
+    """Tests for SHARED_WORKSPACE constant."""
+
+    def test_shared_workspace_constant(self):
+        """Test SHARED_WORKSPACE constant is defined and exported correctly."""
+        from core import SHARED_WORKSPACE
+
+        assert SHARED_WORKSPACE == "workspace"
+
+    def test_shared_workspace_creates_shared_directory(self, tmp_path, monkeypatch):
+        """Test SHARED_WORKSPACE creates the shared workspace directory."""
+        monkeypatch.setenv("HOME", str(tmp_path))
+
+        import importlib
+
+        import core.workspace
+
+        importlib.reload(core.workspace)
+
+        workspace = core.workspace.get_workspace(core.workspace.SHARED_WORKSPACE)
+
+        assert workspace == tmp_path / ".mcp-servers" / "workspace"
+        assert workspace.exists()
+        assert workspace.is_dir()

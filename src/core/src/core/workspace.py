@@ -33,7 +33,9 @@ def get_workspace(server_name: str) -> Path:
     Creates the directory if it doesn't exist.
 
     Args:
-        server_name: Name of the server (e.g., "data-analysis", "browser")
+        server_name: Workspace identifier. Use SHARED_WORKSPACE constant for
+            inter-server file sharing (recommended), or a server-specific name
+            for isolated storage.
 
     Returns:
         Path to the workspace directory (created with 0o700 permissions)
