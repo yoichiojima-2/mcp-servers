@@ -6,8 +6,11 @@ services:
     ports:
       - "8008:8008"
     volumes:
-      - ./workspace:/workspace
+      - mcp-workspace:/root/.mcp-servers/workspace
       - ./src:/app/src/pdf/src
     environment:
       - TRANSPORT=sse
       - PORT=8008
+
+volumes:
+  mcp-workspace:

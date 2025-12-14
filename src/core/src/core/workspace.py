@@ -1,14 +1,19 @@
 """Workspace directory management for MCP servers.
 
-Provides a standard location (~/.mcp-servers/{server}/) for server-specific
-runtime data like databases, caches, logs, and temporary files.
+Provides a shared workspace at ~/.mcp-servers/workspace/ for all servers,
+enabling inter-server file sharing. All servers can read/write files in this
+common location.
 
 Directory structure:
     ~/.mcp-servers/
-    ├── data-analysis/   # data-analysis server workspace
-    ├── browser/         # browser server workspace
-    ├── preview/         # preview server workspace
-    └── ...
+    └── workspace/       # Shared workspace for all servers
+        ├── history.db   # data-analysis query history
+        ├── screenshot.png
+        └── ...
+
+Usage:
+    from core import SHARED_WORKSPACE, get_workspace
+    workspace = get_workspace(SHARED_WORKSPACE)  # ~/.mcp-servers/workspace/
 """
 
 import os
