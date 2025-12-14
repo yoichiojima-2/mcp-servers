@@ -7,8 +7,8 @@ common location.
 Directory structure:
     ~/.mcp-servers/
     └── workspace/       # Shared workspace for all servers
-        ├── history.db   # data-analysis query history
-        ├── screenshot.png
+        ├── data_analysis_history.db  # data-analysis query history
+        ├── browser_screenshot.png    # browser screenshots
         └── ...
 
 Usage:

@@ -57,13 +57,13 @@ class HistoryDB:
         """Initialize the history database.
 
         Args:
-            db_path: Path to the database file. Defaults to ~/.mcp-servers/workspace/history.db
+            db_path: Path to the database file. Defaults to ~/.mcp-servers/workspace/data_analysis_history.db
 
         Raises:
             OSError: If workspace directory cannot be created
         """
         if db_path is None:
-            db_path = str(get_workspace_file(SHARED_WORKSPACE, "history.db"))
+            db_path = str(get_workspace_file(SHARED_WORKSPACE, "data_analysis_history.db"))
 
         self.db_path = db_path
         self._counter_lock = Lock()  # Lock for thread-safe counter increment

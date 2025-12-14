@@ -62,20 +62,21 @@ Environment variables can be used instead of CLI arguments:
 
 ## Workspace Directory
 
-> ⚠️ **Breaking Change**: The workspace location changed from `./workspace/` to `~/.mcp-servers/{server}/`. If you have scripts or applications that reference the old location, update them to use the `get_workspace_path()` tool or directly reference `~/.mcp-servers/{server}/`.
+> ⚠️ **Breaking Change**: The workspace location changed to a shared directory at `~/.mcp-servers/workspace/`. If you have scripts or applications that reference old per-server locations, update them to use the `get_workspace_path()` tool or directly reference `~/.mcp-servers/workspace/`.
 
-MCP servers store runtime data (databases, caches, screenshots, etc.) in `~/.mcp-servers/`:
+All MCP servers share a single workspace directory at `~/.mcp-servers/workspace/`:
 
 ```
 ~/.mcp-servers/
-├── browser/           # Browser screenshots
-├── data-analysis/     # Query history database, datasets
-├── nano-banana/       # Generated images
-├── preview/           # Screenshots and PDFs
-└── ...
+└── workspace/                      # Shared workspace for all servers
+    ├── data_analysis_history.db    # Query history database
+    ├── browser_screenshot.png      # Browser screenshots
+    ├── datasets/                   # Downloaded datasets
+    │   └── titanic.csv
+    └── ...
 ```
 
-Each server has its own subdirectory, created automatically on first use with secure permissions (owner-only access, 0700).
+The shared workspace enables inter-server file sharing and is created automatically on first use with secure permissions (owner-only access, 0700).
 
 ### Discovering the Workspace Path
 
@@ -231,11 +232,11 @@ Old environment variables (`WORKSPACE`, `DATA_ANALYSIS_WORKSPACE`, `BROWSER_WORK
    [ -d ~/.mcp-servers/nano-banana ] && cp -r ~/.mcp-servers/nano-banana/* ~/.mcp-servers/workspace/
    ```
 
-   **Important**: The `data-analysis` server stores query history in `history.db`. If you have existing query history you want to preserve:
+   **Important**: The `data-analysis` server stores query history in `data_analysis_history.db`. If you have existing query history you want to preserve:
    ```bash
    # Migrate data-analysis history database
    [ -f ~/.mcp-servers/data-analysis/history.db ] && \
-       mv ~/.mcp-servers/data-analysis/history.db ~/.mcp-servers/workspace/history.db
+       mv ~/.mcp-servers/data-analysis/history.db ~/.mcp-servers/workspace/data_analysis_history.db
    ```
 
 2. Remove old environment variables from your Claude Desktop config or docker-compose files:
