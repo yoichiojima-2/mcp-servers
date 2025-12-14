@@ -20,6 +20,7 @@ The `dify-mcp-settings.json` file in this directory contains SSE endpoints for a
 
 | Server | Port | Description |
 |--------|------|-------------|
+| composite | 8000 | All servers aggregated |
 | browser | 8001 | Browser automation |
 | data-analysis | 8002 | DuckDB SQL queries |
 | dify | 8003 | Dify workflow integration |

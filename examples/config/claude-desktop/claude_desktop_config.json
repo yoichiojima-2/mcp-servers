@@ -2,7 +2,7 @@
   "mcpServers": {
     "composite": {
       "command": "uv",
-      "args": ["run", "--directory", "/path/to/mcp-servers/src/composite", "fastmcp", "run", "server.py"]
+      "args": ["--directory", "/path/to/mcp-servers/src/composite", "run", "python", "-m", "composite"]
     },
     "filesystem": {
       "command": "npx",

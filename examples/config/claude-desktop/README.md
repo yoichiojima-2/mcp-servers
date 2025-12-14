@@ -7,6 +7,7 @@ Example configuration for using MCP servers with Claude Desktop.
 1. Copy `claude_desktop_config.json` to Claude Desktop config directory:
    - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
    - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+   - Linux: `~/.config/Claude/claude_desktop_config.json`
 
 2. Update paths and tokens (use absolute paths):
    - Replace `/path/to/mcp-servers` with your actual repo path (e.g., `/Users/yo/Developer/mcp-servers`)
