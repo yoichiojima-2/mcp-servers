@@ -68,6 +68,12 @@ servers:
     module: dify
     description: Dify workflow integration
 
+  img2pptx:
+    enabled: false
+    prefix: img2pptx
+    module: img2pptx
+    description: Convert images to PPTX using GPT-5.2
+
   o3:
     enabled: true
     prefix: o3

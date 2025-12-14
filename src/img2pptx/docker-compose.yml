@@ -1,0 +1,16 @@
+services:
+  img2pptx:
+    build:
+      context: ../..
+      dockerfile: src/img2pptx/Dockerfile
+    ports:
+      - "8013:8013"
+    volumes:
+      - mcp-workspace:/root/.mcp-servers/workspace
+    environment:
+      - TRANSPORT=sse
+      - PORT=8013
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+
+volumes:
+  mcp-workspace:

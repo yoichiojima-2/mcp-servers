@@ -32,6 +32,7 @@ members = [
     "src/docx",
     "src/file-management",
     "src/frontend-design",
+    "src/img2pptx",
     "src/nano-banana",
     "src/o3",
     "src/pdf",

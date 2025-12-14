@@ -1,0 +1,26 @@
+[project]
+name = "img2pptx"
+version = "0.1.0"
+description = "MCP server to convert images to PPTX using OpenAI GPT-5.2"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "core",
+    "openai>=1.60.0",
+    "pillow>=11.0.0",
+    "python-pptx>=1.0.0",
+]
+
+[tool.uv.sources]
+core = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/img2pptx"]
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+testpaths = ["tests"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
