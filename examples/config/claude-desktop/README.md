@@ -19,7 +19,7 @@ Example configuration for using MCP servers with Claude Desktop.
 
 ### From this repository
 
-- **composite**: Aggregates all MCP servers from this repo (data-analysis, xlsx, pdf, docx, pptx, vectorstore, browser, frontend-design, nano-banana, dify, o3, preview)
+- **composite**: Aggregates MCP servers from this repo. Default enabled: data-analysis, pptx, frontend-design, nano-banana, o3, preview. Edit `src/composite/composite-config.yaml` to enable additional servers (xlsx, pdf, docx, vectorstore, browser, dify).
 
 ### External MCP Servers
 
@@ -27,3 +27,9 @@ Example configuration for using MCP servers with Claude Desktop.
 - **github**: GitHub API integration ([docs](https://github.com/modelcontextprotocol/servers/tree/main/src/github))
 - **memory**: Persistent memory/knowledge graph ([docs](https://github.com/modelcontextprotocol/servers/tree/main/src/memory))
 - **fetch**: Web fetching capabilities ([docs](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch))
+
+## Security
+
+- Never commit config files with real tokens to version control
+- Add `claude_desktop_config.json` to `.gitignore` if tracking config files
+- Consider using environment variables for sensitive values
