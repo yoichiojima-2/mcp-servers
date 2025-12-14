@@ -231,13 +231,28 @@ Old environment variables (`WORKSPACE`, `DATA_ANALYSIS_WORKSPACE`, `BROWSER_WORK
    [ -d ~/.mcp-servers/nano-banana ] && cp -r ~/.mcp-servers/nano-banana/* ~/.mcp-servers/workspace/
    ```
 
+   **Important**: The `data-analysis` server stores query history in `history.db`. If you have existing query history you want to preserve:
+   ```bash
+   # Migrate data-analysis history database
+   [ -f ~/.mcp-servers/data-analysis/history.db ] && \
+       mv ~/.mcp-servers/data-analysis/history.db ~/.mcp-servers/workspace/history.db
+   ```
+
 2. Remove old environment variables from your Claude Desktop config or docker-compose files:
    - Remove `WORKSPACE`
    - Remove `DATA_ANALYSIS_WORKSPACE`
    - Remove `BROWSER_WORKSPACE`
    - Remove `PREVIEW_WORKSPACE`
 
-**File naming best practices**: With all servers sharing a workspace, use descriptive filenames to avoid conflicts (e.g., `browser_screenshot.png` instead of `screenshot.png`).
+3. (Optional) Download sample datasets for testing:
+   ```bash
+   ./scripts/download-sample-data.sh
+   ```
+
+**File naming best practices**: With all servers sharing a workspace, use descriptive filenames to avoid conflicts:
+- Use server prefixes: `browser_screenshot.png`, `preview_export.pdf`
+- Use timestamps: `screenshot_20240101_120000.png`
+- Avoid generic names like `output.png` or `data.csv`
 
 ## Troubleshooting
 
