@@ -8,6 +8,9 @@ Example configuration for using MCP servers with [Dify](https://dify.ai/).
    ```bash
    cd /path/to/mcp-servers
    docker compose up -d
+
+   # Or start specific services only:
+   docker compose up -d composite data-analysis xlsx
    ```
 
 2. In Dify, navigate to **Tools** > **MCP**
