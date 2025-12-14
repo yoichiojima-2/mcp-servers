@@ -220,7 +220,15 @@ Old environment variables (`WORKSPACE`, `DATA_ANALYSIS_WORKSPACE`, `BROWSER_WORK
 1. Move existing data to the new shared workspace:
    ```bash
    mkdir -p ~/.mcp-servers/workspace
+
+   # If migrating from local ./workspace directory:
    mv ./workspace/* ~/.mcp-servers/workspace/
+
+   # If migrating from per-server workspaces:
+   [ -d ~/.mcp-servers/browser ] && cp -r ~/.mcp-servers/browser/* ~/.mcp-servers/workspace/
+   [ -d ~/.mcp-servers/data-analysis ] && cp -r ~/.mcp-servers/data-analysis/* ~/.mcp-servers/workspace/
+   [ -d ~/.mcp-servers/preview ] && cp -r ~/.mcp-servers/preview/* ~/.mcp-servers/workspace/
+   [ -d ~/.mcp-servers/nano-banana ] && cp -r ~/.mcp-servers/nano-banana/* ~/.mcp-servers/workspace/
    ```
 
 2. Remove old environment variables from your Claude Desktop config or docker-compose files:
@@ -228,6 +236,8 @@ Old environment variables (`WORKSPACE`, `DATA_ANALYSIS_WORKSPACE`, `BROWSER_WORK
    - Remove `DATA_ANALYSIS_WORKSPACE`
    - Remove `BROWSER_WORKSPACE`
    - Remove `PREVIEW_WORKSPACE`
+
+**File naming best practices**: With all servers sharing a workspace, use descriptive filenames to avoid conflicts (e.g., `browser_screenshot.png` instead of `screenshot.png`).
 
 ## Troubleshooting
 
