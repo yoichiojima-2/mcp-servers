@@ -26,6 +26,12 @@ servers:
     module: docx
     description: word document operations
 
+  file-management:
+    enabled: false
+    prefix: file
+    module: file_management
+    description: file read/write operations
+
   pptx:
     enabled: true
     prefix: pptx
