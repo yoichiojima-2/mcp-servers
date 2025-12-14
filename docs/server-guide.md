@@ -91,20 +91,46 @@ Each server provides a `get_workspace_path()` tool that returns the workspace di
 
 ### Docker Data Persistence
 
-When running servers in Docker, workspace data is stored in named volumes:
+When running servers in Docker, workspace data is stored in named volumes.
+
+**Important**: The shared workspace only works when running via the composite server:
+
+```bash
+# Composite mode (recommended) - all servers share one volume
+cd src/composite && docker compose up
+# Creates: composite_mcp-workspace (shared by all servers)
+
+# Individual mode - each server gets its own volume (NOT shared)
+cd src/browser && docker compose up   # Creates: browser_mcp-workspace
+cd src/preview && docker compose up   # Creates: preview_mcp-workspace (separate!)
+```
+
+To share data between individually-run servers, use an external volume:
+
+```bash
+# Create a shared external volume
+docker volume create mcp-workspace
+
+# Then update docker-compose.yml to use external volume:
+# volumes:
+#   mcp-workspace:
+#     external: true
+```
+
+Volume management commands:
 
 ```bash
 # List workspace volumes
 docker volume ls | grep workspace
 
 # Backup a volume
-docker run --rm -v browser-workspace:/data -v $(pwd):/backup alpine tar czf /backup/browser-backup.tar.gz -C /data .
+docker run --rm -v mcp-workspace:/data -v $(pwd):/backup alpine tar czf /backup/workspace-backup.tar.gz -C /data .
 
 # Restore a volume
-docker run --rm -v browser-workspace:/data -v $(pwd):/backup alpine tar xzf /backup/browser-backup.tar.gz -C /data
+docker run --rm -v mcp-workspace:/data -v $(pwd):/backup alpine tar xzf /backup/workspace-backup.tar.gz -C /data
 
 # Remove a volume (deletes all data)
-docker volume rm browser-workspace
+docker volume rm mcp-workspace
 ```
 
 Named volumes persist across container restarts and removals. Data is only deleted when the volume itself is removed.

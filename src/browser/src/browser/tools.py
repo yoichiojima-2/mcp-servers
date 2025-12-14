@@ -385,7 +385,15 @@ def get_workspace_path() -> str:
 @mcp.tool()
 @handle_browser_errors
 async def screenshot(filename: str = "browser_screenshot.png", full_page: bool = False) -> str:
-    """Take a screenshot of the current page."""
+    """Take a screenshot of the current page.
+
+    Note: Files are saved to a shared workspace (~/.mcp-servers/workspace/).
+    Use unique filenames to avoid conflicts with other servers.
+
+    Args:
+        filename: Output filename (default: browser_screenshot.png)
+        full_page: Capture full scrollable page
+    """
     page = await get_page_unsafe()
     filepath = get_workspace_file(SHARED_WORKSPACE, filename)
     filepath.parent.mkdir(parents=True, exist_ok=True)

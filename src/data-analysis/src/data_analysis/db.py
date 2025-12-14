@@ -63,7 +63,17 @@ class HistoryDB:
             OSError: If workspace directory cannot be created
         """
         if db_path is None:
-            db_path = str(get_workspace_file(SHARED_WORKSPACE, "data_analysis_history.db"))
+            new_db_path = get_workspace_file(SHARED_WORKSPACE, "data_analysis_history.db")
+            old_db_path = get_workspace_file(SHARED_WORKSPACE, "history.db")
+
+            # Auto-migrate from old history.db if it exists
+            if old_db_path.exists() and not new_db_path.exists():
+                import shutil
+
+                shutil.move(str(old_db_path), str(new_db_path))
+                print("Auto-migrated history.db to data_analysis_history.db", file=sys.stderr)
+
+            db_path = str(new_db_path)
 
         self.db_path = db_path
         self._counter_lock = Lock()  # Lock for thread-safe counter increment
