@@ -18,6 +18,9 @@ from pathlib import Path
 # Base directory for all MCP server workspaces
 MCP_SERVERS_BASE = Path.home() / ".mcp-servers"
 
+# Shared workspace name for all servers to enable inter-server file sharing
+SHARED_WORKSPACE = "workspace"
+
 
 def get_workspace(server_name: str) -> Path:
     """Get the workspace directory for an MCP server.

@@ -211,26 +211,16 @@ If using Docker, update service names and paths accordingly:
 
 ### Workspace Location Change
 
-**Breaking change**: Workspace directories have moved from local `./workspace/` to centralized `~/.mcp-servers/{server}/`.
+**Breaking change**: All servers now use a shared workspace at `~/.mcp-servers/workspace/`.
 
 Old environment variables (`WORKSPACE`, `DATA_ANALYSIS_WORKSPACE`, `BROWSER_WORKSPACE`, `PREVIEW_WORKSPACE`) are no longer supported.
 
 **Migration steps**:
 
-1. Move existing data to the new location:
+1. Move existing data to the new shared workspace:
    ```bash
-   # data-analysis
-   mkdir -p ~/.mcp-servers/data-analysis
-   mv ./workspace/data_analysis_history.db ~/.mcp-servers/data-analysis/history.db
-
-   # browser
-   mkdir -p ~/.mcp-servers/browser
-   mv ./workspace/*.png ~/.mcp-servers/browser/
-
-   # preview
-   mkdir -p ~/.mcp-servers/preview
-   mv ./workspace/*.png ~/.mcp-servers/preview/
-   mv ./workspace/*.pdf ~/.mcp-servers/preview/
+   mkdir -p ~/.mcp-servers/workspace
+   mv ./workspace/* ~/.mcp-servers/workspace/
    ```
 
 2. Remove old environment variables from your Claude Desktop config or docker-compose files:
