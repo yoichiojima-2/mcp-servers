@@ -6,8 +6,11 @@ services:
     ports:
       - "8004:8004"
     volumes:
-      - ./workspace:/workspace
+      - mcp-workspace:/root/.mcp-servers/workspace
       - ./src:/app/src/docx/src
     environment:
       - TRANSPORT=sse
       - PORT=8004
+
+volumes:
+  mcp-workspace:

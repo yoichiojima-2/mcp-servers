@@ -6,7 +6,7 @@ services:
     ports:
       - "8011:8011"
     volumes:
-      - ./workspace:/workspace
+      - mcp-workspace:/root/.mcp-servers/workspace
       - ./src:/app/src/vectorstore/src
     environment:
       - TRANSPORT=sse
@@ -14,3 +14,6 @@ services:
       - EMBEDDING_TYPE=${EMBEDDING_TYPE:-openai}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_EMBEDDING_MODEL=${OPENAI_EMBEDDING_MODEL:-text-embedding-3-small}
+
+volumes:
+  mcp-workspace:

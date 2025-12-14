@@ -36,7 +36,7 @@ MCP server for browser automation using Playwright with automatic error handling
 | `NAVIGATION_TIMEOUT` | `60000` | Timeout for page navigation (ms) |
 | `NO_SANDBOX` | `false` | Disable browser sandbox (use with caution) |
 
-Screenshots are saved to `~/.mcp-servers/browser/`. Use the `get_workspace_path()` tool to get the path.
+Screenshots are saved to `~/.mcp-servers/workspace/`. Use the `get_workspace_path()` tool to get the path.
 
 ### Stability Tuning
 

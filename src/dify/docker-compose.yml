@@ -6,10 +6,13 @@ services:
     ports:
       - "8003:8003"
     volumes:
-      - ./workspace:/workspace
+      - mcp-workspace:/root/.mcp-servers/workspace
       - ./src:/app/src/dify/src
     environment:
       - TRANSPORT=sse
       - PORT=8003
       - DIFY_API_KEY=${DIFY_API_KEY}
       - DIFY_CONSOLE_API_KEY=${DIFY_CONSOLE_API_KEY}
+
+volumes:
+  mcp-workspace:

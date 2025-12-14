@@ -62,20 +62,21 @@ Environment variables can be used instead of CLI arguments:
 
 ## Workspace Directory
 
-> ⚠️ **Breaking Change**: The workspace location changed from `./workspace/` to `~/.mcp-servers/{server}/`. If you have scripts or applications that reference the old location, update them to use the `get_workspace_path()` tool or directly reference `~/.mcp-servers/{server}/`.
+> ⚠️ **Breaking Change**: The workspace location changed to a shared directory at `~/.mcp-servers/workspace/`. If you have scripts or applications that reference old per-server locations, update them to use the `get_workspace_path()` tool or directly reference `~/.mcp-servers/workspace/`.
 
-MCP servers store runtime data (databases, caches, screenshots, etc.) in `~/.mcp-servers/`:
+All MCP servers share a single workspace directory at `~/.mcp-servers/workspace/`:
 
 ```
 ~/.mcp-servers/
-├── browser/           # Browser screenshots
-├── data-analysis/     # Query history database, datasets
-├── nano-banana/       # Generated images
-├── preview/           # Screenshots and PDFs
-└── ...
+└── workspace/                      # Shared workspace for all servers
+    ├── data_analysis_history.db    # Query history database
+    ├── browser_screenshot.png      # Browser screenshots
+    ├── datasets/                   # Downloaded datasets
+    │   └── titanic.csv
+    └── ...
 ```
 
-Each server has its own subdirectory, created automatically on first use with secure permissions (owner-only access, 0700).
+The shared workspace enables inter-server file sharing and is created automatically on first use with secure permissions (owner-only access, 0700).
 
 ### Discovering the Workspace Path
 
@@ -90,20 +91,46 @@ Each server provides a `get_workspace_path()` tool that returns the workspace di
 
 ### Docker Data Persistence
 
-When running servers in Docker, workspace data is stored in named volumes:
+When running servers in Docker, workspace data is stored in named volumes.
+
+> ⚠️ **Docker Volume Limitation**: The shared workspace only works when running via the composite server. Running individual servers creates separate volumes that do NOT share data:
+
+```bash
+# Composite mode (recommended) - all servers share one volume
+cd src/composite && docker compose up
+# Creates: composite_mcp-workspace (shared by all servers)
+
+# Individual mode - each server gets its own volume (NOT shared)
+cd src/browser && docker compose up   # Creates: browser_mcp-workspace
+cd src/preview && docker compose up   # Creates: preview_mcp-workspace (separate!)
+```
+
+To share data between individually-run servers, use an external volume:
+
+```bash
+# Create a shared external volume
+docker volume create mcp-workspace
+
+# Then update docker-compose.yml to use external volume:
+# volumes:
+#   mcp-workspace:
+#     external: true
+```
+
+Volume management commands:
 
 ```bash
 # List workspace volumes
 docker volume ls | grep workspace
 
 # Backup a volume
-docker run --rm -v browser-workspace:/data -v $(pwd):/backup alpine tar czf /backup/browser-backup.tar.gz -C /data .
+docker run --rm -v mcp-workspace:/data -v $(pwd):/backup alpine tar czf /backup/workspace-backup.tar.gz -C /data .
 
 # Restore a volume
-docker run --rm -v browser-workspace:/data -v $(pwd):/backup alpine tar xzf /backup/browser-backup.tar.gz -C /data
+docker run --rm -v mcp-workspace:/data -v $(pwd):/backup alpine tar xzf /backup/workspace-backup.tar.gz -C /data
 
 # Remove a volume (deletes all data)
-docker volume rm browser-workspace
+docker volume rm mcp-workspace
 ```
 
 Named volumes persist across container restarts and removals. Data is only deleted when the volume itself is removed.
@@ -211,26 +238,53 @@ If using Docker, update service names and paths accordingly:
 
 ### Workspace Location Change
 
-**Breaking change**: Workspace directories have moved from local `./workspace/` to centralized `~/.mcp-servers/{server}/`.
+**Breaking change**: All servers now use a shared workspace at `~/.mcp-servers/workspace/`.
 
 Old environment variables (`WORKSPACE`, `DATA_ANALYSIS_WORKSPACE`, `BROWSER_WORKSPACE`, `PREVIEW_WORKSPACE`) are no longer supported.
 
 **Migration steps**:
 
-1. Move existing data to the new location:
+1. Move existing data to the new shared workspace:
    ```bash
-   # data-analysis
-   mkdir -p ~/.mcp-servers/data-analysis
-   mv ./workspace/data_analysis_history.db ~/.mcp-servers/data-analysis/history.db
+   mkdir -p ~/.mcp-servers/workspace
 
-   # browser
-   mkdir -p ~/.mcp-servers/browser
-   mv ./workspace/*.png ~/.mcp-servers/browser/
+   # If migrating from local ./workspace directory:
+   mv ./workspace/* ~/.mcp-servers/workspace/
 
-   # preview
-   mkdir -p ~/.mcp-servers/preview
-   mv ./workspace/*.png ~/.mcp-servers/preview/
-   mv ./workspace/*.pdf ~/.mcp-servers/preview/
+   # If migrating from per-server workspaces:
+   for dir in browser data-analysis preview nano-banana; do
+       if [ -d ~/.mcp-servers/$dir ]; then
+           echo "Checking ~/.mcp-servers/$dir..."
+           count=0
+           skipped=0
+           for file in ~/.mcp-servers/$dir/*; do
+               [ -e "$file" ] || continue
+               base=$(basename "$file")
+               if [ -e ~/.mcp-servers/workspace/"$base" ]; then
+                   echo "  Skipped: $base (already exists)"
+                   skipped=$((skipped + 1))
+               else
+                   mv "$file" ~/.mcp-servers/workspace/
+                   echo "  Migrated: $base"
+                   count=$((count + 1))
+               fi
+           done
+           echo "  Summary: $count migrated, $skipped skipped"
+       fi
+   done
+   ```
+
+   **Important**: The `data-analysis` server stores query history in `data_analysis_history.db`. If you have existing query history you want to preserve:
+   ```bash
+   # Migrate data-analysis history database (check for conflicts first)
+   if [ -f ~/.mcp-servers/data-analysis/history.db ]; then
+       if [ -f ~/.mcp-servers/workspace/data_analysis_history.db ]; then
+           echo "Warning: data_analysis_history.db already exists, skipping migration"
+       else
+           mv ~/.mcp-servers/data-analysis/history.db ~/.mcp-servers/workspace/data_analysis_history.db
+           echo "Migrated history.db to data_analysis_history.db"
+       fi
+   fi
    ```
 
 2. Remove old environment variables from your Claude Desktop config or docker-compose files:
@@ -238,6 +292,16 @@ Old environment variables (`WORKSPACE`, `DATA_ANALYSIS_WORKSPACE`, `BROWSER_WORK
    - Remove `DATA_ANALYSIS_WORKSPACE`
    - Remove `BROWSER_WORKSPACE`
    - Remove `PREVIEW_WORKSPACE`
+
+3. (Optional) Download sample datasets for testing:
+   ```bash
+   ./scripts/download-sample-data.sh
+   ```
+
+**File naming best practices**: With all servers sharing a workspace, use descriptive filenames to avoid conflicts:
+- Use server prefixes: `browser_screenshot.png`, `preview_export.pdf`
+- Use timestamps: `screenshot_20240101_120000.png`
+- Avoid generic names like `output.png` or `data.csv`
 
 ## Troubleshooting
 

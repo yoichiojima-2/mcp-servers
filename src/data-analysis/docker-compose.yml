@@ -6,10 +6,10 @@ services:
     ports:
       - "8002:8002"
     volumes:
-      - data-analysis-workspace:/root/.mcp-servers/data-analysis
+      - mcp-workspace:/root/.mcp-servers/workspace
     environment:
       - TRANSPORT=sse
       - PORT=8002
 
 volumes:
-  data-analysis-workspace:
+  mcp-workspace:

@@ -6,8 +6,11 @@ services:
     ports:
       - "8007:8007"
     volumes:
-      - ./workspace:/workspace
+      - mcp-workspace:/root/.mcp-servers/workspace
     environment:
       - TRANSPORT=sse
       - PORT=8007
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+
+volumes:
+  mcp-workspace:

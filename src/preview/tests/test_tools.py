@@ -13,7 +13,7 @@ async def test_get_workspace_path():
     async with Client(mcp) as client:
         res = await client.call_tool("get_workspace_path", {})
         path = res.content[0].text
-        assert ".mcp-servers/preview" in path
+        assert ".mcp-servers/workspace" in path
 
 
 @pytest.fixture(autouse=True)

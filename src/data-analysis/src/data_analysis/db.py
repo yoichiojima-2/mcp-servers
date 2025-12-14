@@ -8,7 +8,7 @@ from typing import Optional
 
 import duckdb
 
-from core import get_workspace_file
+from core import SHARED_WORKSPACE, get_workspace_file
 
 
 def _get_env_int(name: str, default: int, min_value: int = 1, max_value: Optional[int] = None) -> int:
@@ -57,13 +57,23 @@ class HistoryDB:
         """Initialize the history database.
 
         Args:
-            db_path: Path to the database file. Defaults to ~/.mcp-servers/data-analysis/history.db
+            db_path: Path to the database file. Defaults to ~/.mcp-servers/workspace/data_analysis_history.db
 
         Raises:
             OSError: If workspace directory cannot be created
         """
         if db_path is None:
-            db_path = str(get_workspace_file("data-analysis", "history.db"))
+            new_db_path = get_workspace_file(SHARED_WORKSPACE, "data_analysis_history.db")
+            old_db_path = get_workspace_file(SHARED_WORKSPACE, "history.db")
+
+            # Auto-migrate from old history.db if it exists
+            if old_db_path.exists() and not new_db_path.exists():
+                import shutil
+
+                shutil.move(str(old_db_path), str(new_db_path))
+                print("Auto-migrated history.db to data_analysis_history.db", file=sys.stderr)
+
+            db_path = str(new_db_path)
 
         self.db_path = db_path
         self._counter_lock = Lock()  # Lock for thread-safe counter increment

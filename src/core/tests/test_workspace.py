@@ -133,3 +133,68 @@ class TestMCPServersBase:
     def test_base_is_in_home(self):
         """Test MCP_SERVERS_BASE is in home directory."""
         assert MCP_SERVERS_BASE == Path.home() / ".mcp-servers"
+
+
+class TestSharedWorkspace:
+    """Tests for SHARED_WORKSPACE constant."""
+
+    def test_shared_workspace_constant(self):
+        """Test SHARED_WORKSPACE constant is defined and exported correctly."""
+        from core import SHARED_WORKSPACE
+
+        assert SHARED_WORKSPACE == "workspace"
+
+    def test_shared_workspace_creates_shared_directory(self, tmp_path, monkeypatch):
+        """Test SHARED_WORKSPACE creates the shared workspace directory."""
+        monkeypatch.setenv("HOME", str(tmp_path))
+
+        import importlib
+
+        import core.workspace
+
+        importlib.reload(core.workspace)
+
+        workspace = core.workspace.get_workspace(core.workspace.SHARED_WORKSPACE)
+
+        assert workspace == tmp_path / ".mcp-servers" / "workspace"
+        assert workspace.exists()
+        assert workspace.is_dir()
+
+    def test_cross_server_file_sharing(self, tmp_path, monkeypatch):
+        """Test that multiple servers can access the same files via SHARED_WORKSPACE."""
+        monkeypatch.setenv("HOME", str(tmp_path))
+
+        import importlib
+
+        import core.workspace
+
+        importlib.reload(core.workspace)
+
+        # Simulate browser server creating a file
+        browser_file = core.workspace.get_workspace_file(core.workspace.SHARED_WORKSPACE, "browser_screenshot.png")
+
+        # Simulate preview server accessing the same file
+        preview_file = core.workspace.get_workspace_file(core.workspace.SHARED_WORKSPACE, "browser_screenshot.png")
+
+        # Both should point to the exact same path
+        assert browser_file == preview_file
+        assert browser_file.parent == tmp_path / ".mcp-servers" / "workspace"
+
+    def test_shared_workspace_file_persistence(self, tmp_path, monkeypatch):
+        """Test that files created in shared workspace persist across server calls."""
+        monkeypatch.setenv("HOME", str(tmp_path))
+
+        import importlib
+
+        import core.workspace
+
+        importlib.reload(core.workspace)
+
+        # Server A creates a file
+        file_path = core.workspace.get_workspace_file(core.workspace.SHARED_WORKSPACE, "shared_data.txt")
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        file_path.write_text("data from server A")
+
+        # Server B reads the same file
+        same_file = core.workspace.get_workspace_file(core.workspace.SHARED_WORKSPACE, "shared_data.txt")
+        assert same_file.read_text() == "data from server A"

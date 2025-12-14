@@ -9,7 +9,7 @@ from typing import Optional
 
 from playwright.async_api import Browser, Page, TimeoutError, async_playwright
 
-from core import get_workspace, get_workspace_file
+from core import SHARED_WORKSPACE, get_workspace, get_workspace_file
 
 from . import mcp
 
@@ -377,17 +377,25 @@ def get_workspace_path() -> str:
     """Get the workspace directory path for saving files.
 
     Returns:
-        Path to ~/.mcp-servers/browser/ where screenshots and other files are saved.
+        Path to ~/.mcp-servers/workspace/ where screenshots and other files are saved.
     """
-    return str(get_workspace("browser"))
+    return str(get_workspace(SHARED_WORKSPACE))
 
 
 @mcp.tool()
 @handle_browser_errors
-async def screenshot(filename: str = "screenshot.png", full_page: bool = False) -> str:
-    """Take a screenshot of the current page."""
+async def screenshot(filename: str = "browser_screenshot.png", full_page: bool = False) -> str:
+    """Take a screenshot of the current page.
+
+    Note: Files are saved to a shared workspace (~/.mcp-servers/workspace/).
+    Use unique filenames to avoid conflicts with other servers.
+
+    Args:
+        filename: Output filename (default: browser_screenshot.png)
+        full_page: Capture full scrollable page
+    """
     page = await get_page_unsafe()
-    filepath = get_workspace_file("browser", filename)
+    filepath = get_workspace_file(SHARED_WORKSPACE, filename)
     filepath.parent.mkdir(parents=True, exist_ok=True)
     await page.screenshot(path=str(filepath), full_page=full_page, timeout=30000)
     return f"Screenshot saved to {filepath}"

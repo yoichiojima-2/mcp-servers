@@ -35,6 +35,8 @@ services:
     build:
       context: ../..
       dockerfile: src/browser/Dockerfile
+    volumes:
+      - mcp-workspace:/root/.mcp-servers/workspace
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
@@ -50,6 +52,8 @@ services:
     build:
       context: ../..
       dockerfile: src/dify/Dockerfile
+    volumes:
+      - mcp-workspace:/root/.mcp-servers/workspace
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
@@ -66,6 +70,8 @@ services:
     build:
       context: ../..
       dockerfile: src/pdf/Dockerfile
+    volumes:
+      - mcp-workspace:/root/.mcp-servers/workspace
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
@@ -78,6 +84,8 @@ services:
     build:
       context: ../..
       dockerfile: src/xlsx/Dockerfile
+    volumes:
+      - mcp-workspace:/root/.mcp-servers/workspace
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
@@ -90,6 +98,8 @@ services:
     build:
       context: ../..
       dockerfile: src/docx/Dockerfile
+    volumes:
+      - mcp-workspace:/root/.mcp-servers/workspace
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
@@ -102,6 +112,8 @@ services:
     build:
       context: ../..
       dockerfile: src/pptx/Dockerfile
+    volumes:
+      - mcp-workspace:/root/.mcp-servers/workspace
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
@@ -114,6 +126,8 @@ services:
     build:
       context: ../..
       dockerfile: src/preview/Dockerfile
+    volumes:
+      - mcp-workspace:/root/.mcp-servers/workspace
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
@@ -128,6 +142,8 @@ services:
     build:
       context: ../..
       dockerfile: src/vectorstore/Dockerfile
+    volumes:
+      - mcp-workspace:/root/.mcp-servers/workspace
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
@@ -141,6 +157,8 @@ services:
     build:
       context: ../..
       dockerfile: src/data-analysis/Dockerfile
+    volumes:
+      - mcp-workspace:/root/.mcp-servers/workspace
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
@@ -153,6 +171,8 @@ services:
     build:
       context: ../..
       dockerfile: src/frontend-design/Dockerfile
+    volumes:
+      - mcp-workspace:/root/.mcp-servers/workspace
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
@@ -165,6 +185,8 @@ services:
     build:
       context: ../..
       dockerfile: src/nano-banana/Dockerfile
+    volumes:
+      - mcp-workspace:/root/.mcp-servers/workspace
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
@@ -178,6 +200,8 @@ services:
     build:
       context: ../..
       dockerfile: src/o3/Dockerfile
+    volumes:
+      - mcp-workspace:/root/.mcp-servers/workspace
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
@@ -189,3 +213,6 @@ services:
 networks:
   mcp-network:
     driver: bridge
+
+volumes:
+  mcp-workspace:

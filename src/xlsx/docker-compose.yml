@@ -6,8 +6,11 @@ services:
     ports:
       - "8012:8012"
     volumes:
-      - ./workspace:/workspace
+      - mcp-workspace:/root/.mcp-servers/workspace
       - ./src:/app/src/xlsx/src
     environment:
       - TRANSPORT=sse
       - PORT=8012
+
+volumes:
+  mcp-workspace:

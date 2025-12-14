@@ -1,14 +1,19 @@
 """Workspace directory management for MCP servers.
 
-Provides a standard location (~/.mcp-servers/{server}/) for server-specific
-runtime data like databases, caches, logs, and temporary files.
+Provides a shared workspace at ~/.mcp-servers/workspace/ for all servers,
+enabling inter-server file sharing. All servers can read/write files in this
+common location.
 
 Directory structure:
     ~/.mcp-servers/
-    ├── data-analysis/   # data-analysis server workspace
-    ├── browser/         # browser server workspace
-    ├── preview/         # preview server workspace
-    └── ...
+    └── workspace/       # Shared workspace for all servers
+        ├── data_analysis_history.db  # data-analysis query history
+        ├── browser_screenshot.png    # browser screenshots
+        └── ...
+
+Usage:
+    from core import SHARED_WORKSPACE, get_workspace
+    workspace = get_workspace(SHARED_WORKSPACE)  # ~/.mcp-servers/workspace/
 """
 
 import os
@@ -18,6 +23,9 @@ from pathlib import Path
 # Base directory for all MCP server workspaces
 MCP_SERVERS_BASE = Path.home() / ".mcp-servers"
 
+# Shared workspace name for all servers to enable inter-server file sharing
+SHARED_WORKSPACE = "workspace"
+
 
 def get_workspace(server_name: str) -> Path:
     """Get the workspace directory for an MCP server.
@@ -25,7 +33,9 @@ def get_workspace(server_name: str) -> Path:
     Creates the directory if it doesn't exist.
 
     Args:
-        server_name: Name of the server (e.g., "data-analysis", "browser")
+        server_name: Workspace identifier. Use SHARED_WORKSPACE constant for
+            inter-server file sharing (recommended), or a server-specific name
+            for isolated storage.
 
     Returns:
         Path to the workspace directory (created with 0o700 permissions)
