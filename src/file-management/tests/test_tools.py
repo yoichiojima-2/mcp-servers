@@ -122,3 +122,53 @@ async def test_path_traversal_blocked():
         res = await client.call_tool("write_file", {"file_path": "/tmp/../etc/test.txt", "content": "test"})
         result = res.content[0].text.lower()
         assert "error" in result
+
+
+@pytest.mark.asyncio
+async def test_symlink_to_forbidden_blocked():
+    """Test that symlinks to forbidden paths are blocked."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        symlink = Path(tmpdir) / "link_to_etc"
+        try:
+            symlink.symlink_to("/etc")
+
+            async with Client(mcp) as client:
+                res = await client.call_tool("write_file", {"file_path": str(symlink / "test.txt"), "content": "test"})
+                assert "error" in res.content[0].text.lower()
+        except OSError:
+            # Skip if symlinks not supported (e.g., some Windows configs)
+            pytest.skip("Symlinks not supported on this system")
+
+
+@pytest.mark.asyncio
+async def test_delete_file():
+    """Test deleting a file."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file_path = str(Path(tmpdir) / "test.txt")
+
+        async with Client(mcp) as client:
+            # Create file
+            await client.call_tool("write_file", {"file_path": file_path, "content": "test"})
+            assert Path(file_path).exists()
+
+            # Delete file
+            res = await client.call_tool("delete_file", {"file_path": file_path})
+            assert "Successfully deleted" in res.content[0].text
+            assert not Path(file_path).exists()
+
+
+@pytest.mark.asyncio
+async def test_delete_nonexistent_file():
+    """Test deleting a file that doesn't exist."""
+    async with Client(mcp) as client:
+        res = await client.call_tool("delete_file", {"file_path": "/nonexistent/path/file.txt"})
+        assert "Error: File not found" in res.content[0].text
+
+
+@pytest.mark.asyncio
+async def test_delete_forbidden_path_blocked():
+    """Test that deleting system paths is blocked."""
+    async with Client(mcp) as client:
+        res = await client.call_tool("delete_file", {"file_path": "/etc/passwd"})
+        result = res.content[0].text.lower()
+        assert "error" in result

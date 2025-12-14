@@ -1,12 +1,17 @@
 import base64
 import binascii
+import platform
 from pathlib import Path
 
 from core import get_workspace
 
 from . import mcp
 
-FORBIDDEN_WRITE_PATHS = [
+# Maximum file size for read operations (100MB)
+MAX_FILE_SIZE = 100 * 1024 * 1024
+
+# Unix system paths
+FORBIDDEN_WRITE_PATHS_UNIX = [
     "/bin",
     "/sbin",
     "/usr/bin",
@@ -19,11 +24,24 @@ FORBIDDEN_WRITE_PATHS = [
     "/root",
     "/System",
     "/Library",
+    "/opt",
+    "/Applications",
     # /var subdirectories (but not /var/folders or /var/tmp which are safe for temp files)
     "/var/log",
     "/var/db",
     "/var/run",
 ]
+
+# Windows system paths
+FORBIDDEN_WRITE_PATHS_WINDOWS = [
+    "C:\\Windows",
+    "C:\\Program Files",
+    "C:\\Program Files (x86)",
+    "C:\\ProgramData",
+]
+
+# Select paths based on platform
+FORBIDDEN_WRITE_PATHS = FORBIDDEN_WRITE_PATHS_WINDOWS if platform.system() == "Windows" else FORBIDDEN_WRITE_PATHS_UNIX
 
 
 def _is_path_in_forbidden(resolved: Path, forbidden: str) -> bool:
@@ -89,7 +107,7 @@ def write_file(file_path: str, content: str, encoding: str = "utf-8") -> str:
     except ValueError as e:
         return f"Error: {e}"
     except PermissionError:
-        return f"Error: Permission denied: {file_path}"
+        return f"Error: Permission denied: {Path(file_path).expanduser().resolve()}"
     except Exception as e:
         return f"Error: {e}"
 
@@ -119,7 +137,7 @@ def write_binary(file_path: str, content_base64: str) -> str:
     except ValueError as e:
         return f"Error: {e}"
     except PermissionError:
-        return f"Error: Permission denied: {file_path}"
+        return f"Error: Permission denied: {Path(file_path).expanduser().resolve()}"
     except binascii.Error:
         return "Error: Invalid base64 content"
     except Exception as e:
@@ -153,7 +171,7 @@ def append_file(file_path: str, content: str, encoding: str = "utf-8") -> str:
     except ValueError as e:
         return f"Error: {e}"
     except PermissionError:
-        return f"Error: Permission denied: {file_path}"
+        return f"Error: Permission denied: {Path(file_path).expanduser().resolve()}"
     except Exception as e:
         return f"Error: {e}"
 
@@ -173,15 +191,19 @@ def read_file(file_path: str, encoding: str = "utf-8") -> str:
     try:
         path = Path(file_path).expanduser().resolve()
 
-        if not path.exists():
-            return f"Error: File not found: {path}"
-        if not path.is_file():
-            return f"Error: Not a file: {path}"
+        # Check file size before reading to prevent memory exhaustion
+        if path.exists() and path.stat().st_size > MAX_FILE_SIZE:
+            return f"Error: File too large ({path.stat().st_size:,} bytes, max: {MAX_FILE_SIZE:,}): {path}"
 
+        # Let exceptions handle TOCTOU race conditions
         content = path.read_text(encoding=encoding)
         return content
+    except FileNotFoundError:
+        return f"Error: File not found: {Path(file_path).expanduser().resolve()}"
+    except IsADirectoryError:
+        return f"Error: Not a file: {Path(file_path).expanduser().resolve()}"
     except PermissionError:
-        return f"Error: Permission denied: {file_path}"
+        return f"Error: Permission denied: {Path(file_path).expanduser().resolve()}"
     except UnicodeDecodeError:
         return f"Error: Cannot decode file with encoding '{encoding}'. Try read_binary for binary files."
     except Exception as e:
@@ -202,15 +224,19 @@ def read_binary(file_path: str) -> str:
     try:
         path = Path(file_path).expanduser().resolve()
 
-        if not path.exists():
-            return f"Error: File not found: {path}"
-        if not path.is_file():
-            return f"Error: Not a file: {path}"
+        # Check file size before reading to prevent memory exhaustion
+        if path.exists() and path.stat().st_size > MAX_FILE_SIZE:
+            return f"Error: File too large ({path.stat().st_size:,} bytes, max: {MAX_FILE_SIZE:,}): {path}"
 
+        # Let exceptions handle TOCTOU race conditions
         content = path.read_bytes()
         return base64.b64encode(content).decode("ascii")
+    except FileNotFoundError:
+        return f"Error: File not found: {Path(file_path).expanduser().resolve()}"
+    except IsADirectoryError:
+        return f"Error: Not a file: {Path(file_path).expanduser().resolve()}"
     except PermissionError:
-        return f"Error: Permission denied: {file_path}"
+        return f"Error: Permission denied: {Path(file_path).expanduser().resolve()}"
     except Exception as e:
         return f"Error: {e}"
 
@@ -249,6 +275,36 @@ def list_directory(dir_path: str, pattern: str = "*") -> str:
 
         return "\n".join(lines)
     except PermissionError:
-        return f"Error: Permission denied: {dir_path}"
+        return f"Error: Permission denied: {Path(dir_path).expanduser().resolve()}"
+    except Exception as e:
+        return f"Error: {e}"
+
+
+@mcp.tool()
+def delete_file(file_path: str) -> str:
+    """
+    Delete a file.
+
+    Args:
+        file_path: Path to the file to delete (supports ~ expansion)
+
+    Returns:
+        Success message, or error message
+    """
+    try:
+        path = Path(file_path).expanduser().resolve()
+        _validate_write_path(path)
+
+        if not path.exists():
+            return f"Error: File not found: {path}"
+        if not path.is_file():
+            return f"Error: Not a file: {path}"
+
+        path.unlink()
+        return f"Successfully deleted: {path}"
+    except ValueError as e:
+        return f"Error: {e}"
+    except PermissionError:
+        return f"Error: Permission denied: {Path(file_path).expanduser().resolve()}"
     except Exception as e:
         return f"Error: {e}"

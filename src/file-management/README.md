@@ -7,8 +7,11 @@ MCP server for file read/write operations.
 - Read/write text files
 - Read/write binary files (base64 encoded)
 - Append to files
+- Delete files
 - List directory contents
 - Path validation to prevent writing to system directories
+- File size limits (100MB max for read operations)
+- Cross-platform support (Unix and Windows)
 
 ## Tools
 
@@ -21,6 +24,7 @@ MCP server for file read/write operations.
 | `read_file` | Read text content from a file |
 | `read_binary` | Read binary content from a file (base64) |
 | `list_directory` | List files in a directory |
+| `delete_file` | Delete a file |
 
 ## Usage
 
