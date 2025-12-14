@@ -8,8 +8,8 @@ Example configuration for using MCP servers with Claude Desktop.
    - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
    - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 
-2. Update paths and tokens:
-   - Replace `/path/to/mcp-servers` with your actual repo path
+2. Update paths and tokens (use absolute paths):
+   - Replace `/path/to/mcp-servers` with your actual repo path (e.g., `/Users/yo/Developer/mcp-servers`)
    - Replace `/Users/username/...` with your actual paths for filesystem access
    - Replace `<your-github-token>` with your GitHub personal access token
 

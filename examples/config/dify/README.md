@@ -4,8 +4,9 @@ Example configuration for using MCP servers with [Dify](https://dify.ai/).
 
 ## Setup
 
-1. Start the MCP servers:
+1. Start the MCP servers from the repository root:
    ```bash
+   cd /path/to/mcp-servers
    docker compose up -d
    ```
 
