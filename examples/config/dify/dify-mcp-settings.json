@@ -1,4 +1,10 @@
 {
+  "composite": {
+    "url": "http://host.docker.internal:8000/sse",
+    "headers": {},
+    "timeout": 50,
+    "sse_read_timeout": 50
+  },
   "browser": {
     "url": "http://host.docker.internal:8001/sse",
     "headers": {},
