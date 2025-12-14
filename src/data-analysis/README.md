@@ -43,7 +43,7 @@ SELECT * FROM 'data.csv' LIMIT 10
 
 ## Query History
 
-All queries are automatically logged to `~/.mcp-servers/workspace/history.db` with:
+All queries are automatically logged to `~/.mcp-servers/workspace/data_analysis_history.db` with:
 - Query text and timestamp
 - Execution time and row count
 - Full query results (cached)
