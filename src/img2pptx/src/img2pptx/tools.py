@@ -61,7 +61,7 @@ def _validate_output_path(path: Path) -> None:
     if path.suffix.lower() != ".pptx":
         raise ValueError(f"Output must be .pptx, got: {path.suffix}")
     for forbidden in FORBIDDEN_PATHS:
-        if resolved.startswith(forbidden + "/"):
+        if resolved == forbidden or resolved.startswith(forbidden + "/"):
             raise ValueError(f"Cannot write to system directory: {forbidden}")
     if not path.parent.exists():
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -111,7 +111,10 @@ Respond in JSON format:
         response_format={"type": "json_object"},
     )
 
-    return json.loads(response.choices[0].message.content)
+    try:
+        return json.loads(response.choices[0].message.content)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Failed to parse GPT response as JSON: {e}")
 
 
 def _create_slide(prs: Presentation, content: dict) -> None:

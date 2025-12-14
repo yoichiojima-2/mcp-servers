@@ -19,6 +19,7 @@ services:
       - docx
       - file-management
       - frontend-design
+      - img2pptx
       - nano-banana
       - o3
       - pdf
@@ -192,6 +193,21 @@ services:
       - TRANSPORT=sse
       - HOST=0.0.0.0
       - PORT=8006
+    networks:
+      - mcp-network
+
+  img2pptx:
+    image: img2pptx:latest
+    build:
+      context: ../..
+      dockerfile: src/img2pptx/Dockerfile
+    volumes:
+      - mcp-workspace:/root/.mcp-servers/workspace
+    environment:
+      - TRANSPORT=sse
+      - HOST=0.0.0.0
+      - PORT=8013
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     networks:
       - mcp-network
 
