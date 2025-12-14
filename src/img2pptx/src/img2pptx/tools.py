@@ -7,6 +7,7 @@ to extract content and structure.
 """
 
 import base64
+import json
 import os
 from pathlib import Path
 
@@ -68,7 +69,13 @@ def _validate_output_path(path: Path) -> None:
 
 def _image_to_base64(image_path: Path) -> str:
     """Convert image to base64 data URL."""
-    mime_types = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp"}
+    mime_types = {
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".webp": "image/webp",
+        ".gif": "image/gif",
+    }
     mime = mime_types.get(image_path.suffix.lower(), "image/png")
     with open(image_path, "rb") as f:
         encoded = base64.b64encode(f.read()).decode("utf-8")
@@ -104,15 +111,16 @@ Respond in JSON format:
         response_format={"type": "json_object"},
     )
 
-    import json
-
     return json.loads(response.choices[0].message.content)
 
 
 def _create_slide(prs: Presentation, content: dict) -> None:
     """Create a slide from extracted content."""
-    # Use title and content layout
-    layout = prs.slide_layouts[1]  # Title and Content
+    # Use title and content layout, with fallback
+    try:
+        layout = prs.slide_layouts[1]  # Title and Content
+    except IndexError:
+        layout = prs.slide_layouts[0]  # Fallback to first available
     slide = prs.slides.add_slide(layout)
 
     # Set title
