@@ -225,18 +225,26 @@ Old environment variables (`WORKSPACE`, `DATA_ANALYSIS_WORKSPACE`, `BROWSER_WORK
    # If migrating from local ./workspace directory:
    mv ./workspace/* ~/.mcp-servers/workspace/
 
-   # If migrating from per-server workspaces:
-   [ -d ~/.mcp-servers/browser ] && mv ~/.mcp-servers/browser/* ~/.mcp-servers/workspace/ 2>/dev/null || true
-   [ -d ~/.mcp-servers/data-analysis ] && mv ~/.mcp-servers/data-analysis/* ~/.mcp-servers/workspace/ 2>/dev/null || true
-   [ -d ~/.mcp-servers/preview ] && mv ~/.mcp-servers/preview/* ~/.mcp-servers/workspace/ 2>/dev/null || true
-   [ -d ~/.mcp-servers/nano-banana ] && mv ~/.mcp-servers/nano-banana/* ~/.mcp-servers/workspace/ 2>/dev/null || true
+   # If migrating from per-server workspaces (uses -n to prevent overwriting):
+   for dir in browser data-analysis preview nano-banana; do
+       if [ -d ~/.mcp-servers/$dir ]; then
+           echo "Migrating ~/.mcp-servers/$dir..."
+           mv -n ~/.mcp-servers/$dir/* ~/.mcp-servers/workspace/ 2>/dev/null || true
+       fi
+   done
    ```
 
    **Important**: The `data-analysis` server stores query history in `data_analysis_history.db`. If you have existing query history you want to preserve:
    ```bash
-   # Migrate data-analysis history database
-   [ -f ~/.mcp-servers/data-analysis/history.db ] && \
-       mv ~/.mcp-servers/data-analysis/history.db ~/.mcp-servers/workspace/data_analysis_history.db
+   # Migrate data-analysis history database (check for conflicts first)
+   if [ -f ~/.mcp-servers/data-analysis/history.db ]; then
+       if [ -f ~/.mcp-servers/workspace/data_analysis_history.db ]; then
+           echo "Warning: data_analysis_history.db already exists, skipping migration"
+       else
+           mv ~/.mcp-servers/data-analysis/history.db ~/.mcp-servers/workspace/data_analysis_history.db
+           echo "Migrated history.db to data_analysis_history.db"
+       fi
+   fi
    ```
 
 2. Remove old environment variables from your Claude Desktop config or docker-compose files:
