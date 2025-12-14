@@ -25,9 +25,18 @@ MCP server for file read/write operations.
 ## Usage
 
 ```bash
-# Run standalone
-uv run fastmcp run src/file_management/server.py:mcp
+# Run standalone (from repository root)
+cd src/file-management && uv run python -m file_management
+
+# Or using fastmcp directly
+cd src/file-management && uv run fastmcp run src/file_management/server.py:mcp
 
 # Or enable in composite server
 # Set enabled: true in composite-config.yaml
+```
+
+## Testing
+
+```bash
+cd src/file-management && uv run pytest -v
 ```

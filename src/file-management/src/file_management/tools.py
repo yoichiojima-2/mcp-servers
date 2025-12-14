@@ -37,28 +37,19 @@ def _is_path_in_forbidden(resolved: Path, forbidden: str) -> bool:
 
 
 def _validate_write_path(path: Path) -> None:
-    """Validate that the path is safe to write to."""
+    """Validate that the path is safe to write to.
+
+    Security: path.resolve() follows all symlinks (both in the path itself and
+    any parent directories), so checking the resolved path is sufficient to
+    prevent symlink-based attacks targeting forbidden directories.
+    """
     resolved = path.resolve()
 
     # Check if resolved path is in forbidden locations
+    # This catches all symlink attacks since resolve() follows symlinks
     for forbidden in FORBIDDEN_WRITE_PATHS:
         if _is_path_in_forbidden(resolved, forbidden):
             raise ValueError(f"Cannot write to system directory: {forbidden}")
-
-    # Check if the target path itself is a symlink to a forbidden location
-    if path.exists() and path.is_symlink():
-        link_target = path.resolve()
-        for forbidden in FORBIDDEN_WRITE_PATHS:
-            if _is_path_in_forbidden(link_target, forbidden):
-                raise ValueError(f"Cannot write through symlink to system directory: {forbidden}")
-
-    # Check if any parent is a symlink pointing to a forbidden location
-    for parent in path.parents:
-        if parent.exists() and parent.is_symlink():
-            link_target = parent.resolve()
-            for forbidden in FORBIDDEN_WRITE_PATHS:
-                if _is_path_in_forbidden(link_target, forbidden):
-                    raise ValueError(f"Cannot write through symlink to system directory: {forbidden}")
 
 
 @mcp.tool()

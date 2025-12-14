@@ -1,0 +1,16 @@
+services:
+  file-management:
+    build:
+      context: ../..
+      dockerfile: src/file-management/Dockerfile
+    ports:
+      - "8013:8013"
+    volumes:
+      - mcp-workspace:/root/.mcp-servers/workspace
+      - ./src:/app/src/file-management/src
+    environment:
+      - TRANSPORT=sse
+      - PORT=8013
+
+volumes:
+  mcp-workspace:

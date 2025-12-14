@@ -1,5 +1,6 @@
 """Tests for file-management tools."""
 
+import base64
 import tempfile
 from pathlib import Path
 
@@ -79,5 +80,45 @@ async def test_write_to_forbidden_path():
     """Test that writing to system paths is blocked."""
     async with Client(mcp) as client:
         res = await client.call_tool("write_file", {"file_path": "/etc/test.txt", "content": "test"})
+        result = res.content[0].text.lower()
+        assert "error" in result
+
+
+@pytest.mark.asyncio
+async def test_write_and_read_binary():
+    """Test writing and reading binary files."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file_path = str(Path(tmpdir) / "test.bin")
+        content = b"\x00\x01\x02\x03\xff\xfe"
+        content_base64 = base64.b64encode(content).decode("ascii")
+
+        async with Client(mcp) as client:
+            # Write binary
+            res = await client.call_tool("write_binary", {"file_path": file_path, "content_base64": content_base64})
+            assert "Successfully wrote" in res.content[0].text
+
+            # Read binary
+            res = await client.call_tool("read_binary", {"file_path": file_path})
+            assert res.content[0].text == content_base64
+
+
+@pytest.mark.asyncio
+async def test_write_binary_invalid_base64():
+    """Test that invalid base64 content is rejected."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file_path = str(Path(tmpdir) / "test.bin")
+
+        async with Client(mcp) as client:
+            res = await client.call_tool(
+                "write_binary", {"file_path": file_path, "content_base64": "not-valid-base64!!!"}
+            )
+            assert "error" in res.content[0].text.lower()
+
+
+@pytest.mark.asyncio
+async def test_path_traversal_blocked():
+    """Test that path traversal attempts are blocked."""
+    async with Client(mcp) as client:
+        res = await client.call_tool("write_file", {"file_path": "/tmp/../etc/test.txt", "content": "test"})
         result = res.content[0].text.lower()
         assert "error" in result
