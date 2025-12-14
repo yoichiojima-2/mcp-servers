@@ -93,7 +93,7 @@ Each server provides a `get_workspace_path()` tool that returns the workspace di
 
 When running servers in Docker, workspace data is stored in named volumes.
 
-**Important**: The shared workspace only works when running via the composite server:
+> ⚠️ **Docker Volume Limitation**: The shared workspace only works when running via the composite server. Running individual servers creates separate volumes that do NOT share data:
 
 ```bash
 # Composite mode (recommended) - all servers share one volume
@@ -251,11 +251,25 @@ Old environment variables (`WORKSPACE`, `DATA_ANALYSIS_WORKSPACE`, `BROWSER_WORK
    # If migrating from local ./workspace directory:
    mv ./workspace/* ~/.mcp-servers/workspace/
 
-   # If migrating from per-server workspaces (uses -n to prevent overwriting):
+   # If migrating from per-server workspaces:
    for dir in browser data-analysis preview nano-banana; do
        if [ -d ~/.mcp-servers/$dir ]; then
-           echo "Migrating ~/.mcp-servers/$dir..."
-           mv -n ~/.mcp-servers/$dir/* ~/.mcp-servers/workspace/ 2>/dev/null || true
+           echo "Checking ~/.mcp-servers/$dir..."
+           count=0
+           skipped=0
+           for file in ~/.mcp-servers/$dir/*; do
+               [ -e "$file" ] || continue
+               base=$(basename "$file")
+               if [ -e ~/.mcp-servers/workspace/"$base" ]; then
+                   echo "  Skipped: $base (already exists)"
+                   skipped=$((skipped + 1))
+               else
+                   mv "$file" ~/.mcp-servers/workspace/
+                   echo "  Migrated: $base"
+                   count=$((count + 1))
+               fi
+           done
+           echo "  Summary: $count migrated, $skipped skipped"
        fi
    done
    ```
