@@ -9,8 +9,8 @@
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "/Users/username/Documents",
-        "/Users/username/Desktop"
+        "/path/to/documents",
+        "/path/to/desktop"
       ]
     },
     "github": {

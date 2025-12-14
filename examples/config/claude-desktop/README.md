@@ -10,7 +10,7 @@ Example configuration for using MCP servers with Claude Desktop.
 
 2. Update paths and tokens (use absolute paths):
    - Replace `/path/to/mcp-servers` with your actual repo path (e.g., `/Users/yo/Developer/mcp-servers`)
-   - Replace `/Users/username/...` with your actual paths for filesystem access
+   - Replace `/path/to/documents` and `/path/to/desktop` with directories you want Claude to access
    - Replace `<your-github-token>` with your GitHub personal access token
 
 3. Restart Claude Desktop
@@ -30,6 +30,6 @@ Example configuration for using MCP servers with Claude Desktop.
 
 ## Security
 
-- Never commit config files with real tokens to version control
-- Add `claude_desktop_config.json` to `.gitignore` if tracking config files
+- Never commit your actual config with real tokens to version control
+- Keep your personal `claude_desktop_config.json` only in Claude's config directory
 - Consider using environment variables for sensitive values

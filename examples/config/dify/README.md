@@ -16,7 +16,7 @@ Example configuration for using MCP servers with [Dify](https://dify.ai/).
 
 ## Configuration
 
-The `dify-mcp-settings.json` contains SSE endpoints for all servers:
+The `dify-mcp-settings.json` file in this directory contains SSE endpoints for all servers:
 
 | Server | Port | Description |
 |--------|------|-------------|
