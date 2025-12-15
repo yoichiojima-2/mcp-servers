@@ -4,7 +4,7 @@ import json
 import webbrowser
 from pathlib import Path
 
-from core import SHARED_WORKSPACE, get_workspace, get_workspace_file
+from core import WORKSPACE, get_workspace, get_workspace_file
 
 from . import mcp
 from .http_server import broadcast_reload, ensure_server_running, get_base_url
@@ -19,7 +19,7 @@ def get_workspace_path() -> str:
     Returns:
         Path to ~/.mcp-servers/workspace/ where screenshots, PDFs, and other files are saved.
     """
-    return str(get_workspace(SHARED_WORKSPACE))
+    return str(get_workspace(WORKSPACE))
 
 
 @mcp.tool()
@@ -483,7 +483,7 @@ async def screenshot_page(
     if not filename:
         filename = f"preview_{name}.png"
 
-    filepath = get_workspace_file(SHARED_WORKSPACE, filename)
+    filepath = get_workspace_file(WORKSPACE, filename)
     filepath.parent.mkdir(parents=True, exist_ok=True)
 
     try:
@@ -537,7 +537,7 @@ async def export_pdf(
     if not filename:
         filename = f"preview_{name}.pdf"
 
-    filepath = get_workspace_file(SHARED_WORKSPACE, filename)
+    filepath = get_workspace_file(WORKSPACE, filename)
     filepath.parent.mkdir(parents=True, exist_ok=True)
 
     try:

@@ -15,7 +15,7 @@ from google import genai
 from google.genai import types
 from PIL import Image
 
-from core import SHARED_WORKSPACE, get_workspace
+from core import WORKSPACE, get_workspace
 
 from . import mcp
 
@@ -333,7 +333,7 @@ def get_workspace_path() -> str:
     Returns:
         Path to ~/.mcp-servers/workspace/ where images should be saved.
     """
-    return str(get_workspace(SHARED_WORKSPACE))
+    return str(get_workspace(WORKSPACE))
 
 
 @mcp.tool()

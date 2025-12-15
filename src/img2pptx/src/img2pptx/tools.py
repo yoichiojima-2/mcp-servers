@@ -17,7 +17,7 @@ from openai import AuthenticationError, OpenAI, OpenAIError, RateLimitError
 from pptx import Presentation
 from pptx.util import Inches, Pt
 
-from core import SHARED_WORKSPACE, get_workspace
+from core import WORKSPACE, get_workspace
 
 from . import mcp
 
@@ -226,7 +226,7 @@ def get_workspace_path() -> str:
     Returns:
         Path to ~/.mcp-servers/workspace/
     """
-    return str(get_workspace(SHARED_WORKSPACE))
+    return str(get_workspace(WORKSPACE))
 
 
 @mcp.tool()

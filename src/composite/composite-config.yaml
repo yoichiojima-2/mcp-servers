@@ -80,3 +80,9 @@ servers:
     module: preview
     description: HTML preview server with live reload
 
+  shell:
+    enabled: false
+    prefix: shell
+    module: shell
+    description: shell command execution with allowlist security
+

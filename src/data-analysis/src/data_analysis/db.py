@@ -8,7 +8,7 @@ from typing import Optional
 
 import duckdb
 
-from core import SHARED_WORKSPACE, get_workspace_file
+from core import WORKSPACE, get_workspace_file
 
 
 def _get_env_int(name: str, default: int, min_value: int = 1, max_value: Optional[int] = None) -> int:
@@ -63,8 +63,8 @@ class HistoryDB:
             OSError: If workspace directory cannot be created
         """
         if db_path is None:
-            new_db_path = get_workspace_file(SHARED_WORKSPACE, "data_analysis_history.db")
-            old_db_path = get_workspace_file(SHARED_WORKSPACE, "history.db")
+            new_db_path = get_workspace_file(WORKSPACE, "data_analysis_history.db")
+            old_db_path = get_workspace_file(WORKSPACE, "history.db")
 
             # Auto-migrate from old history.db if it exists
             if old_db_path.exists() and not new_db_path.exists():

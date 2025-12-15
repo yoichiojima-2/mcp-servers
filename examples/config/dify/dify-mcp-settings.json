@@ -30,49 +30,61 @@
     "sse_read_timeout": 50
   },
   "frontend-design": {
-    "url": "http://host.docker.internal:8005/sse",
-    "headers": {},
-    "timeout": 50,
-    "sse_read_timeout": 50
-  },
-  "nano-banana": {
     "url": "http://host.docker.internal:8006/sse",
     "headers": {},
     "timeout": 50,
     "sse_read_timeout": 50
   },
-  "o3": {
+  "img2pptx": {
     "url": "http://host.docker.internal:8007/sse",
     "headers": {},
     "timeout": 50,
     "sse_read_timeout": 50
   },
-  "pdf": {
+  "nano-banana": {
     "url": "http://host.docker.internal:8008/sse",
     "headers": {},
     "timeout": 50,
     "sse_read_timeout": 50
   },
-  "pptx": {
+  "o3": {
     "url": "http://host.docker.internal:8009/sse",
     "headers": {},
     "timeout": 50,
     "sse_read_timeout": 50
   },
-  "preview": {
+  "pdf": {
     "url": "http://host.docker.internal:8010/sse",
     "headers": {},
     "timeout": 50,
     "sse_read_timeout": 50
   },
-  "vectorstore": {
+  "pptx": {
     "url": "http://host.docker.internal:8011/sse",
     "headers": {},
     "timeout": 50,
     "sse_read_timeout": 50
   },
-  "xlsx": {
+  "preview": {
     "url": "http://host.docker.internal:8012/sse",
+    "headers": {},
+    "timeout": 50,
+    "sse_read_timeout": 50
+  },
+  "vectorstore": {
+    "url": "http://host.docker.internal:8013/sse",
+    "headers": {},
+    "timeout": 50,
+    "sse_read_timeout": 50
+  },
+  "xlsx": {
+    "url": "http://host.docker.internal:8014/sse",
+    "headers": {},
+    "timeout": 50,
+    "sse_read_timeout": 50
+  },
+  "shell": {
+    "url": "http://host.docker.internal:8015/sse",
     "headers": {},
     "timeout": 50,
     "sse_read_timeout": 50

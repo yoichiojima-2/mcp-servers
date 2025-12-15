@@ -22,6 +22,7 @@ members = [
     "pdf",
     "pptx",
     "preview",
+    "shell",
     "vectorstore",
     "xlsx",
 ]
@@ -416,6 +417,7 @@ dependencies = [
     { name = "pptx" },
     { name = "preview" },
     { name = "pyyaml" },
+    { name = "shell" },
     { name = "starlette" },
     { name = "vectorstore" },
     { name = "xlsx" },
@@ -436,6 +438,7 @@ requires-dist = [
     { name = "pptx", editable = "src/pptx" },
     { name = "preview", editable = "src/preview" },
     { name = "pyyaml", specifier = ">=6.0" },
+    { name = "shell", editable = "src/shell" },
     { name = "starlette", specifier = ">=0.41.3" },
     { name = "vectorstore", editable = "src/vectorstore" },
     { name = "xlsx", editable = "src/xlsx" },
@@ -3126,6 +3129,17 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/02/1c/65c61a0859c0add13a3e1cbb6024b42de587456a43006ca2d4fd3d1618fe/ruff-0.14.8-py3-none-win_amd64.whl", hash = "sha256:9eeb0b24242b5bbff3011409a739929f497f3fb5fe3b5698aba5e77e8c833097", size = 14537826, upload-time = "2025-12-04T15:06:26.409Z" },
     { url = "https://files.pythonhosted.org/packages/6d/63/8b41cea3afd7f58eb64ac9251668ee0073789a3bc9ac6f816c8c6fef986d/ruff-0.14.8-py3-none-win_arm64.whl", hash = "sha256:965a582c93c63fe715fd3e3f8aa37c4b776777203d8e1d8aa3cc0c14424a4b99", size = 13634522, upload-time = "2025-12-04T15:06:43.212Z" },
 ]
+
+[[package]]
+name = "shell"
+version = "0.1.0"
+source = { editable = "src/shell" }
+dependencies = [
+    { name = "core" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "core", editable = "src/core" }]
 
 [[package]]
 name = "shellingham"

@@ -136,16 +136,16 @@ class TestMCPServersBase:
 
 
 class TestSharedWorkspace:
-    """Tests for SHARED_WORKSPACE constant."""
+    """Tests for WORKSPACE constant."""
 
     def test_shared_workspace_constant(self):
-        """Test SHARED_WORKSPACE constant is defined and exported correctly."""
-        from core import SHARED_WORKSPACE
+        """Test WORKSPACE constant is defined and exported correctly."""
+        from core import WORKSPACE
 
-        assert SHARED_WORKSPACE == "workspace"
+        assert WORKSPACE == "workspace"
 
     def test_shared_workspace_creates_shared_directory(self, tmp_path, monkeypatch):
-        """Test SHARED_WORKSPACE creates the shared workspace directory."""
+        """Test WORKSPACE creates the shared workspace directory."""
         monkeypatch.setenv("HOME", str(tmp_path))
 
         import importlib
@@ -154,14 +154,14 @@ class TestSharedWorkspace:
 
         importlib.reload(core.workspace)
 
-        workspace = core.workspace.get_workspace(core.workspace.SHARED_WORKSPACE)
+        workspace = core.workspace.get_workspace(core.workspace.WORKSPACE)
 
         assert workspace == tmp_path / ".mcp-servers" / "workspace"
         assert workspace.exists()
         assert workspace.is_dir()
 
     def test_cross_server_file_sharing(self, tmp_path, monkeypatch):
-        """Test that multiple servers can access the same files via SHARED_WORKSPACE."""
+        """Test that multiple servers can access the same files via WORKSPACE."""
         monkeypatch.setenv("HOME", str(tmp_path))
 
         import importlib
@@ -171,10 +171,10 @@ class TestSharedWorkspace:
         importlib.reload(core.workspace)
 
         # Simulate browser server creating a file
-        browser_file = core.workspace.get_workspace_file(core.workspace.SHARED_WORKSPACE, "browser_screenshot.png")
+        browser_file = core.workspace.get_workspace_file(core.workspace.WORKSPACE, "browser_screenshot.png")
 
         # Simulate preview server accessing the same file
-        preview_file = core.workspace.get_workspace_file(core.workspace.SHARED_WORKSPACE, "browser_screenshot.png")
+        preview_file = core.workspace.get_workspace_file(core.workspace.WORKSPACE, "browser_screenshot.png")
 
         # Both should point to the exact same path
         assert browser_file == preview_file
@@ -191,10 +191,10 @@ class TestSharedWorkspace:
         importlib.reload(core.workspace)
 
         # Server A creates a file
-        file_path = core.workspace.get_workspace_file(core.workspace.SHARED_WORKSPACE, "shared_data.txt")
+        file_path = core.workspace.get_workspace_file(core.workspace.WORKSPACE, "shared_data.txt")
         file_path.parent.mkdir(parents=True, exist_ok=True)
         file_path.write_text("data from server A")
 
         # Server B reads the same file
-        same_file = core.workspace.get_workspace_file(core.workspace.SHARED_WORKSPACE, "shared_data.txt")
+        same_file = core.workspace.get_workspace_file(core.workspace.WORKSPACE, "shared_data.txt")
         assert same_file.read_text() == "data from server A"

@@ -9,21 +9,19 @@
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "/Users/username/Documents",
-        "/Users/username/Desktop",
         "/Users/username/.mcp-servers"
       ]
-    },
-    "github": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "<your-github-token>"
-      }
     },
     "memory": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-memory"]
+    },
+    "shell": {
+      "command": "uv",
+      "args": ["run", "--directory", "/path/to/mcp-servers/src/shell", "python", "-m", "shell"],
+      "env": {
+        "ALLOWED_COMMANDS": "ls,cat,grep,find,git,python,uv,node,npm,npx"
+      }
     }
   }
 }

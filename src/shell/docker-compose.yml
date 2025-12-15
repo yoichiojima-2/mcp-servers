@@ -1,0 +1,14 @@
+services:
+  shell:
+    build:
+      context: ../..
+      dockerfile: src/shell/Dockerfile
+    ports:
+      - "8015:8015"
+    environment:
+      - TRANSPORT=sse
+      - PORT=8015
+      - ALLOWED_COMMANDS=${ALLOWED_COMMANDS:-}
+
+volumes:
+  mcp-workspace:

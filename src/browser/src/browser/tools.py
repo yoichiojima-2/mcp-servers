@@ -9,7 +9,7 @@ from typing import Optional
 
 from playwright.async_api import Browser, Page, TimeoutError, async_playwright
 
-from core import SHARED_WORKSPACE, get_workspace, get_workspace_file
+from core import WORKSPACE, get_workspace, get_workspace_file
 
 from . import mcp
 
@@ -379,7 +379,7 @@ def get_workspace_path() -> str:
     Returns:
         Path to ~/.mcp-servers/workspace/ where screenshots and other files are saved.
     """
-    return str(get_workspace(SHARED_WORKSPACE))
+    return str(get_workspace(WORKSPACE))
 
 
 @mcp.tool()
@@ -395,7 +395,7 @@ async def screenshot(filename: str = "browser_screenshot.png", full_page: bool =
         full_page: Capture full scrollable page
     """
     page = await get_page_unsafe()
-    filepath = get_workspace_file(SHARED_WORKSPACE, filename)
+    filepath = get_workspace_file(WORKSPACE, filename)
     filepath.parent.mkdir(parents=True, exist_ok=True)
     await page.screenshot(path=str(filepath), full_page=full_page, timeout=30000)
     return f"Screenshot saved to {filepath}"

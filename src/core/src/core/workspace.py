@@ -12,8 +12,8 @@ Directory structure:
         └── ...
 
 Usage:
-    from core import SHARED_WORKSPACE, get_workspace
-    workspace = get_workspace(SHARED_WORKSPACE)  # ~/.mcp-servers/workspace/
+    from core import WORKSPACE, get_workspace
+    workspace = get_workspace(WORKSPACE)  # ~/.mcp-servers/workspace/
 """
 
 import os
@@ -24,7 +24,7 @@ from pathlib import Path
 MCP_SERVERS_BASE = Path.home() / ".mcp-servers"
 
 # Shared workspace name for all servers to enable inter-server file sharing
-SHARED_WORKSPACE = "workspace"
+WORKSPACE = "workspace"
 
 
 def get_workspace(server_name: str) -> Path:
@@ -33,7 +33,7 @@ def get_workspace(server_name: str) -> Path:
     Creates the directory if it doesn't exist.
 
     Args:
-        server_name: Workspace identifier. Use SHARED_WORKSPACE constant for
+        server_name: Workspace identifier. Use WORKSPACE constant for
             inter-server file sharing (recommended), or a server-specific name
             for isolated storage.
 

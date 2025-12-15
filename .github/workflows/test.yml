@@ -43,6 +43,7 @@ jobs:
           - pdf
           - pptx
           - preview
+          - shell
           - vectorstore
           - xlsx
 

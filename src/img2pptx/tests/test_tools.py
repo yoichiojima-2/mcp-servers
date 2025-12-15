@@ -8,7 +8,7 @@ import pytest
 from openai import AuthenticationError, OpenAIError, RateLimitError
 from pptx import Presentation
 
-from core import SHARED_WORKSPACE, get_workspace
+from core import WORKSPACE, get_workspace
 
 from img2pptx.tools import (
     _create_slide,
@@ -57,7 +57,7 @@ def test_validate_image_path_too_large(tmp_path):
 
 def test_get_workspace_path():
     """Workspace path should be valid directory."""
-    path = get_workspace(SHARED_WORKSPACE)
+    path = get_workspace(WORKSPACE)
     assert path.exists()
     assert path.is_dir()
 

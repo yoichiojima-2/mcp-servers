@@ -189,6 +189,7 @@ Replace `<server-name>` and `<module_name>` with the appropriate values from the
 | pdf | `pdf` | 8010 | PDF extraction and manipulation |
 | pptx | `pptx_mcp` | 8011 | PowerPoint operations |
 | preview | `preview` | 8012 | HTML preview with live reload |
+| shell | `shell` | 8015 | Shell command execution |
 | vectorstore | `vectorstore` | 8013 | ChromaDB vector operations |
 | xlsx | `xlsx` | 8014 | Excel spreadsheet operations |
 
