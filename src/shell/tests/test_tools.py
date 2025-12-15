@@ -31,8 +31,12 @@ class TestAllowlist:
             "ALLOWED_COMMANDS",
             "ls,cat",
         ):
-            assert _validate_command("ls -la") is None
-            assert _validate_command("cat /etc/hosts") is None
+            tokens, error = _validate_command("ls -la")
+            assert error is None
+            assert tokens == ["ls", "-la"]
+            tokens, error = _validate_command("cat /etc/hosts")
+            assert error is None
+            assert tokens == ["cat", "/etc/hosts"]
 
     def test_validate_command_not_allowed(self):
         with patch.object(
@@ -40,8 +44,9 @@ class TestAllowlist:
             "ALLOWED_COMMANDS",
             "ls,cat",
         ):
-            error = _validate_command("rm -rf /")
+            tokens, error = _validate_command("rm -rf /")
             assert error is not None
+            assert tokens == []
             assert "rm" in error
             assert "not in the allowlist" in error
 
@@ -51,7 +56,9 @@ class TestAllowlist:
             "ALLOWED_COMMANDS",
             "",
         ):
-            assert _validate_command("rm -rf /") is None
+            tokens, error = _validate_command("rm -rf /")
+            assert error is None
+            assert tokens == ["rm", "-rf", "/"]
 
 
 @pytest.mark.asyncio

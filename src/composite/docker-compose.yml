@@ -24,6 +24,7 @@ services:
       - pdf
       - pptx
       - preview
+      - shell
       - vectorstore
       - xlsx
     restart: unless-stopped
@@ -135,6 +136,21 @@ services:
       - PORT=8012
       - HTTP_PORT=3000
       - HTTP_HOST=0.0.0.0
+    networks:
+      - mcp-network
+
+  shell:
+    image: shell:latest
+    build:
+      context: ../..
+      dockerfile: src/shell/Dockerfile
+    volumes:
+      - mcp-workspace:/root/.mcp-servers/workspace
+    environment:
+      - TRANSPORT=sse
+      - HOST=0.0.0.0
+      - PORT=8015
+      - ALLOWED_COMMANDS=${ALLOWED_COMMANDS:-}
     networks:
       - mcp-network
 

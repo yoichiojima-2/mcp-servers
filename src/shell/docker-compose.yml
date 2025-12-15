@@ -5,6 +5,8 @@ services:
       dockerfile: src/shell/Dockerfile
     ports:
       - "8015:8015"
+    volumes:
+      - mcp-workspace:/root/.mcp-servers/workspace
     environment:
       - TRANSPORT=sse
       - PORT=8015

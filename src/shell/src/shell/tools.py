@@ -20,28 +20,29 @@ def _get_allowed_commands() -> set[str] | None:
     return {cmd.strip() for cmd in ALLOWED_COMMANDS.split(",") if cmd.strip()}
 
 
-def _validate_command(command: str) -> str | None:
-    """Validate command against allowlist.
+def _validate_command(command: str) -> tuple[list[str], str | None]:
+    """Validate command against allowlist and parse it.
 
-    Returns None if valid, or an error message if invalid.
+    Returns (tokens, error) where:
+    - tokens: parsed command tokens (empty list if invalid)
+    - error: error message if invalid, None if valid
     """
-    allowed = _get_allowed_commands()
-    if allowed is None:
-        return None  # All commands allowed
-
     try:
-        # Parse the command to get the base command
         tokens = shlex.split(command)
         if not tokens:
-            return "Empty command"
-        base_cmd = os.path.basename(tokens[0])
+            return [], "Empty command"
     except ValueError as e:
-        return f"Failed to parse command: {e}"
+        return [], f"Failed to parse command: {e}"
 
+    allowed = _get_allowed_commands()
+    if allowed is None:
+        return tokens, None  # All commands allowed
+
+    base_cmd = os.path.basename(tokens[0])
     if base_cmd not in allowed:
-        return f"Command '{base_cmd}' is not in the allowlist. Allowed: {', '.join(sorted(allowed))}"
+        return [], f"Command '{base_cmd}' is not in the allowlist. Allowed: {', '.join(sorted(allowed))}"
 
-    return None
+    return tokens, None
 
 
 @mcp.tool()
@@ -62,6 +63,7 @@ def shell(command: str, timeout: int = DEFAULT_TIMEOUT) -> str:
 
     Commands are validated against an allowlist if ALLOWED_COMMANDS is set.
     The allowlist contains base command names (e.g., "ls", "git", "python").
+    Commands run in the workspace directory.
 
     Args:
         command: Shell command to execute
@@ -70,18 +72,20 @@ def shell(command: str, timeout: int = DEFAULT_TIMEOUT) -> str:
     Returns:
         Command output including exit code, stdout, and stderr
     """
-    # Validate command against allowlist
-    error = _validate_command(command)
+    # Validate and parse command
+    tokens, error = _validate_command(command)
     if error:
         return f"Error: {error}"
 
+    workspace = get_workspace(WORKSPACE)
+
     try:
         res = subprocess.run(
-            command,
-            shell=True,
+            tokens,
             capture_output=True,
             text=True,
             timeout=timeout,
+            cwd=workspace,
         )
 
         parts = [f"**exit code**: {res.returncode}"]
