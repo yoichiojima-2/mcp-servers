@@ -197,6 +197,7 @@ def _images_to_pptx_impl(image_paths: list[str], output_path: str) -> str:
         # All validation passed, now process images
         client = _get_client()
         prs = Presentation()
+        # Standard widescreen 16:9 dimensions (default for modern presentations)
         prs.slide_width = Inches(13.333)
         prs.slide_height = Inches(7.5)
 
