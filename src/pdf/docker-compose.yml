@@ -4,13 +4,13 @@ services:
       context: ../..
       dockerfile: src/pdf/Dockerfile
     ports:
-      - "8009:8009"
+      - "8010:8010"
     volumes:
       - mcp-workspace:/root/.mcp-servers/workspace
       - ./src:/app/src/pdf/src
     environment:
       - TRANSPORT=sse
-      - PORT=8009
+      - PORT=8010
 
 volumes:
   mcp-workspace:

@@ -10,6 +10,6 @@ WORKDIR /app
 
 RUN uv sync --frozen --package o3
 
-EXPOSE 8008
+EXPOSE 8009
 
 CMD ["uv", "run", "python", "-m", "o3_search"]

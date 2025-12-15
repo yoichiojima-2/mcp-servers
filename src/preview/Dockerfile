@@ -12,6 +12,6 @@ WORKDIR /app
 RUN uv sync --frozen --package preview
 
 # Expose ports (MCP: 8011, HTTP: 3000)
-EXPOSE 8011 3000
+EXPOSE 8012 3000
 
 CMD ["uv", "run", "python", "-m", "preview"]

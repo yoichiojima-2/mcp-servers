@@ -10,6 +10,6 @@ WORKDIR /app
 
 RUN uv sync --frozen --package img2pptx
 
-EXPOSE 8014
+EXPOSE 8007
 
 CMD ["uv", "run", "python", "-m", "img2pptx"]

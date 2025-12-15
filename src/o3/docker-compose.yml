@@ -4,12 +4,12 @@ services:
       context: ../..
       dockerfile: src/o3/Dockerfile
     ports:
-      - "8008:8008"
+      - "8009:8009"
     volumes:
       - mcp-workspace:/root/.mcp-servers/workspace
     environment:
       - TRANSPORT=sse
-      - PORT=8008
+      - PORT=8009
       - OPENAI_API_KEY=${OPENAI_API_KEY}
 
 volumes:

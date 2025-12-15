@@ -4,12 +4,12 @@ services:
       context: ../..
       dockerfile: src/pptx/Dockerfile
     ports:
-      - "8010:8010"
+      - "8011:8011"
     volumes:
       - mcp-workspace:/root/.mcp-servers/workspace
     environment:
       - TRANSPORT=sse
-      - PORT=8010
+      - PORT=8011
 
 volumes:
   mcp-workspace:

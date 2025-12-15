@@ -12,6 +12,6 @@ WORKDIR /app
 # Install using workspace dependencies with OCR support
 RUN uv sync --frozen --package pdf --extra ocr
 
-EXPOSE 8009
+EXPOSE 8010
 
 CMD ["uv", "run", "python", "-m", "pdf"]

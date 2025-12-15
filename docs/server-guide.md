@@ -184,14 +184,14 @@ Replace `<server-name>` and `<module_name>` with the appropriate values from the
 | docx | `docx` | 8004 | Word document operations |
 | file-management | `file_management` | 8005 | File read/write operations |
 | frontend-design | `frontend_design` | 8006 | Design themes and palettes |
-| img2pptx | `img2pptx` | 8014 | Image to PPTX conversion (GPT-5.2) |
-| nano-banana | `nano_banana` | 8007 | AI image generation (Gemini) |
-| o3 | `o3_search` | 8008 | OpenAI o3 web search |
-| pdf | `pdf` | 8009 | PDF extraction and manipulation |
-| pptx | `pptx_mcp` | 8010 | PowerPoint operations |
-| preview | `preview` | 8011 | HTML preview with live reload |
-| vectorstore | `vectorstore` | 8012 | ChromaDB vector operations |
-| xlsx | `xlsx` | 8013 | Excel spreadsheet operations |
+| img2pptx | `img2pptx` | 8007 | Image to PPTX conversion (GPT-5.2) |
+| nano-banana | `nano_banana` | 8008 | AI image generation (Gemini) |
+| o3 | `o3_search` | 8009 | OpenAI o3 web search |
+| pdf | `pdf` | 8010 | PDF extraction and manipulation |
+| pptx | `pptx_mcp` | 8011 | PowerPoint operations |
+| preview | `preview` | 8012 | HTML preview with live reload |
+| vectorstore | `vectorstore` | 8013 | ChromaDB vector operations |
+| xlsx | `xlsx` | 8014 | Excel spreadsheet operations |
 
 ## Migration Notes
 
