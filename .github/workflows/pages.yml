@@ -37,8 +37,8 @@ jobs:
             exit 1
           fi
           mkdir -p _site
-          cp examples/data-analysis/titanic_eda.html _site/index.html
-          cp examples/data-analysis/titanic_eda_ja.html _site/titanic_eda_ja.html
+          cp examples/data-analysis/titanic_eda_ja.html _site/index.html
+          cp examples/data-analysis/titanic_eda.html _site/titanic_eda.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
