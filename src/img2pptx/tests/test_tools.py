@@ -394,6 +394,13 @@ def test_images_to_pptx_validates_all_before_api_call(tmp_path, mock_openai_resp
     mock_client.chat.completions.create.assert_not_called()
 
 
+def test_images_to_pptx_empty_list(tmp_path):
+    """Should return error for empty image list."""
+    output_path = tmp_path / "output.pptx"
+    result = _images_to_pptx_impl([], str(output_path))
+    assert "Error: No images provided" in result
+
+
 def test_extract_slide_content_empty_response(tmp_path):
     """Should raise ValueError on empty API response."""
     test_image = tmp_path / "slide.png"
