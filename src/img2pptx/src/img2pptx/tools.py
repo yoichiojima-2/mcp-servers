@@ -82,7 +82,7 @@ def _image_to_base64(image_path: Path) -> str:
     return f"data:{mime};base64,{encoded}"
 
 
-def _extract_slide_content(client: OpenAI, image_path: Path) -> dict:
+def _extract_slide_content(client: OpenAI, image_path: Path) -> dict[str, str | list[str]]:
     """Use GPT-5.2 to extract slide content from image."""
     base64_image = _image_to_base64(image_path)
 
@@ -117,7 +117,7 @@ Respond in JSON format:
         raise ValueError(f"Failed to parse GPT response as JSON: {e}")
 
 
-def _create_slide(prs: Presentation, content: dict) -> None:
+def _create_slide(prs: Presentation, content: dict[str, str | list[str]]) -> None:
     """Create a slide from extracted content."""
     # Use title and content layout, with fallback
     try:
@@ -161,25 +161,33 @@ def _images_to_pptx_impl(image_paths: list[str], output_path: str) -> str:
         return "Error: No images provided"
 
     try:
-        client = _get_client()
+        # Validate all paths upfront before making any API calls
         output = Path(output_path).expanduser().resolve()
         _validate_output_path(output)
 
+        resolved_paths: list[Path] = []
+        for img_path in image_paths:
+            path = Path(img_path).expanduser().resolve()
+            _validate_image_path(path)
+            resolved_paths.append(path)
+
+        # All validation passed, now process images
+        client = _get_client()
         prs = Presentation()
         prs.slide_width = Inches(13.333)
         prs.slide_height = Inches(7.5)
 
-        for img_path in image_paths:
-            path = Path(img_path).expanduser().resolve()
-            _validate_image_path(path)
+        for path in resolved_paths:
             content = _extract_slide_content(client, path)
             _create_slide(prs, content)
 
         prs.save(output)
         return f"Created PPTX with {len(image_paths)} slides: {output}"
 
-    except Exception as e:
+    except (FileNotFoundError, ValueError, OSError) as e:
         return f"Error: {e}"
+    except Exception as e:
+        return f"Unexpected error: {type(e).__name__}: {e}"
 
 
 def _image_to_pptx_impl(image_path: str, output_path: str) -> str:
