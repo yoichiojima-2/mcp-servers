@@ -383,3 +383,40 @@ def test_images_to_pptx_validates_all_before_api_call(tmp_path, mock_openai_resp
     assert "Error" in result
     # API should NOT have been called since validation failed
     mock_client.chat.completions.create.assert_not_called()
+
+
+def test_extract_slide_content_empty_response(tmp_path):
+    """Should raise ValueError on empty API response."""
+    test_image = tmp_path / "slide.png"
+    _create_test_png(test_image)
+
+    mock_response = MagicMock()
+    mock_response.choices = [MagicMock()]
+    mock_response.choices[0].message.content = None
+
+    mock_client = MagicMock()
+    mock_client.chat.completions.create.return_value = mock_response
+
+    with pytest.raises(ValueError, match="API returned empty response"):
+        _extract_slide_content(mock_client, test_image)
+
+
+def test_extract_slide_content_missing_fields(tmp_path):
+    """Should raise ValueError when response is missing required fields."""
+    test_image = tmp_path / "slide.png"
+    _create_test_png(test_image)
+
+    mock_response = MagicMock()
+    mock_response.choices = [MagicMock()]
+    mock_response.choices[0].message.content = json.dumps(
+        {
+            "title": "Test Title",
+            # Missing: subtitle, bullets, notes
+        }
+    )
+
+    mock_client = MagicMock()
+    mock_client.chat.completions.create.return_value = mock_response
+
+    with pytest.raises(ValueError, match="missing required fields"):
+        _extract_slide_content(mock_client, test_image)

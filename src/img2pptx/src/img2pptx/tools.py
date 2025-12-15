@@ -9,8 +9,10 @@ to extract content and structure.
 import base64
 import json
 import os
+from functools import lru_cache
 from pathlib import Path
 
+from fastmcp.exceptions import ToolError
 from openai import AuthenticationError, OpenAI, OpenAIError, RateLimitError
 from pptx import Presentation
 from pptx.util import Inches, Pt
@@ -37,12 +39,13 @@ FORBIDDEN_PATHS = frozenset(
 )
 
 
+@lru_cache(maxsize=1)
 def _get_client() -> OpenAI:
     """Get configured OpenAI client."""
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
-        raise ValueError("OPENAI_API_KEY environment variable required")
-    return OpenAI(api_key=api_key)
+        raise ToolError("OPENAI_API_KEY environment variable is not set")
+    return OpenAI(api_key=api_key.strip())
 
 
 def _validate_image_path(path: Path) -> None:
@@ -118,10 +121,23 @@ Respond in JSON format:
     except OpenAIError as e:
         raise ValueError(f"OpenAI API error: {e}") from e
 
+    # Validate response content
+    content = response.choices[0].message.content
+    if not content:
+        raise ValueError("API returned empty response")
+
     try:
-        return json.loads(response.choices[0].message.content)
+        data = json.loads(content)
     except json.JSONDecodeError as e:
         raise ValueError(f"Failed to parse GPT response as JSON: {e}") from e
+
+    # Validate required fields
+    required_fields = {"title", "subtitle", "bullets", "notes"}
+    missing = required_fields - set(data.keys())
+    if missing:
+        raise ValueError(f"API response missing required fields: {missing}")
+
+    return data
 
 
 def _create_slide(prs: Presentation, content: dict[str, str | list[str]]) -> None:
