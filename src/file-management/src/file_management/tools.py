@@ -1,5 +1,6 @@
 import base64
 import binascii
+import os
 import platform
 from pathlib import Path
 
@@ -49,7 +50,8 @@ def _is_path_in_forbidden(resolved: Path, forbidden: str) -> bool:
     # Use string-based check to avoid race conditions with filesystem state
     resolved_str = str(resolved)
     # Ensure we match directory boundaries (e.g., /etc matches /etc/passwd but not /etcetera)
-    if resolved_str == forbidden or resolved_str.startswith(forbidden + "/"):
+    # Use os.sep for cross-platform compatibility (/ on Unix, \ on Windows)
+    if resolved_str == forbidden or resolved_str.startswith(forbidden + os.sep):
         return True
     return False
 
