@@ -45,7 +45,7 @@ uv run python -m shell
 
 ```bash
 cd src/shell
-uv run python -m shell --transport sse --port 8015
+uv run python -m shell --transport sse --port 8013
 ```
 
 ### Using Docker
@@ -61,7 +61,7 @@ docker compose up
 |----------|-------------|---------|
 | `ALLOWED_COMMANDS` | Comma-separated list of allowed commands | (empty = all allowed) |
 | `TRANSPORT` | Transport protocol: `stdio`, `sse` | `stdio` |
-| `PORT` | Port for SSE transport | `8015` |
+| `PORT` | Port for SSE transport | `8013` |
 
 ## Claude Desktop Configuration
 
