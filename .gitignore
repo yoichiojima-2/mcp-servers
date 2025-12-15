@@ -4,6 +4,7 @@ node_modules/
 .playwright-mcp/
 *.png
 .mypy_cache/
+.pytest_cache/
 assets/
 .ruff_cache/
 .venv/
