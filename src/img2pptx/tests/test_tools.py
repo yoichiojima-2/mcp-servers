@@ -46,6 +46,15 @@ def test_validate_image_path_bad_extension(tmp_path):
         _validate_image_path(bad_file)
 
 
+def test_validate_image_path_too_large(tmp_path):
+    """Rejects images larger than MAX_IMAGE_SIZE (20MB)."""
+    large_file = tmp_path / "large.png"
+    # Create a file just over 20MB
+    large_file.write_bytes(b"x" * (20_000_001))
+    with pytest.raises(ValueError, match="too large"):
+        _validate_image_path(large_file)
+
+
 def test_get_workspace_path():
     """Workspace path should be valid directory."""
     path = get_workspace(SHARED_WORKSPACE)
