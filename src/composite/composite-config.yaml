@@ -26,12 +26,6 @@ servers:
     module: docx
     description: word document operations
 
-  file-management:
-    enabled: false
-    prefix: file
-    module: file_management
-    description: file read/write operations
-
   pptx:
     enabled: true
     prefix: pptx
@@ -69,7 +63,7 @@ servers:
     description: Dify workflow integration
 
   img2pptx:
-    enabled: false
+    enabled: true
     prefix: img2pptx
     module: img2pptx
     description: Convert images to PPTX using GPT-5.2

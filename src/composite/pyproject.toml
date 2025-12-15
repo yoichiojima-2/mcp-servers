@@ -10,7 +10,6 @@ dependencies = [
     "data-analysis",
     "dify",
     "docx",
-    "file-management",
     "frontend-design",
     "img2pptx",
     "nano-banana",
@@ -30,7 +29,6 @@ core = { workspace = true }
 data-analysis = { workspace = true }
 dify = { workspace = true }
 docx = { workspace = true }
-file-management = { workspace = true }
 frontend-design = { workspace = true }
 img2pptx = { workspace = true }
 nano-banana = { workspace = true }

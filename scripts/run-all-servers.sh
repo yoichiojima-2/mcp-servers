@@ -13,7 +13,6 @@ SERVERS=(
     "browser:browser:8001"
     "data-analysis:data_analysis:8002"
     "docx:docx:8004"
-    "file-management:file_management:8005"
     "frontend-design:frontend_design:8006"
     "nano-banana:nano_banana:8007"
     "o3:o3_search:8008"

@@ -35,7 +35,6 @@ jobs:
           - core
           - dify
           - docx
-          - file-management
           - frontend-design
           - data-analysis
           - img2pptx
