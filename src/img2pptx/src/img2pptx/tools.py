@@ -86,12 +86,13 @@ def _extract_slide_content(client: OpenAI, image_path: Path) -> dict[str, str | 
     """Use GPT-5.2 to extract slide content from image."""
     base64_image = _image_to_base64(image_path)
 
-    response = client.chat.completions.create(
-        model="gpt-5.2",
-        messages=[
-            {
-                "role": "system",
-                "content": """You are a slide content extractor. Analyze the slide image and extract:
+    try:
+        response = client.chat.completions.create(
+            model="gpt-5.2",
+            messages=[
+                {
+                    "role": "system",
+                    "content": """You are a slide content extractor. Analyze the slide image and extract:
 1. title: The main heading/title text
 2. subtitle: Any subtitle or tagline (empty string if none)
 3. bullets: List of bullet points (empty list if none)
@@ -99,22 +100,24 @@ def _extract_slide_content(client: OpenAI, image_path: Path) -> dict[str, str | 
 
 Respond in JSON format:
 {"title": "...", "subtitle": "...", "bullets": ["...", "..."], "notes": "..."}""",
-            },
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": "Extract the content from this slide image:"},
-                    {"type": "image_url", "image_url": {"url": base64_image}},
-                ],
-            },
-        ],
-        response_format={"type": "json_object"},
-    )
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": "Extract the content from this slide image:"},
+                        {"type": "image_url", "image_url": {"url": base64_image}},
+                    ],
+                },
+            ],
+            response_format={"type": "json_object"},
+        )
+    except Exception as e:
+        raise ValueError(f"OpenAI API error: {e}") from e
 
     try:
         return json.loads(response.choices[0].message.content)
     except json.JSONDecodeError as e:
-        raise ValueError(f"Failed to parse GPT response as JSON: {e}")
+        raise ValueError(f"Failed to parse GPT response as JSON: {e}") from e
 
 
 def _create_slide(prs: Presentation, content: dict[str, str | list[str]]) -> None:

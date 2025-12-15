@@ -1,6 +1,8 @@
 """Tests for img2pptx tools."""
 
+import json
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 from pptx import Presentation
@@ -9,7 +11,9 @@ from core import SHARED_WORKSPACE, get_workspace
 
 from img2pptx.tools import (
     _create_slide,
+    _extract_slide_content,
     _image_to_base64,
+    _images_to_pptx_impl,
     _validate_image_path,
     _validate_output_path,
 )
@@ -165,3 +169,172 @@ def test_create_slide_empty_content():
     _create_slide(prs, content)
 
     assert len(prs.slides) == 1
+
+
+# --- Integration tests with mocked OpenAI ---
+
+
+def _create_test_png(path: Path) -> None:
+    """Create a minimal valid PNG file for testing."""
+    png_data = bytes(
+        [
+            0x89,
+            0x50,
+            0x4E,
+            0x47,
+            0x0D,
+            0x0A,
+            0x1A,
+            0x0A,  # PNG signature
+            0x00,
+            0x00,
+            0x00,
+            0x0D,
+            0x49,
+            0x48,
+            0x44,
+            0x52,  # IHDR chunk
+            0x00,
+            0x00,
+            0x00,
+            0x01,
+            0x00,
+            0x00,
+            0x00,
+            0x01,
+            0x08,
+            0x06,
+            0x00,
+            0x00,
+            0x00,
+            0x1F,
+            0x15,
+            0xC4,
+            0x89,
+            0x00,
+            0x00,
+            0x00,
+            0x0A,
+            0x49,
+            0x44,
+            0x41,  # IDAT chunk
+            0x54,
+            0x78,
+            0x9C,
+            0x63,
+            0x00,
+            0x01,
+            0x00,
+            0x00,
+            0x05,
+            0x00,
+            0x01,
+            0x0D,
+            0x0A,
+            0x2D,
+            0xB4,
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            0x49,
+            0x45,
+            0x4E,
+            0x44,
+            0xAE,  # IEND chunk
+            0x42,
+            0x60,
+            0x82,
+        ]
+    )
+    path.write_bytes(png_data)
+
+
+@pytest.fixture
+def mock_openai_response():
+    """Create a mock OpenAI API response."""
+    mock_response = MagicMock()
+    mock_response.choices = [MagicMock()]
+    mock_response.choices[0].message.content = json.dumps(
+        {
+            "title": "Test Slide Title",
+            "subtitle": "Test Subtitle",
+            "bullets": ["Point 1", "Point 2", "Point 3"],
+            "notes": "These are speaker notes",
+        }
+    )
+    return mock_response
+
+
+def test_extract_slide_content_with_mock(tmp_path, mock_openai_response):
+    """Should extract slide content using OpenAI API."""
+    test_image = tmp_path / "slide.png"
+    _create_test_png(test_image)
+
+    mock_client = MagicMock()
+    mock_client.chat.completions.create.return_value = mock_openai_response
+
+    result = _extract_slide_content(mock_client, test_image)
+
+    assert result["title"] == "Test Slide Title"
+    assert result["subtitle"] == "Test Subtitle"
+    assert len(result["bullets"]) == 3
+    assert result["notes"] == "These are speaker notes"
+    mock_client.chat.completions.create.assert_called_once()
+
+
+def test_extract_slide_content_api_error(tmp_path):
+    """Should raise ValueError on API error."""
+    test_image = tmp_path / "slide.png"
+    _create_test_png(test_image)
+
+    mock_client = MagicMock()
+    mock_client.chat.completions.create.side_effect = Exception("API rate limit")
+
+    with pytest.raises(ValueError, match="OpenAI API error"):
+        _extract_slide_content(mock_client, test_image)
+
+
+def test_images_to_pptx_impl_integration(tmp_path, mock_openai_response):
+    """Integration test for full image-to-PPTX flow."""
+    # Create test images
+    image1 = tmp_path / "slide1.png"
+    image2 = tmp_path / "slide2.png"
+    _create_test_png(image1)
+    _create_test_png(image2)
+
+    output_path = tmp_path / "output.pptx"
+
+    with patch("img2pptx.tools._get_client") as mock_get_client:
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.return_value = mock_openai_response
+        mock_get_client.return_value = mock_client
+
+        result = _images_to_pptx_impl([str(image1), str(image2)], str(output_path))
+
+    assert "Created PPTX with 2 slides" in result
+    assert output_path.exists()
+
+    # Verify the PPTX content
+    prs = Presentation(str(output_path))
+    assert len(prs.slides) == 2
+
+
+def test_images_to_pptx_validates_all_before_api_call(tmp_path, mock_openai_response):
+    """Should validate all images before making any API calls."""
+    valid_image = tmp_path / "valid.png"
+    _create_test_png(valid_image)
+    invalid_image = tmp_path / "missing.png"  # Does not exist
+
+    output_path = tmp_path / "output.pptx"
+
+    with patch("img2pptx.tools._get_client") as mock_get_client:
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.return_value = mock_openai_response
+        mock_get_client.return_value = mock_client
+
+        result = _images_to_pptx_impl([str(valid_image), str(invalid_image)], str(output_path))
+
+    assert "Error" in result
+    # API should NOT have been called since validation failed
+    mock_client.chat.completions.create.assert_not_called()
