@@ -1088,7 +1088,6 @@ source = { editable = "src/img2pptx" }
 dependencies = [
     { name = "core" },
     { name = "openai" },
-    { name = "pillow" },
     { name = "python-pptx" },
 ]
 
@@ -1096,7 +1095,6 @@ dependencies = [
 requires-dist = [
     { name = "core", editable = "src/core" },
     { name = "openai", specifier = ">=1.60.0" },
-    { name = "pillow", specifier = ">=11.0.0" },
     { name = "python-pptx", specifier = ">=1.0.0" },
 ]
 
