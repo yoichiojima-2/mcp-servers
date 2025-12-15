@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+from openai import AuthenticationError, OpenAIError, RateLimitError
 from pptx import Presentation
 
 from core import SHARED_WORKSPACE, get_workspace
@@ -284,14 +285,58 @@ def test_extract_slide_content_with_mock(tmp_path, mock_openai_response):
 
 
 def test_extract_slide_content_api_error(tmp_path):
-    """Should raise ValueError on API error."""
+    """Should raise ValueError on generic OpenAI API error."""
     test_image = tmp_path / "slide.png"
     _create_test_png(test_image)
 
     mock_client = MagicMock()
-    mock_client.chat.completions.create.side_effect = Exception("API rate limit")
+    mock_client.chat.completions.create.side_effect = OpenAIError("Connection failed")
 
     with pytest.raises(ValueError, match="OpenAI API error"):
+        _extract_slide_content(mock_client, test_image)
+
+
+def test_extract_slide_content_rate_limit_error(tmp_path):
+    """Should raise ValueError with specific message on rate limit."""
+    test_image = tmp_path / "slide.png"
+    _create_test_png(test_image)
+
+    mock_client = MagicMock()
+    mock_client.chat.completions.create.side_effect = RateLimitError(
+        "Rate limit exceeded", response=MagicMock(), body=None
+    )
+
+    with pytest.raises(ValueError, match="rate limit exceeded"):
+        _extract_slide_content(mock_client, test_image)
+
+
+def test_extract_slide_content_auth_error(tmp_path):
+    """Should raise ValueError with specific message on auth error."""
+    test_image = tmp_path / "slide.png"
+    _create_test_png(test_image)
+
+    mock_client = MagicMock()
+    mock_client.chat.completions.create.side_effect = AuthenticationError(
+        "Invalid API key", response=MagicMock(), body=None
+    )
+
+    with pytest.raises(ValueError, match="Invalid OpenAI API key"):
+        _extract_slide_content(mock_client, test_image)
+
+
+def test_extract_slide_content_malformed_json(tmp_path):
+    """Should raise ValueError on malformed JSON response."""
+    test_image = tmp_path / "slide.png"
+    _create_test_png(test_image)
+
+    mock_response = MagicMock()
+    mock_response.choices = [MagicMock()]
+    mock_response.choices[0].message.content = "not valid json {"
+
+    mock_client = MagicMock()
+    mock_client.chat.completions.create.return_value = mock_response
+
+    with pytest.raises(ValueError, match="Failed to parse GPT response as JSON"):
         _extract_slide_content(mock_client, test_image)
 
 

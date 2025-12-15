@@ -11,7 +11,7 @@ import json
 import os
 from pathlib import Path
 
-from openai import OpenAI
+from openai import AuthenticationError, OpenAI, OpenAIError, RateLimitError
 from pptx import Presentation
 from pptx.util import Inches, Pt
 
@@ -111,7 +111,11 @@ Respond in JSON format:
             ],
             response_format={"type": "json_object"},
         )
-    except Exception as e:
+    except RateLimitError as e:
+        raise ValueError(f"API rate limit exceeded: {e}") from e
+    except AuthenticationError as e:
+        raise ValueError(f"Invalid OpenAI API key: {e}") from e
+    except OpenAIError as e:
         raise ValueError(f"OpenAI API error: {e}") from e
 
     try:
