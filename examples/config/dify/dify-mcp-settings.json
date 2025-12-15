@@ -71,19 +71,19 @@
     "timeout": 50,
     "sse_read_timeout": 50
   },
-  "vectorstore": {
+  "shell": {
     "url": "http://host.docker.internal:8013/sse",
     "headers": {},
     "timeout": 50,
     "sse_read_timeout": 50
   },
-  "xlsx": {
+  "vectorstore": {
     "url": "http://host.docker.internal:8014/sse",
     "headers": {},
     "timeout": 50,
     "sse_read_timeout": 50
   },
-  "shell": {
+  "xlsx": {
     "url": "http://host.docker.internal:8015/sse",
     "headers": {},
     "timeout": 50,
