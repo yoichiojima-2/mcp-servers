@@ -10,6 +10,6 @@ WORKDIR /app
 
 RUN uv sync --frozen --package nano-banana
 
-EXPOSE 8006
+EXPOSE 8007
 
 CMD ["uv", "run", "python", "-m", "nano_banana"]

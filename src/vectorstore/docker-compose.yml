@@ -4,13 +4,13 @@ services:
       context: ../..
       dockerfile: src/vectorstore/Dockerfile
     ports:
-      - "8011:8011"
+      - "8012:8012"
     volumes:
       - mcp-workspace:/root/.mcp-servers/workspace
       - ./src:/app/src/vectorstore/src
     environment:
       - TRANSPORT=sse
-      - PORT=8011
+      - PORT=8012
       - EMBEDDING_TYPE=${EMBEDDING_TYPE:-openai}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_EMBEDDING_MODEL=${OPENAI_EMBEDDING_MODEL:-text-embedding-3-small}

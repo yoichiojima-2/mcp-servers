@@ -12,6 +12,6 @@ WORKDIR /app
 # Install using workspace dependencies
 RUN uv sync --frozen --package file-management
 
-EXPOSE 8013
+EXPOSE 8005
 
 CMD ["uv", "run", "python", "-m", "file_management"]

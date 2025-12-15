@@ -4,13 +4,13 @@ services:
       context: ../..
       dockerfile: src/xlsx/Dockerfile
     ports:
-      - "8012:8012"
+      - "8013:8013"
     volumes:
       - mcp-workspace:/root/.mcp-servers/workspace
       - ./src:/app/src/xlsx/src
     environment:
       - TRANSPORT=sse
-      - PORT=8012
+      - PORT=8013
 
 volumes:
   mcp-workspace:

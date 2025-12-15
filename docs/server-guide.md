@@ -182,15 +182,15 @@ Replace `<server-name>` and `<module_name>` with the appropriate values from the
 | data-analysis | `data_analysis` | 8002 | DuckDB SQL data analysis |
 | dify | `dify` | 8003 | Dify AI workflow integration |
 | docx | `docx` | 8004 | Word document operations |
-| file-management | `file_management` | 8013 | File read/write operations |
-| frontend-design | `frontend_design` | 8005 | Design themes and palettes |
-| nano-banana | `nano_banana` | 8006 | AI image generation (Gemini) |
-| o3 | `o3_search` | 8007 | OpenAI o3 web search |
-| pdf | `pdf` | 8008 | PDF extraction and manipulation |
-| pptx | `pptx_mcp` | 8009 | PowerPoint operations |
-| preview | `preview` | 8010 | HTML preview with live reload |
-| vectorstore | `vectorstore` | 8011 | ChromaDB vector operations |
-| xlsx | `xlsx` | 8012 | Excel spreadsheet operations |
+| file-management | `file_management` | 8005 | File read/write operations |
+| frontend-design | `frontend_design` | 8006 | Design themes and palettes |
+| nano-banana | `nano_banana` | 8007 | AI image generation (Gemini) |
+| o3 | `o3_search` | 8008 | OpenAI o3 web search |
+| pdf | `pdf` | 8009 | PDF extraction and manipulation |
+| pptx | `pptx_mcp` | 8010 | PowerPoint operations |
+| preview | `preview` | 8011 | HTML preview with live reload |
+| vectorstore | `vectorstore` | 8012 | ChromaDB vector operations |
+| xlsx | `xlsx` | 8013 | Excel spreadsheet operations |
 
 ## Migration Notes
 

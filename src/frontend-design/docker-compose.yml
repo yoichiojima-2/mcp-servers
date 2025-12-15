@@ -4,12 +4,12 @@ services:
       context: ../..
       dockerfile: src/frontend-design/Dockerfile
     ports:
-      - "8005:8005"
+      - "8006:8006"
     volumes:
       - mcp-workspace:/root/.mcp-servers/workspace
     environment:
       - TRANSPORT=sse
-      - PORT=8005
+      - PORT=8006
 
 volumes:
   mcp-workspace:

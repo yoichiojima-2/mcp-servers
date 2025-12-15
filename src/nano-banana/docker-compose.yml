@@ -4,12 +4,12 @@ services:
       context: ../..
       dockerfile: src/nano-banana/Dockerfile
     ports:
-      - "8006:8006"
+      - "8007:8007"
     volumes:
       - mcp-workspace:/root/.mcp-servers/workspace
     environment:
       - TRANSPORT=sse
-      - PORT=8006
+      - PORT=8007
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
 
 volumes:

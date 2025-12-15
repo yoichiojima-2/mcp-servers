@@ -12,6 +12,6 @@ WORKDIR /app
 # Install using workspace dependencies
 RUN uv sync --frozen --package xlsx
 
-EXPOSE 8012
+EXPOSE 8013
 
 CMD ["uv", "run", "python", "-m", "xlsx"]
