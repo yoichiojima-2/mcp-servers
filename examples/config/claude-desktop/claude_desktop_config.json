@@ -2,15 +2,16 @@
   "mcpServers": {
     "composite": {
       "command": "uv",
-      "args": ["--directory", "/path/to/mcp-servers/src/composite", "run", "python", "-m", "composite"]
+      "args": ["run", "--directory", "/path/to/mcp-servers/src/composite", "fastmcp", "run", "src/composite/server.py:mcp"]
     },
     "filesystem": {
       "command": "npx",
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "/path/to/documents",
-        "/path/to/desktop"
+        "/Users/username/Documents",
+        "/Users/username/Desktop",
+        "/Users/username/.mcp-servers"
       ]
     },
     "github": {
@@ -23,10 +24,6 @@
     "memory": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-memory"]
-    },
-    "fetch": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-fetch"]
     }
   }
 }
