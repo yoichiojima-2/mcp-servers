@@ -10,10 +10,6 @@ from .models import Skill, SkillArgument, SkillContent, SkillMetadata
 logger = logging.getLogger(__name__)
 
 
-class SkillLoadError(Exception):
-    """Error loading a skill."""
-
-
 class SkillLoader:
     """Loads and parses skill definitions."""
 

@@ -25,6 +25,7 @@ services:
       - pptx
       - preview
       - shell
+      - skills
       - vectorstore
       - xlsx
     restart: unless-stopped
@@ -151,6 +152,20 @@ services:
       - HOST=0.0.0.0
       - PORT=8013
       - ALLOWED_COMMANDS=${ALLOWED_COMMANDS:-}
+    networks:
+      - mcp-network
+
+  skills:
+    image: skills:latest
+    build:
+      context: ../..
+      dockerfile: src/skills/Dockerfile
+    volumes:
+      - mcp-workspace:/root/.mcp-servers/workspace
+    environment:
+      - TRANSPORT=sse
+      - HOST=0.0.0.0
+      - PORT=8005
     networks:
       - mcp-network
 

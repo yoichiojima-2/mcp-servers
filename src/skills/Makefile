@@ -39,7 +39,6 @@ clean:
 	find . -name "*.egg-info" -type d -exec rm -rf {} +
 
 lint:
-	uv run isort .
 	uv run ruff check --fix .
 	uv run ruff format .
 
