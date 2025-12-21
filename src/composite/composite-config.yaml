@@ -86,3 +86,9 @@ servers:
     module: shell
     description: shell command execution with allowlist security
 
+  skills:
+    enabled: true
+    prefix: skills
+    module: skills
+    description: Claude skills discovery and loading
+

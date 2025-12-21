@@ -190,6 +190,7 @@ Replace `<server-name>` and `<module_name>` with the appropriate values from the
 | pptx | `pptx_mcp` | 8011 | PowerPoint operations |
 | preview | `preview` | 8012 | HTML preview with live reload |
 | shell | `shell` | 8013 | Shell command execution |
+| skills | `skills` | 8005 | Claude skills discovery and loading |
 | vectorstore | `vectorstore` | 8014 | ChromaDB vector operations |
 | xlsx | `xlsx` | 8015 | Excel spreadsheet operations |
 

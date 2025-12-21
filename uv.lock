@@ -23,6 +23,7 @@ members = [
     "pptx",
     "preview",
     "shell",
+    "skills",
     "vectorstore",
     "xlsx",
 ]
@@ -418,6 +419,7 @@ dependencies = [
     { name = "preview" },
     { name = "pyyaml" },
     { name = "shell" },
+    { name = "skills" },
     { name = "starlette" },
     { name = "vectorstore" },
     { name = "xlsx" },
@@ -439,6 +441,7 @@ requires-dist = [
     { name = "preview", editable = "src/preview" },
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "shell", editable = "src/shell" },
+    { name = "skills", editable = "src/skills" },
     { name = "starlette", specifier = ">=0.41.3" },
     { name = "vectorstore", editable = "src/vectorstore" },
     { name = "xlsx", editable = "src/xlsx" },
@@ -2836,6 +2839,18 @@ wheels = [
 ]
 
 [[package]]
+name = "python-frontmatter"
+version = "1.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyyaml" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/96/de/910fa208120314a12f9a88ea63e03707261692af782c99283f1a2c8a5e6f/python-frontmatter-1.1.0.tar.gz", hash = "sha256:7118d2bd56af9149625745c58c9b51fb67e8d1294a0c76796dafdc72c36e5f6d", size = 16256, upload-time = "2024-01-16T18:50:04.052Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/49/87/3c8da047b3ec5f99511d1b4d7a5bc72d4b98751c7e78492d14dc736319c5/python_frontmatter-1.1.0-py3-none-any.whl", hash = "sha256:335465556358d9d0e6c98bbeb69b1c969f2a4a21360587b9873bfc3b213407c1", size = 9834, upload-time = "2024-01-16T18:50:00.911Z" },
+]
+
+[[package]]
 name = "python-multipart"
 version = "0.0.20"
 source = { registry = "https://pypi.org/simple" }
@@ -3157,6 +3172,25 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68a0e064b6af791aa332cf192da575fd474ed7d6f16a2/six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81", size = 34031, upload-time = "2024-12-04T17:35:28.174Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050, upload-time = "2024-12-04T17:35:26.475Z" },
+]
+
+[[package]]
+name = "skills"
+version = "0.1.0"
+source = { editable = "src/skills" }
+dependencies = [
+    { name = "core" },
+    { name = "pydantic" },
+    { name = "python-frontmatter" },
+    { name = "pyyaml" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "core", editable = "src/core" },
+    { name = "pydantic", specifier = ">=2.0" },
+    { name = "python-frontmatter", specifier = ">=1.0" },
+    { name = "pyyaml", specifier = ">=6.0" },
 ]
 
 [[package]]
