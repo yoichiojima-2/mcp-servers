@@ -13,6 +13,6 @@ WORKDIR /app
 # Install using workspace dependencies
 RUN uv sync --frozen --package skills
 
-EXPOSE 8005
+EXPOSE 8014
 
 CMD ["uv", "run", "python", "-m", "skills"]

@@ -4,13 +4,13 @@ services:
       context: ../..
       dockerfile: src/skills/Dockerfile
     ports:
-      - "8005:8005"
+      - "8014:8014"
     volumes:
       - mcp-workspace:/root/.mcp-servers/workspace
       - ./src:/app/src/skills/src
     environment:
       - TRANSPORT=sse
-      - PORT=8005
+      - PORT=8014
 
 volumes:
   mcp-workspace:
