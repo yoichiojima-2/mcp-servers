@@ -19,6 +19,7 @@ dependencies = [
     "preview",
     "pyyaml>=6.0",
     "shell",
+    "skills",
     "starlette>=0.41.3",
     "vectorstore",
     "xlsx",
@@ -38,6 +39,7 @@ pdf = { workspace = true }
 pptx = { workspace = true }
 preview = { workspace = true }
 shell = { workspace = true }
+skills = { workspace = true }
 vectorstore = { workspace = true }
 xlsx = { workspace = true }
 

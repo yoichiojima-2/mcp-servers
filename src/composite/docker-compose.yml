@@ -25,6 +25,7 @@ services:
       - pptx
       - preview
       - shell
+      - skills
       - vectorstore
       - xlsx
     restart: unless-stopped
@@ -91,7 +92,7 @@ services:
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
-      - PORT=8015
+      - PORT=8016
     networks:
       - mcp-network
 
@@ -154,6 +155,20 @@ services:
     networks:
       - mcp-network
 
+  skills:
+    image: skills:latest
+    build:
+      context: ../..
+      dockerfile: src/skills/Dockerfile
+    volumes:
+      - mcp-workspace:/root/.mcp-servers/workspace
+    environment:
+      - TRANSPORT=sse
+      - HOST=0.0.0.0
+      - PORT=8014
+    networks:
+      - mcp-network
+
   vectorstore:
     image: vectorstore:latest
     build:
@@ -164,7 +179,7 @@ services:
     environment:
       - TRANSPORT=sse
       - HOST=0.0.0.0
-      - PORT=8014
+      - PORT=8015
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     networks:
       - mcp-network

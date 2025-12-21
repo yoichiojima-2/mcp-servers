@@ -38,6 +38,7 @@ members = [
     "src/pptx",
     "src/preview",
     "src/shell",
+    "src/skills",
     "src/vectorstore",
     "src/xlsx",
 ]
