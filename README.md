@@ -23,8 +23,9 @@ This monorepo contains multiple MCP servers built with [FastMCP](https://github.
 | [pptx](src/pptx) | 8011 | PowerPoint operations |
 | [preview](src/preview) | 8012 | HTML preview with live reload |
 | [shell](src/shell) | 8013 | Shell command execution |
-| [vectorstore](src/vectorstore) | 8014 | ChromaDB vector operations |
-| [xlsx](src/xlsx) | 8015 | Excel spreadsheet operations |
+| [skills](src/skills) | 8014 | Claude skills discovery and loading |
+| [vectorstore](src/vectorstore) | 8015 | ChromaDB vector operations |
+| [xlsx](src/xlsx) | 8016 | Excel spreadsheet operations |
 
 ## Quick Start
 
