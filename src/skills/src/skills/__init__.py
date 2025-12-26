@@ -85,7 +85,8 @@ def _load_config() -> list[str]:
     if config_path:
         config_file = Path(config_path).expanduser()
     else:
-        config_file = Path.cwd() / "skills.yaml"
+        # Default to skills.yaml in the skills server directory
+        config_file = Path(__file__).parent.parent.parent / "skills.yaml"
 
     if not config_file.exists():
         logger.info(f"No config file at {config_file}, no skills loaded")
