@@ -74,7 +74,7 @@ def _load_skill_from_path(skill_path: Path) -> dict | None:
             "base_path": str(skill_path),
             "resources": sorted(resources),
         }
-    except Exception as e:
+    except (OSError, KeyError, ValueError) as e:
         logger.warning(f"Error loading skill from {skill_path}: {e}")
         return None
 
