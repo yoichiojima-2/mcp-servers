@@ -41,15 +41,30 @@ def _load_skill_from_path(skill_path: Path) -> dict | None:
             return None
 
         # Discover resources (scripts and extra markdown files)
+        # Security: Validates paths stay within skill_path to prevent path traversal
         resources = []
+        resolved_skill_path = skill_path.resolve()
+
         scripts_dir = skill_path / "scripts"
         if scripts_dir.exists():
             for f in scripts_dir.rglob("*"):
-                if f.is_file() and not f.is_symlink():
+                if f.is_symlink():
+                    continue
+                resolved = f.resolve()
+                if not resolved.is_relative_to(resolved_skill_path):
+                    logger.warning(f"Skipping path outside skill directory: {f}")
+                    continue
+                if f.is_file():
                     resources.append(str(f.relative_to(skill_path)))
 
         for md in skill_path.glob("*.md"):
-            if md.name != "SKILL.md" and not md.is_symlink():
+            if md.is_symlink():
+                continue
+            resolved = md.resolve()
+            if not resolved.is_relative_to(resolved_skill_path):
+                logger.warning(f"Skipping path outside skill directory: {md}")
+                continue
+            if md.name != "SKILL.md":
                 resources.append(md.name)
 
         return {
@@ -79,8 +94,12 @@ def _load_config() -> list[str]:
     try:
         with open(config_file) as f:
             config = yaml.safe_load(f) or {}
-        return config.get("skills", [])
-    except Exception as e:
+        skills_list = config.get("skills", [])
+        if not isinstance(skills_list, list):
+            logger.warning(f"Invalid config format in {config_file}: 'skills' must be a list")
+            return []
+        return skills_list
+    except (OSError, yaml.YAMLError) as e:
         logger.warning(f"Error loading config from {config_file}: {e}")
         return []
 
