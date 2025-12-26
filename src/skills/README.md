@@ -45,6 +45,8 @@ description: |
 Skill instructions in markdown format.
 ```
 
+**Skill name rules:** Names must contain only lowercase letters, numbers, and hyphens (e.g., `my-skill`, `code-review`).
+
 Optional `scripts/` directory contains executable scripts that can be run via bash.
 
 ## Requirements

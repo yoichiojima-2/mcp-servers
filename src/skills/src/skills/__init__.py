@@ -2,12 +2,16 @@
 
 import logging
 import os
+import re
 from pathlib import Path
 
 import frontmatter
 import yaml
 from dotenv import load_dotenv
 from fastmcp import FastMCP
+
+# Skill name pattern: lowercase letters, numbers, and hyphens
+SKILL_NAME_PATTERN = re.compile(r"^[a-z0-9-]+$")
 
 load_dotenv()
 
@@ -38,6 +42,13 @@ def _load_skill_from_path(skill_path: Path) -> dict | None:
 
         if not name or not description:
             logger.warning(f"Skill at {skill_path} missing name or description")
+            return None
+
+        if not SKILL_NAME_PATTERN.match(name):
+            logger.warning(
+                f"Invalid skill name '{name}' at {skill_path}. "
+                "Names must contain only lowercase letters, numbers, and hyphens."
+            )
             return None
 
         # Discover resources (scripts and extra markdown files)
