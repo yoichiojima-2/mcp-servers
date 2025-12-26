@@ -27,7 +27,9 @@ skills:
 
 | Environment Variable | Default | Description |
 |---------------------|---------|-------------|
-| `SKILLS_CONFIG` | `src/skills/skills.yaml` | Path to skills config file |
+| `SKILLS_CONFIG` | - | Path to skills config file (required to load skills) |
+
+Copy `skills.yaml.example` to `skills.yaml` and add your skill paths.
 
 ## Skill Format
 
