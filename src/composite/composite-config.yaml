@@ -3,7 +3,7 @@
 
 servers:
   data-analysis:
-    enabled: true
+    enabled: false
     prefix: data
     module: data_analysis
     description: data querying with DuckDB SQL
@@ -45,13 +45,13 @@ servers:
     description: browser automation
 
   frontend-design:
-    enabled: true
+    enabled: false
     prefix: design
     module: frontend_design
     description: design principles, themes, and color palettes
 
   nano-banana:
-    enabled: true
+    enabled: false
     prefix: img
     module: nano_banana
     description: AI image generation with Google Gemini
@@ -69,13 +69,13 @@ servers:
     description: Convert images to PPTX using GPT-5.2
 
   o3:
-    enabled: true
+    enabled: false
     prefix: o3
     module: o3_search
     description: O3 AI-powered web search
 
   preview:
-    enabled: true
+    enabled: false
     prefix: preview
     module: preview
     description: HTML preview server with live reload
