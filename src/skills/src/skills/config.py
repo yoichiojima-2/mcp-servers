@@ -9,7 +9,7 @@ def get_skill_paths() -> list[Path]:
     paths = []
 
     # User skills directory
-    user_dir = os.getenv("SKILLS_USER_DIR", str(Path.home() / ".skills-as-mcp" / "skills"))
+    user_dir = os.getenv("SKILLS_USER_DIR", str(Path.home() / ".mcp-servers" / "skills"))
     paths.append(Path(user_dir))
 
     # Project skills directory
