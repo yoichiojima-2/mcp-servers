@@ -4,10 +4,8 @@ MCP server for discovering and loading Claude skills.
 
 ## Features
 
-- Discover skills from user and project directories
+- Simple YAML configuration for skill paths
 - Load skill instructions with associated resources
-- Lazy-loading: metadata indexed at startup, content loaded on demand
-- Priority-based override: project skills override user skills with the same name
 
 ## Tools
 
@@ -18,10 +16,18 @@ MCP server for discovering and loading Claude skills.
 
 ## Configuration
 
+Create a `skills.yaml` file:
+
+```yaml
+skills:
+  - ~/.mcp-servers/skills/my-skill
+  - ./skills/project-skill
+  - /absolute/path/to/skill
+```
+
 | Environment Variable | Default | Description |
 |---------------------|---------|-------------|
-| `SKILLS_USER_DIR` | `~/.skills-as-mcp/skills` | User-level skills directory |
-| `SKILLS_PROJECT_DIR` | `./skills` | Project-level skills directory |
+| `SKILLS_CONFIG` | `./skills.yaml` | Path to skills config file |
 
 ## Skill Format
 
@@ -44,7 +50,7 @@ Optional `scripts/` directory contains executable scripts that can be run via ba
 ## Requirements
 
 - Python 3.12+
-- Dependencies: pydantic, python-frontmatter, pyyaml
+- Dependencies: python-frontmatter, pyyaml
 
 ## Installation
 
@@ -60,7 +66,7 @@ make install
 uv run python -m skills
 
 # SSE transport
-uv run python -m skills --transport sse --port 8005
+uv run python -m skills --transport sse --port 8014
 
 # With auto-reload
 make serve

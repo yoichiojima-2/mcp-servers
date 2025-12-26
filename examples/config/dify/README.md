@@ -28,14 +28,17 @@ The `dify-mcp-settings.json` file in this directory contains SSE endpoints for a
 | data-analysis | 8002 | DuckDB SQL queries |
 | dify | 8003 | Dify workflow integration |
 | docx | 8004 | Word document operations |
-| frontend-design | 8005 | Design principles & themes |
-| nano-banana | 8006 | AI image generation |
-| o3 | 8007 | AI-powered web search |
-| pdf | 8008 | PDF operations |
-| pptx | 8009 | PowerPoint operations |
-| preview | 8010 | HTML preview server |
-| vectorstore | 8011 | Vector database |
-| xlsx | 8012 | Excel operations |
+| frontend-design | 8006 | Design principles & themes |
+| img2pptx | 8007 | Image to PPTX conversion |
+| nano-banana | 8008 | AI image generation |
+| o3 | 8009 | AI-powered web search |
+| pdf | 8010 | PDF operations |
+| pptx | 8011 | PowerPoint operations |
+| preview | 8012 | HTML preview server |
+| shell | 8013 | Shell command execution |
+| skills | 8014 | Claude skills discovery |
+| vectorstore | 8015 | Vector database |
+| xlsx | 8016 | Excel operations |
 
 ## Note
 

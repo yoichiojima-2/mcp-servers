@@ -1,11 +1,11 @@
 """MCP tools for skill discovery and loading."""
 
-from . import get_registry, mcp
+from . import get_skills, mcp
 
 
 @mcp.tool()
 def list_skills() -> list[dict]:
-    """List all available skills with their metadata.
+    """List all available skills.
 
     Returns a list of skills, each with:
     - name: Unique skill identifier
@@ -13,9 +13,8 @@ def list_skills() -> list[dict]:
 
     Use this to discover what skills are available before loading one.
     """
-    registry = get_registry()
-    skills = registry.list_skills()
-    return [{"name": metadata.name, "description": metadata.description} for metadata in skills]
+    skills = get_skills()
+    return [{"name": s["name"], "description": s["description"]} for s in skills.values()]
 
 
 @mcp.tool()
@@ -27,22 +26,19 @@ def load_skill(name: str) -> dict:
 
     Returns:
         - instructions: The skill's markdown instructions
-        - base_path: Path for resolving relative file references (scripts/, *.md)
-        - resources: List of available resource files (scripts, additional docs)
+        - base_path: Path for resolving relative file references
+        - resources: List of available resource files (scripts, docs)
 
     Call this when you determine a skill matches the user's request.
-    Use bash to execute scripts in base_path/scripts/ as needed.
     """
-    registry = get_registry()
-    skill = registry.get_skill(name)
+    skills = get_skills()
+    skill = skills.get(name)
+
     if skill is None:
         return {"error": f"Skill '{name}' not found"}
 
-    if skill.content is None:
-        return {"error": f"Skill '{name}' has no content"}
-
     return {
-        "instructions": skill.content.instructions,
-        "base_path": str(skill.content.base_path),
-        "resources": skill.content.resources,
+        "instructions": skill["instructions"],
+        "base_path": skill["base_path"],
+        "resources": skill["resources"],
     }

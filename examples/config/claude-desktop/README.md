@@ -20,7 +20,7 @@ Example configuration for using MCP servers with Claude Desktop.
 
 ### From this repository
 
-- **composite**: Aggregates MCP servers from this repo. Default enabled: data-analysis, pptx, frontend-design, nano-banana, o3, preview. Edit `src/composite/composite-config.yaml` to enable additional servers (xlsx, pdf, docx, vectorstore, browser, dify).
+- **composite**: Aggregates MCP servers from this repo. Default enabled: shell, skills. Edit `src/composite/composite-config.yaml` to enable additional servers (data-analysis, xlsx, pdf, docx, pptx, vectorstore, browser, dify, frontend-design, nano-banana, o3, preview, img2pptx).
 
 ### External MCP Servers
 
