@@ -82,7 +82,7 @@ def _load_skill_from_path(skill_path: Path) -> dict | None:
             "name": name,
             "description": description,
             "instructions": post.content,
-            "base_path": str(skill_path),
+            "base_path": str(resolved_skill_path),
             "resources": sorted(resources),
         }
     except (OSError, KeyError, ValueError) as e:
