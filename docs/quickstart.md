@@ -40,12 +40,13 @@ Some servers require API keys. Add them to your Claude Desktop config (see below
 
 | Server | Required Variable |
 |--------|-------------------|
-| nano-banana | `GOOGLE_API_KEY` |
+| img2pptx | `OPENAI_API_KEY` |
+| nano-banana | `GEMINI_API_KEY` |
 | o3 | `OPENAI_API_KEY` |
 | vectorstore | `OPENAI_API_KEY` |
 | dify | `DIFY_API_KEY` |
 
-**No API keys needed:** data-analysis, xlsx, pdf, docx, pptx, frontend-design, browser, preview
+**No API keys needed:** data-analysis, xlsx, pdf, docx, pptx, frontend-design, browser, preview, shell, skills
 
 ### 4. Run the server
 
@@ -72,7 +73,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
       "args": ["run", "python", "-m", "composite"],
       "cwd": "/absolute/path/to/mcp-servers/src/composite",
       "env": {
-        "GOOGLE_API_KEY": "your-key",
+        "GEMINI_API_KEY": "your-key",
         "OPENAI_API_KEY": "your-key"
       }
     }
@@ -100,10 +101,13 @@ Each server's tools are namespaced with a prefix:
 | dify | `dify_` | `dify_chat` |
 | docx | `docx_` | `docx_create` |
 | frontend-design | `design_` | `design_palette` |
+| img2pptx | `img2pptx_` | `img2pptx_convert` |
 | nano-banana | `img_` | `img_generate` |
 | o3 | `o3_` | `o3_o3` |
 | pdf | `pdf_` | `pdf_extract` |
 | pptx | `pptx_` | `pptx_create` |
 | preview | `preview_` | `preview_show` |
+| shell | `shell_` | `shell_run` |
+| skills | `skills_` | `skills_list_skills` |
 | vectorstore | `vec_` | `vec_search` |
 | xlsx | `xlsx_` | `xlsx_read` |

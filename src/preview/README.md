@@ -68,14 +68,14 @@ playwright install chromium
 uv run python -m preview
 
 # With SSE transport
-uv run python -m preview --transport sse --port 8011
+uv run python -m preview --transport sse --port 8012
 ```
 
 ### Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `PORT` | 8011 | MCP server port |
+| `PORT` | 8012 | MCP server port |
 | `TRANSPORT` | stdio | Transport protocol |
 | `HTTP_PORT` | 3000 | HTTP server port for serving pages |
 | `HTTP_HOST` | localhost | HTTP server host |
@@ -180,7 +180,7 @@ This server is designed for local development and trusted environments:
 
 The server runs two components:
 
-1. **MCP Server** (port 8011) - Handles tool calls via stdio/SSE
+1. **MCP Server** (port 8012) - Handles tool calls via stdio/SSE
 2. **HTTP Server** (port 3000) - Serves pages and handles WebSocket connections
 
 The HTTP server starts automatically when the first page is served.

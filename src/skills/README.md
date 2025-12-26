@@ -4,10 +4,8 @@ MCP server for discovering and loading Claude skills.
 
 ## Features
 
-- Discover skills from user and project directories
+- Simple YAML configuration for skill paths
 - Load skill instructions with associated resources
-- Lazy-loading: metadata indexed at startup, content loaded on demand
-- Priority-based override: project skills override user skills with the same name
 
 ## Tools
 
@@ -18,10 +16,20 @@ MCP server for discovering and loading Claude skills.
 
 ## Configuration
 
+Create a `skills.yaml` file:
+
+```yaml
+skills:
+  - ~/.mcp-servers/skills/my-skill
+  - ./skills/project-skill
+  - /absolute/path/to/skill
+```
+
 | Environment Variable | Default | Description |
 |---------------------|---------|-------------|
-| `SKILLS_USER_DIR` | `~/.skills-as-mcp/skills` | User-level skills directory |
-| `SKILLS_PROJECT_DIR` | `./skills` | Project-level skills directory |
+| `SKILLS_CONFIG` | - | Path to skills config file (required to load skills) |
+
+Copy `skills.yaml.example` to `skills.yaml` and add your skill paths.
 
 ## Skill Format
 
@@ -39,12 +47,14 @@ description: |
 Skill instructions in markdown format.
 ```
 
+**Skill name rules:** Names must contain only lowercase letters, numbers, and hyphens (e.g., `my-skill`, `code-review`).
+
 Optional `scripts/` directory contains executable scripts that can be run via bash.
 
 ## Requirements
 
 - Python 3.12+
-- Dependencies: pydantic, python-frontmatter, pyyaml
+- Dependencies: python-frontmatter, pyyaml
 
 ## Installation
 
@@ -60,7 +70,7 @@ make install
 uv run python -m skills
 
 # SSE transport
-uv run python -m skills --transport sse --port 8005
+uv run python -m skills --transport sse --port 8014
 
 # With auto-reload
 make serve

@@ -1,0 +1,12 @@
+# Skills configuration example
+# Copy to skills.yaml and customize
+
+skills:
+  # User-level skills (absolute path with ~)
+  # - ~/.mcp-servers/skills/my-skill
+
+  # Project-level skills (relative to current directory)
+  # - ./skills/project-skill
+
+  # Absolute paths also work
+  # - /path/to/skill

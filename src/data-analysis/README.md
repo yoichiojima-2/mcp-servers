@@ -16,7 +16,7 @@ MCP server for data analysis using SQL queries on tabular data. Built with [Duck
 uv run python -m data_analysis
 
 # Run with SSE transport
-uv run python -m data_analysis --transport sse --port 8006
+uv run python -m data_analysis --transport sse --port 8002
 ```
 
 See [server guide](../../docs/server-guide.md) for common CLI options.

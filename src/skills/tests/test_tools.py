@@ -14,13 +14,17 @@ def get_tool(name: str):
 
 
 @pytest.fixture(autouse=True)
-def setup_registry(monkeypatch, fixtures_dir: Path):
-    """Configure registry to use test fixtures."""
-    # Reset the module-level registry
-    skills._registry = None
+def setup_skills(monkeypatch, fixtures_dir: Path):
+    """Configure skills to use test fixtures."""
+    # Reset the module-level skills cache
+    skills._skills = {}
 
-    # Patch get_skill_paths to return fixtures directory
-    monkeypatch.setattr("skills.config.get_skill_paths", lambda: [fixtures_dir])
+    # Point to test fixtures config
+    config_file = fixtures_dir / "skills.yaml"
+    monkeypatch.setenv("SKILLS_CONFIG", str(config_file))
+
+    # Change to fixtures dir so relative paths work
+    monkeypatch.chdir(fixtures_dir)
 
 
 def test_list_skills():
