@@ -13,6 +13,26 @@ MCP server for discovering and loading Claude skills.
 |------|-------------|
 | `list_skills` | List all available skills with name and description |
 | `load_skill` | Load a skill's full instructions and resources |
+| `run_skill_script` | Run a script from a loaded skill with optional args and stdin |
+
+### run_skill_script
+
+Execute scripts bundled with a skill:
+
+```python
+run_skill_script(
+    skill_name="code-review",
+    script_name="scripts/analyze_complexity.py",
+    args=["--language", "python"],  # optional
+    input_data="def hello(): pass",  # optional stdin
+)
+# Returns: {"stdout": "...", "stderr": "...", "returncode": 0}
+```
+
+**Security:**
+- Scripts must be listed in the skill's resources (discovered from `scripts/` directory)
+- Execution timeout: 30 seconds
+- Scripts run with the skill directory as working directory
 
 ## Configuration
 

@@ -61,3 +61,65 @@ def test_load_skill_with_resources():
     assert "error" not in result
     assert "resources" in result
     assert "scripts/analyze_complexity.py" in result["resources"]
+
+
+def test_run_skill_script_success():
+    """Test running a skill script successfully."""
+    run_skill_script = get_tool("run_skill_script")
+    result = run_skill_script(
+        skill_name="code-review",
+        script_name="scripts/analyze_complexity.py",
+        input_data="def hello():\n    pass\n",
+    )
+    assert "error" not in result
+    assert result["returncode"] == 0
+    assert "total_lines" in result["stdout"]
+    assert "functions" in result["stdout"]
+
+
+def test_run_skill_script_with_args():
+    """Test running a skill script with arguments."""
+    run_skill_script = get_tool("run_skill_script")
+    result = run_skill_script(
+        skill_name="code-review",
+        script_name="scripts/analyze_complexity.py",
+        args=["--language", "javascript"],
+        input_data="function hello() {}\n",
+    )
+    assert "error" not in result
+    assert result["returncode"] == 0
+    assert "javascript" in result["stdout"]
+
+
+def test_run_skill_script_skill_not_found():
+    """Test running a script from a non-existent skill."""
+    run_skill_script = get_tool("run_skill_script")
+    result = run_skill_script(
+        skill_name="nonexistent",
+        script_name="scripts/test.py",
+    )
+    assert "error" in result
+    assert "not found" in result["error"]
+
+
+def test_run_skill_script_script_not_in_resources():
+    """Test running a script not in the skill's resources."""
+    run_skill_script = get_tool("run_skill_script")
+    result = run_skill_script(
+        skill_name="code-review",
+        script_name="scripts/nonexistent.py",
+    )
+    assert "error" in result
+    assert "not found in skill" in result["error"]
+    assert "Available resources" in result["error"]
+
+
+def test_run_skill_script_hello_world_no_scripts():
+    """Test running a script on a skill without scripts."""
+    run_skill_script = get_tool("run_skill_script")
+    result = run_skill_script(
+        skill_name="hello-world",
+        script_name="scripts/test.py",
+    )
+    assert "error" in result
+    assert "not found in skill" in result["error"]
