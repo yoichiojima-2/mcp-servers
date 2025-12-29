@@ -59,8 +59,8 @@ Optional `scripts/` directory contains executable scripts that can be run via ba
 ## Installation
 
 ```bash
-cd src/skills
-make install
+# From the repository root
+uv sync --package skills
 ```
 
 ## Usage

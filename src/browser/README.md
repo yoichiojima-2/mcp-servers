@@ -27,6 +27,29 @@ MCP server for browser automation using Playwright with automatic error handling
 | `wait_for_selector`, `wait_for_navigation` | Wait functions |
 | `close_browser`, `force_reset`, `get_page_status` | Browser management |
 
+## Requirements
+
+- Python 3.12+
+- Playwright
+
+## Installation
+
+```bash
+# From the repository root
+uv sync --package browser
+
+# Install Playwright browsers
+uv run playwright install chromium
+```
+
+## Usage
+
+```bash
+uv run python -m browser
+```
+
+See [server guide](../../docs/server-guide.md) for common CLI options.
+
 ## Configuration
 
 | Variable | Default | Description |
@@ -59,29 +82,6 @@ If you experience timeouts, increase these values.
 
 ### Large Pages
 Use `get_content(max_length=...)` to control output size, or use `evaluate()` to extract specific data.
-
-## Requirements
-
-- Python 3.12+
-- Playwright
-
-## Installation
-
-```bash
-# From the repository root
-uv sync --package browser
-
-# Install Playwright browsers
-uv run playwright install chromium
-```
-
-## Usage
-
-```bash
-uv run python -m browser
-```
-
-See [server guide](../../docs/server-guide.md) for common CLI options.
 
 ## Testing
 

@@ -37,8 +37,8 @@ Convert multiple slide images to a single PPTX.
 ## Installation
 
 ```bash
-cd src/img2pptx
-uv sync
+# From the repository root
+uv sync --package img2pptx
 ```
 
 ## Configuration

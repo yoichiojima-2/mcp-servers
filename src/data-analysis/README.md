@@ -2,36 +2,12 @@
 
 MCP server for data analysis using SQL queries on tabular data. Built with [DuckDB](https://duckdb.org/).
 
-## Requirements
-
-- Python 3.12+
-- DuckDB
-
-## Installation
-
-```bash
-# From the repository root
-uv sync --package data-analysis
-```
-
 ## Features
 
 - **SQL Query**: Execute DuckDB SQL queries on any data files (CSV, Parquet, JSON, etc.)
 - **Query History**: Automatic logging of all queries with results, execution time, and error tracking
 - **Result Caching**: Retrieve results from previous queries without re-execution
 - **Math Operations**: Basic arithmetic tools (add, sub, mul, div)
-
-## Usage
-
-```bash
-# Run with stdio (default)
-uv run python -m data_analysis
-
-# Run with SSE transport
-uv run python -m data_analysis --transport sse --port 8002
-```
-
-See [server guide](../../docs/server-guide.md) for common CLI options.
 
 ## Tools
 
@@ -44,6 +20,30 @@ See [server guide](../../docs/server-guide.md) for common CLI options.
 | `clear_query_history` | Clear all query history |
 | `add`, `sub`, `mul`, `div` | Basic arithmetic operations |
 | `get_data_analysis_prompt` | Get a pre-built data analysis prompt |
+
+## Requirements
+
+- Python 3.12+
+- DuckDB
+
+## Installation
+
+```bash
+# From the repository root
+uv sync --package data-analysis
+```
+
+## Usage
+
+```bash
+# Run with stdio (default)
+uv run python -m data_analysis
+
+# Run with SSE transport
+uv run python -m data_analysis --transport sse --port 8002
+```
+
+See [server guide](../../docs/server-guide.md) for common CLI options.
 
 ## Example
 

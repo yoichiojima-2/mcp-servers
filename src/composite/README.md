@@ -24,6 +24,39 @@ Bundled MCP server that aggregates multiple MCP servers into a single endpoint u
 | dify | `dify_` | Dify AI workflows |
 | o3 | `o3_` | OpenAI o3 web search |
 
+## Requirements
+
+- Python 3.12+
+- Dependencies from mounted servers
+
+## Installation
+
+```bash
+# From the repository root
+uv sync --package composite
+```
+
+## Usage
+
+```bash
+uv run python -m composite
+```
+
+See [server guide](../../docs/server-guide.md) for common CLI options.
+
+### Connect to Dify
+
+```json
+{
+  "server_name": {
+    "url": "http://host.docker.internal:8000/sse",
+    "headers": {},
+    "timeout": 50,
+    "sse_read_timeout": 50
+  }
+}
+```
+
 ## Configuration
 
 Servers are configured via `composite-config.yaml`:
@@ -54,39 +87,6 @@ servers:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `COMPOSITE_CONFIG` | `composite-config.yaml` | Path to config file |
-
-## Usage
-
-```bash
-uv run python -m composite
-```
-
-### Connect to Dify
-
-```json
-{
-  "server_name": {
-    "url": "http://host.docker.internal:8000/sse",
-    "headers": {},
-    "timeout": 50,
-    "sse_read_timeout": 50
-  }
-}
-```
-
-See [server guide](../../docs/server-guide.md) for common CLI options.
-
-## Requirements
-
-- Python 3.12+
-- Dependencies from mounted servers
-
-## Installation
-
-```bash
-# From the repository root
-uv sync --package composite
-```
 
 ## Testing
 
