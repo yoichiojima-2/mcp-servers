@@ -60,6 +60,21 @@ If you experience timeouts, increase these values.
 ### Large Pages
 Use `get_content(max_length=...)` to control output size, or use `evaluate()` to extract specific data.
 
+## Requirements
+
+- Python 3.12+
+- Playwright
+
+## Installation
+
+```bash
+# From the repository root
+uv sync --package browser
+
+# Install Playwright browsers
+uv run playwright install chromium
+```
+
 ## Usage
 
 ```bash
@@ -67,3 +82,10 @@ uv run python -m browser
 ```
 
 See [server guide](../../docs/server-guide.md) for common CLI options.
+
+## Testing
+
+```bash
+cd src/browser
+uv run pytest -v
+```

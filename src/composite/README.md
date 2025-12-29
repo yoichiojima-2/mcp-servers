@@ -75,3 +75,22 @@ uv run python -m composite
 ```
 
 See [server guide](../../docs/server-guide.md) for common CLI options.
+
+## Requirements
+
+- Python 3.12+
+- Dependencies from mounted servers
+
+## Installation
+
+```bash
+# From the repository root
+uv sync --package composite
+```
+
+## Testing
+
+```bash
+cd src/composite
+uv run pytest -v
+```

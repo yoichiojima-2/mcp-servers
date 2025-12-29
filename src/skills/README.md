@@ -63,7 +63,7 @@ cd src/skills
 make install
 ```
 
-## Running
+## Usage
 
 ```bash
 # stdio transport (default)
@@ -75,6 +75,8 @@ uv run python -m skills --transport sse --port 8014
 # With auto-reload
 make serve
 ```
+
+See [server guide](../../docs/server-guide.md) for common CLI options.
 
 ## Testing
 

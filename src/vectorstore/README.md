@@ -2,6 +2,19 @@
 
 MCP server for ChromaDB vector store operations.
 
+## Requirements
+
+- Python 3.12+
+- ChromaDB
+- OpenAI API key (optional, for OpenAI embeddings)
+
+## Installation
+
+```bash
+# From the repository root
+uv sync --package vectorstore
+```
+
 ## Features
 
 - **Collection Management**: Create, list, delete, and inspect collections
@@ -65,3 +78,10 @@ uv run python -m vectorstore
 ```
 
 See [server guide](../../docs/server-guide.md) for common CLI options.
+
+## Testing
+
+```bash
+cd src/vectorstore
+uv run pytest -v
+```

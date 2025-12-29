@@ -2,6 +2,18 @@
 
 MCP server for data analysis using SQL queries on tabular data. Built with [DuckDB](https://duckdb.org/).
 
+## Requirements
+
+- Python 3.12+
+- DuckDB
+
+## Installation
+
+```bash
+# From the repository root
+uv sync --package data-analysis
+```
+
 ## Features
 
 - **SQL Query**: Execute DuckDB SQL queries on any data files (CSV, Parquet, JSON, etc.)
@@ -60,3 +72,10 @@ Use the `get_workspace_path()` tool to get the workspace directory path.
 | `DATA_ANALYSIS_MAX_RESULT_SIZE` | 1MB | Maximum size for cached results |
 | `DATA_ANALYSIS_MAX_HISTORY_SIZE` | 100 | Maximum queries to keep in history |
 | `DATA_ANALYSIS_CLEANUP_FREQUENCY` | 10 | Run cleanup every N queries |
+
+## Testing
+
+```bash
+cd src/data-analysis
+uv run pytest -v
+```

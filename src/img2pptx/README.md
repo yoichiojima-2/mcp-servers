@@ -52,8 +52,10 @@ export OPENAI_API_KEY=your-api-key
 ## Usage
 
 ```bash
-uv run fastmcp run server.py
+uv run python -m img2pptx
 ```
+
+See [server guide](../../docs/server-guide.md) for common CLI options.
 
 ## Testing
 

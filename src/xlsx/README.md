@@ -37,6 +37,13 @@ brew install --cask libreoffice
 sudo apt-get install libreoffice
 ```
 
+## Installation
+
+```bash
+# From the repository root
+uv sync --package xlsx
+```
+
 ## Usage
 
 ```bash
@@ -44,3 +51,10 @@ uv run python -m xlsx
 ```
 
 See [server guide](../../docs/server-guide.md) for common CLI options.
+
+## Testing
+
+```bash
+cd src/xlsx
+uv run pytest -v
+```

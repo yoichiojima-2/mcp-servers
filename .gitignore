@@ -1,5 +1,6 @@
 todo.md
 .env
+src/skills/skills.yaml
 node_modules/
 .playwright-mcp/
 *.png

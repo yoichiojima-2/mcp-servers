@@ -2,6 +2,18 @@
 
 MCP server for creating and managing Dify AI agents, workflows, and knowledge bases.
 
+## Requirements
+
+- Python 3.12+
+- Dify API key
+
+## Installation
+
+```bash
+# From the repository root
+uv sync --package dify
+```
+
 ## Features
 
 - **Agent & Workflow**: Import/export DSL, generate templates, support for chatbots/agents/workflows
@@ -59,6 +71,13 @@ uv run python -m dify
 ```
 
 See [server guide](../../docs/server-guide.md) for common CLI options.
+
+## Testing
+
+```bash
+cd src/dify
+uv run pytest -v
+```
 
 ## Resources
 

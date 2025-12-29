@@ -2,6 +2,18 @@
 
 MCP server for deep research using OpenAI o3 with web search capabilities.
 
+## Requirements
+
+- Python 3.12+
+- OpenAI API key with o3 access
+
+## Installation
+
+```bash
+# From the repository root
+uv sync --package o3
+```
+
 ## Features
 
 - Web search powered by OpenAI o3
@@ -31,3 +43,10 @@ uv run python -m o3_search
 ```
 
 See [server guide](../../docs/server-guide.md) for common CLI options.
+
+## Testing
+
+```bash
+cd src/o3
+uv run pytest -v
+```

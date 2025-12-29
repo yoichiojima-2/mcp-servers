@@ -2,6 +2,10 @@
 
 MCP server for file read/write operations.
 
+## Requirements
+
+- Python 3.12+
+
 ## Features
 
 - Read/write text files
@@ -26,21 +30,24 @@ MCP server for file read/write operations.
 | `list_directory` | List files in a directory |
 | `delete_file` | Delete a file |
 
+## Installation
+
+```bash
+# From the repository root
+uv sync --package file-management
+```
+
 ## Usage
 
 ```bash
-# Run standalone (from repository root)
-cd src/file-management && uv run python -m file_management
-
-# Or using fastmcp directly
-cd src/file-management && uv run fastmcp run src/file_management/server.py:mcp
-
-# Or enable in composite server
-# Set enabled: true in composite-config.yaml
+uv run python -m file_management
 ```
+
+See [server guide](../../docs/server-guide.md) for common CLI options.
 
 ## Testing
 
 ```bash
-cd src/file-management && uv run pytest -v
+cd src/file-management
+uv run pytest -v
 ```
