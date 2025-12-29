@@ -8,8 +8,9 @@ from core import WORKSPACE, get_workspace
 
 from . import mcp
 
-# Maximum file size for read operations (100MB)
+# Maximum file size for read/write operations (100MB)
 MAX_FILE_SIZE = 100 * 1024 * 1024
+MAX_WRITE_SIZE = MAX_FILE_SIZE
 
 # Unix system paths
 FORBIDDEN_WRITE_PATHS_UNIX = [
@@ -47,10 +48,12 @@ FORBIDDEN_WRITE_PATHS = FORBIDDEN_WRITE_PATHS_WINDOWS if platform.system() == "W
 
 def _is_path_in_forbidden(resolved: Path, forbidden: str) -> bool:
     """Check if resolved path is inside a forbidden directory."""
-    # Use string-based check to avoid race conditions with filesystem state
     resolved_str = str(resolved)
+    # Normalize case on case-insensitive filesystems (macOS, Windows)
+    if platform.system() in ("Darwin", "Windows"):
+        resolved_str = resolved_str.lower()
+        forbidden = forbidden.lower()
     # Ensure we match directory boundaries (e.g., /etc matches /etc/passwd but not /etcetera)
-    # Use os.sep for cross-platform compatibility (/ on Unix, \ on Windows)
     if resolved_str == forbidden or resolved_str.startswith(forbidden + os.sep):
         return True
     return False
@@ -89,6 +92,8 @@ def write_file(file_path: str, content: str, encoding: str = "utf-8") -> str:
     """
     Write text content to a file. Supports large files that exceed shell input limits.
 
+    Note: Can write to any user-accessible location. Use get_workspace_path() for safe storage.
+
     Args:
         file_path: Path to the file to write (supports ~ expansion)
         content: Text content to write to the file
@@ -98,6 +103,10 @@ def write_file(file_path: str, content: str, encoding: str = "utf-8") -> str:
         Success message with file path and size, or error message
     """
     try:
+        content_bytes = content.encode(encoding)
+        if len(content_bytes) > MAX_WRITE_SIZE:
+            return f"Error: Content too large ({len(content_bytes):,} bytes, max: {MAX_WRITE_SIZE:,})"
+
         path = Path(file_path).expanduser().resolve()
         _validate_write_path(path)
 
@@ -119,6 +128,8 @@ def write_binary(file_path: str, content_base64: str) -> str:
     """
     Write binary content (base64 encoded) to a file.
 
+    Note: Can write to any user-accessible location. Use get_workspace_path() for safe storage.
+
     Args:
         file_path: Path to the file to write (supports ~ expansion)
         content_base64: Base64-encoded binary content
@@ -127,11 +138,14 @@ def write_binary(file_path: str, content_base64: str) -> str:
         Success message with file path and size, or error message
     """
     try:
+        content = base64.b64decode(content_base64)
+        if len(content) > MAX_WRITE_SIZE:
+            return f"Error: Content too large ({len(content):,} bytes, max: {MAX_WRITE_SIZE:,})"
+
         path = Path(file_path).expanduser().resolve()
         _validate_write_path(path)
 
         path.parent.mkdir(parents=True, exist_ok=True)
-        content = base64.b64decode(content_base64)
         path.write_bytes(content)
 
         size = path.stat().st_size
@@ -151,6 +165,8 @@ def append_file(file_path: str, content: str, encoding: str = "utf-8") -> str:
     """
     Append text content to a file. Creates the file if it doesn't exist.
 
+    Note: Can write to any user-accessible location. Use get_workspace_path() for safe storage.
+
     Args:
         file_path: Path to the file to append to (supports ~ expansion)
         content: Text content to append
@@ -160,6 +176,10 @@ def append_file(file_path: str, content: str, encoding: str = "utf-8") -> str:
         Success message with file path and new size, or error message
     """
     try:
+        content_bytes = content.encode(encoding)
+        if len(content_bytes) > MAX_WRITE_SIZE:
+            return f"Error: Content too large ({len(content_bytes):,} bytes, max: {MAX_WRITE_SIZE:,})"
+
         path = Path(file_path).expanduser().resolve()
         _validate_write_path(path)
 
@@ -286,6 +306,8 @@ def list_directory(dir_path: str, pattern: str = "*") -> str:
 def delete_file(file_path: str) -> str:
     """
     Delete a file.
+
+    Note: Can delete any user-accessible file. Use with caution.
 
     Args:
         file_path: Path to the file to delete (supports ~ expansion)
