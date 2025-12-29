@@ -60,5 +60,6 @@ See [server guide](../../docs/server-guide.md) for common CLI options.
 ## Testing
 
 ```bash
+cd src/img2pptx
 uv run pytest -v
 ```

@@ -2,18 +2,6 @@
 
 MCP server for creating and managing Dify AI agents, workflows, and knowledge bases.
 
-## Requirements
-
-- Python 3.12+
-- Dify API key
-
-## Installation
-
-```bash
-# From the repository root
-uv sync --package dify
-```
-
 ## Features
 
 - **Agent & Workflow**: Import/export DSL, generate templates, support for chatbots/agents/workflows
@@ -42,6 +30,30 @@ uv sync --package dify
 - `create_data_processing_workflow` - Batch processing workflows
 - `create_agent_with_tools` - Agents with external tool access
 
+## Requirements
+
+- Python 3.12+
+- Dify API key
+
+## Installation
+
+```bash
+# From the repository root
+uv sync --package dify
+```
+
+## Usage
+
+```bash
+# Create .env file with API keys
+cp .env.example .env
+
+# Run server
+uv run python -m dify
+```
+
+See [server guide](../../docs/server-guide.md) for common CLI options.
+
 ## Configuration
 
 | Variable | Required | Description |
@@ -59,18 +71,6 @@ Get API keys from Dify: App Settings > API Access (service key) or Workspace Set
 DIFY_BASE_URL=http://localhost/v1
 DIFY_CONSOLE_BASE_URL=http://localhost
 ```
-
-## Usage
-
-```bash
-# Create .env file with API keys
-cp .env.example .env
-
-# Run server
-uv run python -m dify
-```
-
-See [server guide](../../docs/server-guide.md) for common CLI options.
 
 ## Testing
 
