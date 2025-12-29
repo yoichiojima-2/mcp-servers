@@ -39,19 +39,19 @@ servers:
     description: vector database operations
 
   browser:
-    enabled: false
+    enabled: true
     prefix: browser
     module: browser
     description: browser automation
 
   frontend-design:
-    enabled: false
+    enabled: true
     prefix: design
     module: frontend_design
     description: design principles, themes, and color palettes
 
   nano-banana:
-    enabled: false
+    enabled: true
     prefix: img
     module: nano_banana
     description: AI image generation with Google Gemini
@@ -75,13 +75,13 @@ servers:
     description: Convert images to PPTX using GPT-5.2
 
   o3:
-    enabled: false
+    enabled: true
     prefix: o3
     module: o3_search
     description: O3 AI-powered web search
 
   preview:
-    enabled: false
+    enabled: true
     prefix: preview
     module: preview
     description: HTML preview server with live reload
