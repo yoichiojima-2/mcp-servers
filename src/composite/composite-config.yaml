@@ -62,6 +62,12 @@ servers:
     module: dify
     description: Dify workflow integration
 
+  file-management:
+    enabled: true
+    prefix: file
+    module: file_management
+    description: file read/write operations
+
   img2pptx:
     enabled: false
     prefix: img2pptx

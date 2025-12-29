@@ -30,6 +30,7 @@ members = [
     "src/data-analysis",
     "src/dify",
     "src/docx",
+    "src/file-management",
     "src/frontend-design",
     "src/img2pptx",
     "src/nano-banana",
