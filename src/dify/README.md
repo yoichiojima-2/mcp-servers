@@ -30,6 +30,30 @@ MCP server for creating and managing Dify AI agents, workflows, and knowledge ba
 - `create_data_processing_workflow` - Batch processing workflows
 - `create_agent_with_tools` - Agents with external tool access
 
+## Requirements
+
+- Python 3.12+
+- Dify API key
+
+## Installation
+
+```bash
+# From the repository root
+uv sync --package dify
+```
+
+## Usage
+
+```bash
+# Create .env file with API keys
+cp .env.example .env
+
+# Run server
+uv run python -m dify
+```
+
+See [server guide](../../docs/server-guide.md) for common CLI options.
+
 ## Configuration
 
 | Variable | Required | Description |
@@ -48,17 +72,12 @@ DIFY_BASE_URL=http://localhost/v1
 DIFY_CONSOLE_BASE_URL=http://localhost
 ```
 
-## Usage
+## Testing
 
 ```bash
-# Create .env file with API keys
-cp .env.example .env
-
-# Run server
-uv run python -m dify
+cd src/dify
+uv run pytest -v
 ```
-
-See [server guide](../../docs/server-guide.md) for common CLI options.
 
 ## Resources
 

@@ -36,6 +36,16 @@ MCP server for PowerPoint presentation creation and analysis, using Marp for pro
 - Chrome, Edge, or Firefox (for PPTX export)
 - LibreOffice (optional, for slide image export)
 
+## Installation
+
+```bash
+# From the repository root
+uv sync --package pptx
+
+# Install Marp CLI
+npm install -g @marp-team/marp-cli
+```
+
 ## Marp Markdown Syntax
 
 ```markdown
@@ -74,6 +84,13 @@ uv run python -m pptx_mcp
 ```
 
 See [server guide](../../docs/server-guide.md) for common CLI options.
+
+## Testing
+
+```bash
+cd src/pptx
+uv run pytest -v
+```
 
 ## Module Naming
 

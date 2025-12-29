@@ -37,8 +37,8 @@ Convert multiple slide images to a single PPTX.
 ## Installation
 
 ```bash
-cd src/img2pptx
-uv sync
+# From the repository root
+uv sync --package img2pptx
 ```
 
 ## Configuration
@@ -52,11 +52,14 @@ export OPENAI_API_KEY=your-api-key
 ## Usage
 
 ```bash
-uv run fastmcp run server.py
+uv run python -m img2pptx
 ```
+
+See [server guide](../../docs/server-guide.md) for common CLI options.
 
 ## Testing
 
 ```bash
+cd src/img2pptx
 uv run pytest -v
 ```

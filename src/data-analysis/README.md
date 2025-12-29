@@ -9,18 +9,6 @@ MCP server for data analysis using SQL queries on tabular data. Built with [Duck
 - **Result Caching**: Retrieve results from previous queries without re-execution
 - **Math Operations**: Basic arithmetic tools (add, sub, mul, div)
 
-## Usage
-
-```bash
-# Run with stdio (default)
-uv run python -m data_analysis
-
-# Run with SSE transport
-uv run python -m data_analysis --transport sse --port 8002
-```
-
-See [server guide](../../docs/server-guide.md) for common CLI options.
-
 ## Tools
 
 | Tool | Description |
@@ -32,6 +20,30 @@ See [server guide](../../docs/server-guide.md) for common CLI options.
 | `clear_query_history` | Clear all query history |
 | `add`, `sub`, `mul`, `div` | Basic arithmetic operations |
 | `get_data_analysis_prompt` | Get a pre-built data analysis prompt |
+
+## Requirements
+
+- Python 3.12+
+- DuckDB
+
+## Installation
+
+```bash
+# From the repository root
+uv sync --package data-analysis
+```
+
+## Usage
+
+```bash
+# Run with stdio (default)
+uv run python -m data_analysis
+
+# Run with SSE transport
+uv run python -m data_analysis --transport sse --port 8002
+```
+
+See [server guide](../../docs/server-guide.md) for common CLI options.
 
 ## Example
 
@@ -60,3 +72,10 @@ Use the `get_workspace_path()` tool to get the workspace directory path.
 | `DATA_ANALYSIS_MAX_RESULT_SIZE` | 1MB | Maximum size for cached results |
 | `DATA_ANALYSIS_MAX_HISTORY_SIZE` | 100 | Maximum queries to keep in history |
 | `DATA_ANALYSIS_CLEANUP_FREQUENCY` | 10 | Run cleanup every N queries |
+
+## Testing
+
+```bash
+cd src/data-analysis
+uv run pytest -v
+```

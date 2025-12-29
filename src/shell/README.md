@@ -30,9 +30,15 @@ If `ALLOWED_COMMANDS` is not set or empty, **all commands are allowed** (use wit
 ## Requirements
 
 - Python 3.12+
-- uv
 
-## Running
+## Installation
+
+```bash
+# From the repository root
+uv sync --package shell
+```
+
+## Usage
 
 ### Using uv (stdio transport)
 
@@ -54,6 +60,8 @@ uv run python -m shell --transport sse --port 8013
 cd src/shell
 docker compose up
 ```
+
+See [server guide](../../docs/server-guide.md) for common CLI options.
 
 ## Environment Variables
 

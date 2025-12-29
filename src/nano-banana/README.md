@@ -2,6 +2,18 @@
 
 MCP server for AI image generation using Google Gemini's Nano Banana models.
 
+## Requirements
+
+- Python 3.12+
+- Google Gemini API key
+
+## Installation
+
+```bash
+# From the repository root
+uv sync --package nano-banana
+```
+
 ## Features
 
 - **Text-to-Image**: Generate images from text descriptions
@@ -44,3 +56,10 @@ uv run python -m nano_banana
 ```
 
 See [server guide](../../docs/server-guide.md) for common CLI options.
+
+## Testing
+
+```bash
+cd src/nano-banana
+uv run pytest -v
+```

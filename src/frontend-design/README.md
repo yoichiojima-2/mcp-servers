@@ -2,6 +2,17 @@
 
 MCP server providing design principles, themes, and color palettes for composable use across other MCP servers.
 
+## Requirements
+
+- Python 3.12+
+
+## Installation
+
+```bash
+# From the repository root
+uv sync --package frontend-design
+```
+
 ## Features
 
 - **Design Prompts**: Comprehensive design guidance for presentations, documents, and web interfaces
@@ -68,3 +79,10 @@ theme = get_theme("noir")
 ```
 
 See [server guide](../../docs/server-guide.md) for common CLI options.
+
+## Testing
+
+```bash
+cd src/frontend-design
+uv run pytest -v
+```

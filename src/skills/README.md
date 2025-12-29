@@ -14,6 +14,33 @@ MCP server for discovering and loading Claude skills.
 | `list_skills` | List all available skills with name and description |
 | `load_skill` | Load a skill's full instructions and resources |
 
+## Requirements
+
+- Python 3.12+
+- Dependencies: python-frontmatter, pyyaml
+
+## Installation
+
+```bash
+# From the repository root
+uv sync --package skills
+```
+
+## Usage
+
+```bash
+# stdio transport (default)
+uv run python -m skills
+
+# SSE transport
+uv run python -m skills --transport sse --port 8014
+
+# With auto-reload
+make serve
+```
+
+See [server guide](../../docs/server-guide.md) for common CLI options.
+
 ## Configuration
 
 Create a `skills.yaml` file:
@@ -50,31 +77,6 @@ Skill instructions in markdown format.
 **Skill name rules:** Names must contain only lowercase letters, numbers, and hyphens (e.g., `my-skill`, `code-review`).
 
 Optional `scripts/` directory contains executable scripts that can be run via bash.
-
-## Requirements
-
-- Python 3.12+
-- Dependencies: python-frontmatter, pyyaml
-
-## Installation
-
-```bash
-cd src/skills
-make install
-```
-
-## Running
-
-```bash
-# stdio transport (default)
-uv run python -m skills
-
-# SSE transport
-uv run python -m skills --transport sse --port 8014
-
-# With auto-reload
-make serve
-```
 
 ## Testing
 

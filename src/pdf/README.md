@@ -31,6 +31,13 @@ MCP server for PDF extraction and manipulation.
 - Optional: `uv sync --extra ocr` for OCR support
 - Optional: `uv sync --extra create` for PDF creation
 
+## Installation
+
+```bash
+# From the repository root
+uv sync --package pdf
+```
+
 ## Page Range Syntax
 
 - `1-3`: Pages 1 through 3
@@ -45,3 +52,10 @@ uv run python -m pdf
 ```
 
 See [server guide](../../docs/server-guide.md) for common CLI options.
+
+## Testing
+
+```bash
+cd src/pdf
+uv run pytest -v
+```

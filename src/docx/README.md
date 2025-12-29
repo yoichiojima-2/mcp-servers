@@ -24,6 +24,13 @@ MCP server for Word document (.docx) creation, editing, and analysis.
 - pandoc (for markdown conversion)
 - LibreOffice (for PDF conversion and validation)
 
+## Installation
+
+```bash
+# From the repository root
+uv sync --package docx
+```
+
 ## Usage
 
 ```bash
@@ -31,3 +38,10 @@ uv run python -m docx
 ```
 
 See [server guide](../../docs/server-guide.md) for common CLI options.
+
+## Testing
+
+```bash
+cd src/docx
+uv run pytest -v
+```
