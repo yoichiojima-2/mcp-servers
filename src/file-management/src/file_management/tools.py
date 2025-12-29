@@ -4,7 +4,7 @@ import os
 import platform
 from pathlib import Path
 
-from core import get_workspace
+from core import WORKSPACE, get_workspace
 
 from . import mcp
 
@@ -79,9 +79,9 @@ def get_workspace_path() -> str:
     Use this directory for any files you need to create or store.
 
     Returns:
-        Path to ~/.mcp-servers/file-management/ where files should be saved.
+        Path to ~/.mcp-servers/workspace/ where files should be saved.
     """
-    return str(get_workspace("file-management"))
+    return str(get_workspace(WORKSPACE))
 
 
 @mcp.tool()

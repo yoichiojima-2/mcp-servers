@@ -182,6 +182,7 @@ Replace `<server-name>` and `<module_name>` with the appropriate values from the
 | data-analysis | `data_analysis` | 8002 | DuckDB SQL data analysis |
 | dify | `dify` | 8003 | Dify AI workflow integration |
 | docx | `docx` | 8004 | Word document operations |
+| file-management | `file_management` | 8005 | File read/write operations |
 | frontend-design | `frontend_design` | 8006 | Design themes and palettes |
 | img2pptx | `img2pptx` | 8007 | Image to PPTX conversion (GPT-5.2) |
 | nano-banana | `nano_banana` | 8008 | AI image generation (Gemini) |
