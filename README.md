@@ -15,6 +15,7 @@ This monorepo contains multiple MCP servers built with [FastMCP](https://github.
 | [data-analysis](src/data-analysis) | 8002 | SQL data analysis with DuckDB |
 | [dify](src/dify) | 8003 | Dify AI workflow integration |
 | [docx](src/docx) | 8004 | Word document operations |
+| [file-management](src/file-management) | 8005 | File read/write operations |
 | [frontend-design](src/frontend-design) | 8006 | Design themes and color palettes |
 | [img2pptx](src/img2pptx) | 8007 | Image to PPTX conversion |
 | [nano-banana](src/nano-banana) | 8008 | AI image generation with Google Gemini |
