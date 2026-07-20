@@ -1,6 +1,6 @@
 # MCP Servers
 
-A collection of Model Context Protocol (MCP) servers for document processing, data operations, and AI integrations.
+17 Model Context Protocol (MCP) servers in daily use — browser automation, document processing, data operations, and AI integrations.
 
 ## Overview
 
