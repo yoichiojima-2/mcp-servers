@@ -46,7 +46,7 @@ Some servers require API keys. Add them to your Claude Desktop config (see below
 | vectorstore | `OPENAI_API_KEY` |
 | dify | `DIFY_API_KEY` |
 
-**No API keys needed:** data-analysis, xlsx, pdf, docx, pptx, frontend-design, browser, preview, shell, skills
+**No API keys needed:** data-analysis, xlsx, pdf, docx, pptx, file-management, frontend-design, browser, preview, shell, skills
 
 ### 4. Run the server
 
@@ -70,8 +70,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
   "mcpServers": {
     "mcp-servers": {
       "command": "uv",
-      "args": ["run", "python", "-m", "composite"],
-      "cwd": "/absolute/path/to/mcp-servers/src/composite",
+      "args": ["run", "--directory", "/absolute/path/to/mcp-servers/src/composite", "python", "-m", "composite"],
       "env": {
         "GEMINI_API_KEY": "your-key",
         "OPENAI_API_KEY": "your-key"
@@ -98,16 +97,17 @@ Each server's tools are namespaced with a prefix:
 |--------|--------|---------|
 | browser | `browser_` | `browser_navigate` |
 | data-analysis | `data_` | `data_query` |
-| dify | `dify_` | `dify_chat` |
-| docx | `docx_` | `docx_create` |
-| frontend-design | `design_` | `design_palette` |
-| img2pptx | `img2pptx_` | `img2pptx_convert` |
-| nano-banana | `img_` | `img_generate` |
+| dify | `dify_` | `dify_chat_message` |
+| docx | `docx_` | `docx_unpack` |
+| file-management | `file_` | `file_read_file` |
+| frontend-design | `design_` | `design_design_list_themes` |
+| img2pptx | `img2pptx_` | `img2pptx_image_to_pptx` |
+| nano-banana | `img_` | `img_generate_image` |
 | o3 | `o3_` | `o3_o3` |
-| pdf | `pdf_` | `pdf_extract` |
-| pptx | `pptx_` | `pptx_create` |
-| preview | `preview_` | `preview_show` |
-| shell | `shell_` | `shell_run` |
+| pdf | `pdf_` | `pdf_extract_text` |
+| pptx | `pptx_` | `pptx_extract_text` |
+| preview | `preview_` | `preview_serve_html` |
+| shell | `shell_` | `shell_shell` |
 | skills | `skills_` | `skills_list_skills` |
-| vectorstore | `vec_` | `vec_search` |
-| xlsx | `xlsx_` | `xlsx_read` |
+| vectorstore | `vec_` | `vec_query` |
+| xlsx | `xlsx_` | `xlsx_read_excel` |

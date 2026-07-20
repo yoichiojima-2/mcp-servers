@@ -1,137 +1,103 @@
 # MCP Servers
 
-17 Model Context Protocol (MCP) servers in daily use — browser automation, document processing, data operations, and AI integrations.
+A monorepo of 17 [Model Context Protocol](https://modelcontextprotocol.io/) servers built with [FastMCP](https://github.com/jlowin/fastmcp), covering browser automation, document processing, data analysis, and AI service integrations. Each server runs standalone or mounted behind a single composite endpoint.
 
-## Overview
+## Servers
 
-This monorepo contains multiple MCP servers built with [FastMCP](https://github.com/jlowin/fastmcp), each specialized for different tasks. All servers follow consistent patterns and can be deployed individually or as a composite server.
+| Server | Module | Port | Description |
+|--------|--------|------|-------------|
+| [composite](src/composite) | `composite` | 8000 | Aggregates the other servers into one endpoint |
+| [browser](src/browser) | `browser` | 8001 | Browser automation using Playwright |
+| [data-analysis](src/data-analysis) | `data_analysis` | 8002 | SQL data analysis with DuckDB |
+| [dify](src/dify) | `dify` | 8003 | Dify AI workflow integration |
+| [docx](src/docx) | `docx` | 8004 | Word document operations |
+| [file-management](src/file-management) | `file_management` | 8005 | File read/write operations |
+| [frontend-design](src/frontend-design) | `frontend_design` | 8006 | Design themes and color palettes |
+| [img2pptx](src/img2pptx) | `img2pptx` | 8007 | Image to PPTX conversion via OpenAI vision |
+| [nano-banana](src/nano-banana) | `nano_banana` | 8008 | AI image generation with Google Gemini |
+| [o3](src/o3) | `o3_search` | 8009 | Deep research with OpenAI o3 web search |
+| [pdf](src/pdf) | `pdf` | 8010 | PDF extraction and manipulation |
+| [pptx](src/pptx) | `pptx_mcp` | 8011 | PowerPoint operations |
+| [preview](src/preview) | `preview` | 8012 | HTML preview with live reload |
+| [shell](src/shell) | `shell` | 8013 | Shell command execution with an allowlist |
+| [skills](src/skills) | `skills` | 8014 | Claude skills discovery and loading |
+| [vectorstore](src/vectorstore) | `vectorstore` | 8015 | ChromaDB vector operations |
+| [xlsx](src/xlsx) | `xlsx` | 8016 | Excel spreadsheet operations |
 
-## Available Servers
-
-| Server | Port | Description |
-|--------|------|-------------|
-| [composite](src/composite) | 8000 | Combines multiple MCP servers into one |
-| [browser](src/browser) | 8001 | Browser automation using Playwright |
-| [data-analysis](src/data-analysis) | 8002 | SQL data analysis with DuckDB |
-| [dify](src/dify) | 8003 | Dify AI workflow integration |
-| [docx](src/docx) | 8004 | Word document operations |
-| [file-management](src/file-management) | 8005 | File read/write operations |
-| [frontend-design](src/frontend-design) | 8006 | Design themes and color palettes |
-| [img2pptx](src/img2pptx) | 8007 | Image to PPTX conversion |
-| [nano-banana](src/nano-banana) | 8008 | AI image generation with Google Gemini |
-| [o3](src/o3) | 8009 | Deep research with OpenAI o3 |
-| [pdf](src/pdf) | 8010 | PDF extraction and manipulation |
-| [pptx](src/pptx) | 8011 | PowerPoint operations |
-| [preview](src/preview) | 8012 | HTML preview with live reload |
-| [shell](src/shell) | 8013 | Shell command execution |
-| [skills](src/skills) | 8014 | Claude skills discovery and loading |
-| [vectorstore](src/vectorstore) | 8015 | ChromaDB vector operations |
-| [xlsx](src/xlsx) | 8016 | Excel spreadsheet operations |
+A shared `core` package (`src/core`) provides the CLI argument parsing and transport startup used by every server.
 
 ## Quick Start
 
-### Requirements
-
-- Python 3.12+
-- [uv](https://github.com/astral-sh/uv) for package management
-
-### Installation
+Requirements: Python 3.12+ and [uv](https://github.com/astral-sh/uv).
 
 ```bash
-# Install all dependencies
-uv sync --dev
+git clone https://github.com/yoichiojima-2/mcp-servers.git
+cd mcp-servers
+uv sync --all-packages --dev
 ```
 
-### Running a Server
+Run any server by its module name (see table above):
 
 ```bash
-# Using uv (recommended)
-uv run python -m <module_name>
-
-# Examples
-uv run python -m xlsx                    # Run xlsx server (stdio)
-uv run python -m xlsx --transport sse    # Run with SSE transport
+uv run python -m xlsx                    # stdio transport (default)
+uv run python -m xlsx --transport sse    # SSE transport
 ```
 
-### Docker (Optional)
+All servers accept the same CLI options — `--transport {stdio,sse,streamable-http}`, `--host`, `--port`, `--allow-origin` — or the equivalent `TRANSPORT`, `HOST`, `PORT`, `ALLOW_ORIGIN` environment variables.
+
+Each server also ships a Dockerfile and `docker-compose.yml`:
 
 ```bash
 cd src/<server>
 docker compose up
 ```
 
-## CLI Options
+See [docs/quickstart.md](docs/quickstart.md) for Claude Desktop integration and [.env.example](.env.example) for the API keys some servers require.
 
-All servers support these command-line arguments:
+## Architecture
 
-```bash
-uv run python -m <module> --help
+This is a `uv` workspace monorepo: one root `pyproject.toml` and a single `uv.lock` pin consistent dependency versions across all packages, while each server declares only its own extra dependencies.
 
-Options:
-  --transport {stdio,sse,streamable-http}  Transport protocol (default: stdio)
-  --host HOST                               Host to bind to (default: 0.0.0.0)
-  --port PORT                               Port to listen on (server-specific default)
-  --allow-origin ORIGIN                     CORS allowed origin (default: *)
-```
-
-Environment variables (`TRANSPORT`, `HOST`, `PORT`, `ALLOW_ORIGIN`) can be used instead of CLI arguments.
-
-## Project Structure
+The **composite server** implements an aggregator pattern. Driven by [composite-config.yaml](src/composite/composite-config.yaml), it imports each enabled server's FastMCP instance and mounts it under a tool prefix (`browser_navigate`, `data_query`, ...), so a client like Claude Desktop needs a single MCP connection instead of one per server. Servers can be toggled per deployment by flipping `enabled` in the config.
 
 ```
 mcp-servers/
 ├── src/
-│   ├── core/           # Shared CLI utilities
+│   ├── core/           # Shared CLI and transport utilities
 │   ├── browser/        # Individual server packages
 │   ├── data-analysis/
 │   ├── ...
-│   └── composite/      # Aggregates all servers
-├── docs/               # Shared documentation
-├── pyproject.toml      # Root workspace config
-└── uv.lock             # Unified lock file
+│   └── composite/      # Mounts enabled servers behind one endpoint
+├── docs/               # Quickstart and server guide
+├── examples/           # Claude Desktop / Dify configs, sample output
+├── pyproject.toml      # Workspace root
+└── uv.lock             # Single lock file for all packages
 ```
 
-This repository uses a **Google-style monorepo** with `uv` workspaces:
+## Testing and CI
 
-- **Root `pyproject.toml`**: Global dependencies (fastmcp, python-dotenv, pytest, ruff)
-- **Server `pyproject.toml`**: Server-specific dependencies
-- **Single `uv.lock`**: Consistent versions across all servers
-
-## Testing
+Each server has its own test suite under `src/<server>/tests/`. Run them from the server directory:
 
 ```bash
-# Run tests for a specific server
 cd src/<server>
 uv run pytest -v
-
-# Run all tests from root
-uv run pytest
 ```
 
-## Development
+GitHub Actions runs the full matrix — every server's tests plus a lockfile freshness check — on each push and pull request ([.github/workflows/test.yml](.github/workflows/test.yml)).
 
-See [CLAUDE.md](CLAUDE.md) for development guidelines and [docs/server-guide.md](docs/server-guide.md) for detailed server documentation.
-
-### Adding a New Server
-
-1. Create directory structure under `src/<server-name>/`
-2. Add to workspace members in root `pyproject.toml`
-3. Add to `.github/workflows/test.yml` if needed
-4. Optionally add to `src/composite/composite-config.yaml`
-
-### Linting
+Lint and format with ruff:
 
 ```bash
 uv run ruff check --fix
 uv run ruff format
 ```
 
-## Resources
+## Development
 
-- [MCP Documentation](https://modelcontextprotocol.io/)
-- [FastMCP Framework](https://github.com/jlowin/fastmcp)
-- [uv Package Manager](https://github.com/astral-sh/uv)
+See [CLAUDE.md](CLAUDE.md) for contribution guidelines and [docs/server-guide.md](docs/server-guide.md) for detailed per-server reference.
+
+To add a new server: create `src/<server-name>/`, register it in the root `pyproject.toml` workspace members and the CI matrix, and optionally add it to `src/composite/composite-config.yaml`.
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT — see [LICENSE](LICENSE).

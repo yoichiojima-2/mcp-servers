@@ -7,8 +7,8 @@ This guide covers common operations for all MCP servers in this monorepo.
 All servers share the same installation process using `uv`:
 
 ```bash
-# Install all dependencies
-uv sync --dev
+# Install all servers and dependencies (run from the repo root)
+uv sync --all-packages --dev
 
 # Or install a specific server
 uv sync --package <server-name>
@@ -137,13 +137,11 @@ Named volumes persist across container restarts and removals. Data is only delet
 
 ## Testing
 
+Tests run per server, from the server directory (this is also how CI runs them):
+
 ```bash
-# Run tests for a specific server
 cd src/<server-name>
 uv run pytest -v
-
-# Run all tests
-uv run pytest
 ```
 
 ## Claude Desktop Configuration
@@ -297,9 +295,9 @@ Old environment variables (`WORKSPACE`, `DATA_ANALYSIS_WORKSPACE`, `BROWSER_WORK
    - Remove `BROWSER_WORKSPACE`
    - Remove `PREVIEW_WORKSPACE`
 
-3. (Optional) Download sample datasets for testing:
+3. (Optional) Download a sample dataset for testing:
    ```bash
-   ./scripts/download-sample-data.sh
+   ./src/data-analysis/bin/download_titanic.sh
    ```
 
 **File naming best practices**: With all servers sharing a workspace, use descriptive filenames to avoid conflicts:
