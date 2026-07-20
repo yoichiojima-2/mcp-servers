@@ -1,3 +1,4 @@
+import asyncio
 """Tests for skills MCP tools."""
 
 from pathlib import Path
@@ -10,7 +11,7 @@ from skills import mcp
 
 def get_tool(name: str):
     """Get a tool function by name."""
-    return mcp._tool_manager._tools[name].fn
+    return asyncio.run(mcp.get_tool(name)).fn
 
 
 @pytest.fixture(autouse=True)

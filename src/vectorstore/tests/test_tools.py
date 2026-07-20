@@ -1,3 +1,4 @@
+import asyncio
 import json
 
 from vectorstore import mcp
@@ -5,7 +6,7 @@ from vectorstore import mcp
 
 def get_tool(name: str):
     """Get a tool function by name."""
-    return mcp._tool_manager._tools[name].fn
+    return asyncio.run(mcp.get_tool(name)).fn
 
 
 class TestCreateCollection:

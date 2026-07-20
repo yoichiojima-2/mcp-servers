@@ -1,11 +1,9 @@
 import textwrap
 
-from fastmcp.prompts.prompt import PromptMessage, TextContent
-
 from . import mcp
 
 
-def data_analysis_prompt(input, tools, scratchpad) -> PromptMessage:
+def data_analysis_prompt(input, tools, scratchpad) -> str:
     prompt = textwrap.dedent(
         f"""
         ## instruction
@@ -32,19 +30,14 @@ def data_analysis_prompt(input, tools, scratchpad) -> PromptMessage:
         """
     ).strip()
 
-    content = TextContent(
-        type="text",
-        text=prompt,
-    )
-
-    return PromptMessage(role="assistant", content=content)
+    return prompt
 
 
 @mcp.prompt
-def data_analysis(input, tools, scratchpad) -> PromptMessage:
+def data_analysis(input, tools, scratchpad) -> str:
     return data_analysis_prompt(input, tools, scratchpad)
 
 
 @mcp.tool()
-def get_data_analysis_prompt(input, scratchpad, tools) -> PromptMessage:
+def get_data_analysis_prompt(input, scratchpad, tools) -> str:
     return data_analysis_prompt(input, tools, scratchpad)

@@ -3,6 +3,7 @@
 import os
 import re
 import sys
+from contextlib import contextmanager
 from threading import Lock
 from typing import Optional
 
@@ -78,6 +79,11 @@ class HistoryDB:
         self.db_path = db_path
         self._counter_lock = Lock()  # Lock for thread-safe counter increment
         self._cleanup_in_progress = False  # Flag to prevent concurrent cleanup
+        # Single shared connection: duckdb no longer allows concurrent
+        # connections to the same file within a process, and connections are
+        # not thread-safe, so all access is serialized through _db_lock.
+        self._db_lock = Lock()
+        self._conn = duckdb.connect(self.db_path)
         self._init_schema()
 
         # Set secure permissions on database file (owner-only read/write)
@@ -90,13 +96,19 @@ class HistoryDB:
             pass
 
         # Initialize counter from database to prevent drift after restart/clear
-        with duckdb.connect(self.db_path) as conn:
+        with self._connection() as conn:
             count = conn.execute("SELECT COUNT(*) FROM query_history").fetchone()[0]
             self._query_count = count
 
+    @contextmanager
+    def _connection(self):
+        """Serialized access to the shared connection."""
+        with self._db_lock:
+            yield self._conn
+
     def _init_schema(self):
         """Initialize the database schema."""
-        with duckdb.connect(self.db_path) as conn:
+        with self._connection() as conn:
             conn.execute("""
                 CREATE SEQUENCE IF NOT EXISTS query_history_id_seq START 1
             """)
@@ -154,7 +166,7 @@ class HistoryDB:
             result = truncated + "\n\n... (result truncated due to size limit)"
 
         # Insert query in its own transaction
-        with duckdb.connect(self.db_path) as conn:
+        with self._connection() as conn:
             conn.execute(
                 """
                 INSERT INTO query_history (query, result, execution_time_ms, row_count, error, success)
@@ -175,7 +187,7 @@ class HistoryDB:
         # Run cleanup in separate transaction to avoid rolling back the insert
         if should_cleanup:
             try:
-                with duckdb.connect(self.db_path) as conn:
+                with self._connection() as conn:
                     # Keep only the last MAX_HISTORY_SIZE queries
                     # Use ID-based deletion which leverages primary key index
                     # This operation is idempotent - safe if multiple threads execute it
@@ -210,7 +222,7 @@ class HistoryDB:
         if limit < 1 or limit > 1000:
             return "Error: limit must be between 1 and 1000"
 
-        with duckdb.connect(self.db_path) as conn:
+        with self._connection() as conn:
             result = conn.execute(
                 """
                 SELECT
@@ -245,7 +257,7 @@ class HistoryDB:
         if query_id < 1:
             return f"Error: query_id must be a positive integer (got {query_id})"
 
-        with duckdb.connect(self.db_path) as conn:
+        with self._connection() as conn:
             result = conn.execute(
                 """
                 SELECT query, result, error, success
@@ -323,7 +335,7 @@ class HistoryDB:
         # Note: Parameterized queries prevent SQL injection; this is only for LIKE pattern matching
         escaped_term = search_term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
-        with duckdb.connect(self.db_path) as conn:
+        with self._connection() as conn:
             result = conn.execute(
                 """
                 SELECT
@@ -352,7 +364,7 @@ class HistoryDB:
         Returns:
             Success message with count of deleted queries
         """
-        with duckdb.connect(self.db_path) as conn:
+        with self._connection() as conn:
             # Use explicit transaction for atomicity
             conn.execute("BEGIN TRANSACTION")
             try:
