@@ -372,14 +372,11 @@ class HistoryDB:
                 # More efficient than RETURNING which creates a result set for each deleted row
                 count = conn.execute("SELECT COUNT(*) FROM query_history").fetchone()[0]
 
-                # Delete all history
+                # Delete all history. The ID sequence is intentionally NOT
+                # reset: the table's DEFAULT depends on it (newer duckdb
+                # rejects the drop) and ALTER SEQUENCE RESTART is not
+                # implemented, so IDs simply continue monotonically.
                 conn.execute("DELETE FROM query_history")
-
-                # Reset the sequence to start from 1 again
-                # This prevents ID gaps and potential sequence exhaustion over time
-                # DuckDB doesn't support ALTER SEQUENCE RESTART, so we drop and recreate
-                conn.execute("DROP SEQUENCE IF EXISTS query_history_id_seq")
-                conn.execute("CREATE SEQUENCE query_history_id_seq START 1")
 
                 conn.execute("COMMIT")
             except Exception:
