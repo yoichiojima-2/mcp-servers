@@ -178,7 +178,7 @@ When adding a new MCP server to the workspace:
 Default ports are assigned alphabetically, with composite reserved at 8000:
 
 - **composite**: 8000 (reserved for the aggregator server)
-- **Other servers**: 8001-8012, assigned alphabetically by server name
+- **Other servers**: 8001-8016, assigned alphabetically by server name
 
 When adding a new server, assign the next available port after the last alphabetically-sorted server. See `docs/server-guide.md` for the current port assignments.
 
@@ -209,7 +209,7 @@ This repository uses a **Google-style monorepo** with `uv` workspaces for unifie
 - Install all dependencies: `uv sync --dev` (run from root)
 - Add global dependency: Edit root `pyproject.toml`, then run `uv lock && uv sync --dev`
 - Add server-specific dependency: Edit `src/<server>/pyproject.toml`, then run `uv lock && uv sync --dev`
-- Run server: `cd src/<server> && uv run fastmcp run server.py`
+- Run server: `cd src/<server> && uv run python -m <module>`
 - Run tests: `cd src/<server> && uv run pytest -v`
 
 **Benefits:**
